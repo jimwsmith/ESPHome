@@ -1,7 +1,6 @@
 substitutions:
   friendly_name: "Fire3"
   esphome_name: "fire3"
-  backlight_entity: "light.fire3_display_backlight" #HA entity name of backlight that will be controlled by lvgl slider & sensor
   sensor_update: 60s
 
 esphome:

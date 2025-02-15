@@ -1,6 +1,17 @@
 esphome:
   name: ${esphome_name}
 
+text_sensor:
+  - platform: version
+    name: "Firmware Version"
+    id: firmware_version
+    on_value:
+        then:
+          - lvgl.label.update:
+              id: lbl_app_name
+              text:
+                format: "${friendly_name}\n%s"
+                args: [ 'id(firmware_version).state.c_str()' ]  
 #==========================================================================================================================
 lvgl:
   displays:
@@ -264,6 +275,7 @@ lvgl:
               - label:
                   grid_cell_column_pos: 0 # place the widget in
                   grid_cell_row_pos: 0 # the corresponding cell
+                  grid_cell_column_span: 2 #Span 2 columns as firmware version is a long string
                   grid_cell_x_align: STRETCH
                   grid_cell_y_align: STRETCH
                   id: lbl_app_name
