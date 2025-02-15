@@ -14,10 +14,17 @@ mqtt:
 #     - lvgl.widget.show: lbl_hastatus
 #   on_disconnect:
 #     - lvgl.widget.hide: lbl_hastatus
+
   on_message: 
-    topic: ${esphome_name}/reboot
-    then:
-      - button.press: restart_button
+    - topic: ${esphome_name}/restart
+      then:
+        - button.press: restart_button
+    - topic: ${esphome_name}/ota
+      then:
+        - logger.log: "Starting OTA"
+        - ota.http_request.flash:
+            md5_url: https://github.com/jimwsmith/ESPHome/releases/download/${esphome_name}_ota/firmware.md5
+            url: https://github.com/jimwsmith/ESPHome/releases/download/${esphome_name}_ota/firmware.ota.bin
 
 button: 
   - platform: restart

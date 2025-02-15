@@ -22,6 +22,7 @@ lvgl:
       left_button: M5_BtnA
       right_button: M5_BtnC
   resume_on_input: true #resume from pause on button press (encoder rotate)
+  id: lv_id #Only reqd so that ota can force updates to lvgl display even when main loop not running
 #==========================================================================================================================
   theme:
     label:
@@ -346,4 +347,48 @@ lvgl:
                 # - logger.log:
                 #     format: "Slider state: %f, %f"
                 #     args: [ x, x/255 ]
+        
+#==========================================================================================================================
+    - id: ota_page
+      widgets:
+        - obj:
+            align: TOP_MID
+            styles: header_footer
+            widgets:
+              - label:
+                  text: "Firmware Update"
+                  align: CENTER
+                  text_align: CENTER
+                  text_color: 0xFFFFFF
+        # - button:
+        #     x: 10
+        #     y: 40
+        #     width: 70
+        #     height: 30
+        #     id: btn_id
+        #     checkable: true
+        #     on_value:
+        #       then:
+        #         - logger.log:
+        #             format: "Button checked state: %d"
+        #             args: [ x ]
+        #     widgets:
+        #       - label:
+        #           align: center
+        #           text: "Backlight Dim"
+
+        - bar:
+            x: 50
+            y: 100
+            width: 220
+            id: bar_ota_progress
+            value: 1
+            min_value: 0
+            max_value: 100 #OTA progress
+        - label:
+            x: 50
+            y: 50
+            text_font: montserrat_28 # Bigger text
+            id: lbl_ota_source
+            text: "OTA"
         

@@ -20,9 +20,37 @@ esphome:
 #         then:
 #           - lvgl.widget.hide: lbl_hastatus
 
+http_request: 
+  verify_ssl: false #ESP32 cannot manage SSL connections
+
 ota:
-  - platform: esphome
+  - platform: http_request # Triggered by a specific MQTT message
+    on_begin:
+        - lvgl.page.show: ota_page
+        - lvgl.label.update:
+            id: lbl_ota_source
+            text: "MQTT Trigger"
+        - lambda: "id(lv_id).loop();" # Needed as main loop is blocked during OTA
+    on_progress:
+      then:
+        - lvgl.bar.update:
+            id: bar_ota_progress
+            value: !lambda "return (int)x;"
+        - lambda: "id(lv_id).loop();" # Needed as main loop is blocked during OTA
+  - platform: esphome # Triggered by a normal software upload on same network
     password: !secret ota_password
+    on_begin:
+        - lvgl.page.show: ota_page
+        - lvgl.label.update:
+            id: lbl_ota_source
+            text: "ESPHome OTA"
+        - lambda: "id(lv_id).loop();" # Needed as main loop is blocked during OTA
+    on_progress:
+      then:
+        - lvgl.bar.update:
+            id: bar_ota_progress
+            value: !lambda "return (int)x;"
+        - lambda: "id(lv_id).loop();" # Needed as main loop is blocked during OTA
 
 wifi:
   networks:
