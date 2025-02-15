@@ -1,0 +1,171 @@
+esphome:
+  name: ${esphome_name}
+
+sensor:
+  - platform: pmsa003i #Adafruit PMSA003I Air Quality
+    id: pmsa003isens
+    pm_1_0:
+      name: "PM1.0"
+      on_value: #When value changes update LVGL display
+        - lvgl.label.update:
+            id: lbl_pmsa003i_pm1
+            text: 
+              format: "PM1:\n %.0f"
+              args: [ 'x' ]
+    pm_2_5:
+      name: "PM2.5"
+      on_value: #When value changes update LVGL display
+        - lvgl.label.update:
+            id: lbl_pmsa003i_pm2_5
+            text: 
+              format: "PM2.5:\n %.0f"
+              args: [ 'x' ]
+    pm_10_0:
+      name: "PM10.0"
+      on_value: #When value changes update LVGL display
+        - lvgl.label.update:
+            id: lbl_pmsa003i_pm10
+            text: 
+              format: "PM10:\n %.0f"
+              args: [ 'x' ]
+    pmc_0_3:
+      name: "PMC >0.3µm"
+      on_value: #When value changes update LVGL display
+        - lvgl.label.update:
+            id: lbl_pmsa003i_pmc0_3
+            text: 
+              format: "0.3um/l:\n %.0f"
+              args: [ 'x' ]
+    pmc_0_5:
+      name: "PMC >0.5µm"
+      on_value: #When value changes update LVGL display
+        - lvgl.label.update:
+            id: lbl_pmsa003i_pmc0_5
+            text: 
+              format: "0.5um/l:\n %.0f"
+              args: [ 'x' ]
+    pmc_1_0:
+      name: "PMC >1µm"
+      on_value: #When value changes update LVGL display
+        - lvgl.label.update:
+            id: lbl_pmsa003i_pmc1
+            text: 
+              format: "1.0um/l:\n %.0f"
+              args: [ 'x' ]
+    pmc_2_5:
+      name: "PMC >2.5µm"
+      on_value: #When value changes update LVGL display
+        - lvgl.label.update:
+            id: lbl_pmsa003i_pmc2_5
+            text: 
+              format: "2.5um/l:\n %.0f"
+              args: [ 'x' ]
+    pmc_5_0:
+      name: "PMC >5µm"
+      on_value: #When value changes update LVGL display
+        - lvgl.label.update:
+            id: lbl_pmsa003i_pmc5
+            text: 
+              format: "5um/l:\n %.0f"
+              args: [ 'x' ]
+    pmc_10_0:
+      name: "PMC >10µm"
+      on_value: #When value changes update LVGL display
+        - lvgl.label.update:
+            id: lbl_pmsa003i_pmc10
+            text: 
+              format: "10um/l:\n %.0f"
+              args: [ 'x' ]
+    update_interval: ${sensor_update}
+      
+#==========================================================================================================================
+# Display page if this sensor is fitted
+
+lvgl: 
+  pages: 
+    - id: pmsa003i_page
+      widgets:
+        - obj: 
+            align: TOP_MID
+            styles: header_footer
+            widgets:
+              - label:
+                  text: "Particle AQI Sensor"
+                  align: CENTER
+                  text_align: CENTER
+                  text_color: 0xFFFFFF
+        - obj: # a properly placed coontainer object for all these controls
+            align: CENTER
+            width: 320
+            height: 180 #240-(2*30) #Display area less header & footer
+            pad_all: 6
+            bg_opa: TRANSP
+            border_opa: TRANSP
+            outline_width: 1 #debug
+            layout: # enable the GRID layout for the children widgets
+              type: GRID # split the rows and the columns proportionally
+              grid_columns: [FR(1), FR(1), FR(1)] # equal
+              grid_rows: [FR(3), FR(1), FR(2), FR(2)] # like percents
+              pad_row: 4
+              pad_column: 6
+            widgets:
+              - label:
+                  text_font: montserrat_28 # set all your labels to use your custom defined font
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 0 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_pmsa003i_pm10
+                  text: "PM10:"
+              - label:
+                  text_font: montserrat_28 # set all your labels to use your custom defined font
+                  grid_cell_column_pos: 1 # place the widget in
+                  grid_cell_row_pos: 0 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_pmsa003i_pm2_5
+                  text: "PM2.5:"
+              - label:
+                  text_font: montserrat_28 # set all your labels to use your custom defined font
+                  grid_cell_column_pos: 2 # place the widget in
+                  grid_cell_row_pos: 0 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_pmsa003i_pm1
+                  text: "PM1:"
+              - label:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 2 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_pmsa003i_pmc0_3
+              - label:
+                  grid_cell_column_pos: 1 # place the widget in
+                  grid_cell_row_pos: 2 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_pmsa003i_pmc0_5
+              - label:
+                  grid_cell_column_pos: 2 # place the widget in
+                  grid_cell_row_pos: 2 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_pmsa003i_pmc1
+              - label:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 3 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_pmsa003i_pmc2_5
+              - label:
+                  grid_cell_column_pos: 1 # place the widget in
+                  grid_cell_row_pos: 3 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_pmsa003i_pmc5
+              - label:
+                  grid_cell_column_pos: 2 # place the widget in
+                  grid_cell_row_pos: 3 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_pmsa003i_pmc10

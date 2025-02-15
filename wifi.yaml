@@ -1,0 +1,115 @@
+# wifi.yaml file to be included as a package in esphome configurations
+esphome:
+  name: ${esphome_name}
+
+# Enable Home Assistant API
+# api:
+#   reboot_timeout: 0s #disable reboots whilst we recode everything to use mqtt
+#   encryption:
+#     key: !secret api_encryption
+#   on_client_connected:
+#     - if:
+#         condition:
+#           lambda: 'return (0 == client_info.find("Home Assistant "));'
+#         then:
+#           - lvgl.widget.show: lbl_hastatus
+#   on_client_disconnected:
+#     - if:
+#         condition:
+#           lambda: 'return (0 == client_info.find("Home Assistant "));'
+#         then:
+#           - lvgl.widget.hide: lbl_hastatus
+
+ota:
+  - platform: esphome
+    password: !secret ota_password
+
+wifi:
+  networks:
+    - ssid: !secret wifi_home_ssid
+      password: !secret wifi_home_password
+    - ssid: !secret wifi_phone_ssid
+      password: !secret wifi_phone_password
+    - ssid: !secret wifi_bshed_ssid
+      password: !secret wifi_bshed_password
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "${friendly_name} Fallback Hotspot"
+    password: "jJ1NYBE0mELq"
+  on_connect:
+    - lvgl.widget.show: lbl_hastatus
+  on_disconnect:
+    - lvgl.widget.hide: lbl_hastatus
+
+sensor:
+  - platform: wifi_signal # Reports the WiFi signal strength/RSSI in dB
+    icon: mdi:wifi
+    name: "WiFi Signal dB"
+    id: wifi_signal_db
+    unit_of_measurement: "dB"
+    update_interval: ${sensor_update}
+    entity_category: "diagnostic"
+                
+  - platform: copy # Reports the WiFi signal strength in %
+    icon: mdi:wifi
+    id: wifi_signal_db_percent
+    source_id: wifi_signal_db
+    name: "WiFi Signal Percent"
+    filters:
+      - lambda: return min(max(2 * (x + 100.0), 0.0), 100.0);
+    unit_of_measurement: "%"
+    entity_category: "diagnostic"
+    device_class: ""
+    on_value:
+        then:
+          - lvgl.label.update:
+              id: lbl_wifi_strength
+              text:
+                format: "Wi-Fi:\n%.0fdB"
+                args: [ 'id(wifi_signal_db).state' ]  
+
+text_sensor:
+  - platform: wifi_info
+    ssid:
+      icon: mdi:wifi
+      id: wifi_ssid
+      name: WiFi SSID
+      on_value:
+          then:
+            - lvgl.label.update:
+                id: lbl_wifi_ssid
+                text:
+                  format: "Wi-Fi SSID:\n%s"
+                  args: [ 'id(wifi_ssid).state.c_str()' ]  
+                  # args: [ 'x' ]  
+    dns_address:
+      icon: mdi:wifi
+      name: WiFi DNS Address
+    ip_address:
+      icon: mdi:wifi
+      id: wifi_ip
+      name: WiFi IP Address
+      on_value:
+          then:
+            - lvgl.label.update:
+                id: lbl_wifi_ip
+                text:
+                  format: "Wi-Fi IP:\n%s"
+                  args: [ 'id(wifi_ip).state.c_str()' ]  
+                  # args: [ 'x' ]  
+  #     address_0:
+  #       name: ESP IP Address 0
+  #     address_1:
+  #       name: ESP IP Address 1
+  #     address_2:
+  #       name: ESP IP Address 2
+  #     address_3:
+  #       name: ESP IP Address 3
+  #     address_4:
+  #       name: ESP IP Address 4
+  #   bssid:
+  #     name: ESP Connected BSSID
+  #   mac_address:
+  #     name: ESP Mac Wifi Address
+  #   scan_results:
+  #     name: ESP Latest Scan Results

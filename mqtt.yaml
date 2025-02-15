@@ -1,0 +1,25 @@
+esphome:
+  name: ${esphome_name}
+
+mqtt:
+  broker: mqtt.flespi.io
+  port: 1883
+  username: aXeOrWbaTnwh6T5jvWdKO5yoFinEOaEDRNGIt5QcygtTDx22tFVp9kYwJioQDwkY
+#   password: !secret mqtt_password #not used
+  discovery: true # disable entity discovery
+  discover_ip: true # enable device discovery
+  discovery_retain: true #retain discovery messages
+  discovery_unique_id_generator: mac #Use Mac address to generate unique entity Ids
+#   on_connect:
+#     - lvgl.widget.show: lbl_hastatus
+#   on_disconnect:
+#     - lvgl.widget.hide: lbl_hastatus
+  on_message: 
+    topic: ${esphome_name}/reboot
+    then:
+      - button.press: restart_button
+
+button: 
+  - platform: restart
+    id: restart_button
+    name: Restart

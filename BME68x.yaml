@@ -1,0 +1,187 @@
+esphome:
+  name: ${esphome_name}
+
+bme68x_bsec2_i2c:
+  address: 0x76
+  model: bme680
+  operating_age: 4d
+  sample_rate: ULP #LP (3sec) or ULP (5min) update cycle
+  supply_voltage: 3.3V
+
+sensor:
+  - platform: bme68x_bsec2
+    # Update Interbal fixed at 5min or 3sec in hardware settings
+    temperature:
+      name: "BME68x Temperature"
+      id: bme68x_temperature
+      on_value: #When value changes update LVGL display
+        - lvgl.label.update:
+            id: lbl_bme68x_temperature
+            text: 
+              format: "Temperature\n %.1f °C"
+              args: [ 'x' ]
+    pressure:
+      name: "BME68x Pressure"
+      id: bme68x_pressure
+      on_value: #When value changes update LVGL display
+        - lvgl.label.update:
+            id: lbl_bme68x_pressure
+            text: 
+              format: "Pressure\n %.0f hPa"
+              args: [ 'x' ]
+    humidity:
+      name: "BME68x Humidity"
+      id: bme68x_humidity
+      on_value: #When value changes update LVGL display
+        - lvgl.label.update:
+            id: lbl_bme68x_humidity
+            text: 
+              format: "Humidity\n %.1f%%"
+              args: [ 'x' ]
+    iaq:
+      name: "BME68x IAQ"
+      id: iaq
+      on_value: #When value changes update LVGL display
+        - lvgl.label.update:
+            id: lbl_bme68x_iaq
+            text: 
+              format: "IAQ\n %.0f"
+              args: [ 'x' ]
+    co2_equivalent:
+      name: "BME68x CO2 Equivalent"
+      id: bme68x_co2equivalent
+      on_value: #When value changes update LVGL display
+        - lvgl.label.update:
+            id: lbl_bme68x_co2equivalent
+            text: 
+              format: "CO2 equiv\n %.0f ppm"
+              args: [ 'x' ]
+    breath_voc_equivalent:
+      name: "BME68x Breath VOC Equivalent"
+      id: bme68x_vocequivalent
+      on_value: #When value changes update LVGL display
+        - lvgl.label.update:
+            id: lbl_bme68x_vocequivalent
+            text: 
+              format: "VOC equiv\n %.0f ppm"
+              args: [ 'x' ]
+
+text_sensor:
+  - platform: bme68x_bsec2
+    iaq_accuracy:
+      name: "BME68x IAQ Accuracy"
+      id: bme68x_iaqacc
+      on_value: #When value changes update LVGL display
+        - lvgl.label.update:
+            id: lbl_bme68x_iaqacc
+            text: 
+              format: "\n%s"
+              args: [ 'id(bme68x_iaqacc).state.c_str()' ]
+
+  - platform: template
+    name: "BME68x IAQ Classification"
+    lambda: |-
+      if ( int(id(iaq).state) <= 50) {
+        return {"Excellent"};
+      }
+      else if (int(id(iaq).state) >= 51 && int(id(iaq).state) <= 100) {
+        return {"Good"};
+      }
+      else if (int(id(iaq).state) >= 101 && int(id(iaq).state) <= 150) {
+        return {"Lightly polluted"};
+      }
+      else if (int(id(iaq).state) >= 151 && int(id(iaq).state) <= 200) {
+        return {"Moderately polluted"};
+      }
+      else if (int(id(iaq).state) >= 201 && int(id(iaq).state) <= 250) {
+        return {"Heavily polluted"};
+      }
+      else if (int(id(iaq).state) >= 251 && int(id(iaq).state) <= 350) {
+        return {"Severely polluted"};
+      }
+      else if (int(id(iaq).state) >= 351) {
+        return {"Extremely polluted"};
+      }
+      else {
+        return {"error"};
+      }
+#==========================================================================================================================
+# Display page if this sensor is fitted
+
+lvgl: 
+  pages: 
+    - id: bme68x_page
+      widgets:
+        - obj: 
+            align: TOP_MID
+            styles: header_footer
+            widgets:
+              - label:
+                  text: "BME 68x Sensor"
+                  align: CENTER
+                  text_align: CENTER
+                  text_color: 0xFFFFFF
+        - obj: # a properly placed coontainer object for all these controls
+            align: CENTER
+            width: 320
+            height: 180 #240-(2*30) #Display area less header & footer
+            pad_all: 6
+            bg_opa: TRANSP
+            border_opa: TRANSP
+            outline_width: 1 #debug
+            layout: # enable the GRID layout for the children widgets
+              type: GRID # split the rows and the columns proportionally
+              grid_columns: [FR(1), FR(1), FR(1)] # equal
+              grid_rows: [FR(1), FR(1), FR(1), FR(1)] # like percents
+              pad_row: 6
+              pad_column: 8
+            widgets:
+              - label:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 0 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_bme68x_temperature
+                  text: "Temp:"
+              - label: # gauge numeric indicator
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 1 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_bme68x_humidity
+                  text: "Humidity:"
+              - label: # gauge numeric indicator
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 2 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_bme68x_pressure
+                  text: "Pressure:"
+              - label: 
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 3 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_bme68x_iaq
+                  text: "IAQ"
+              - label: 
+                  grid_cell_column_pos: 1 # place the widget in
+                  grid_cell_row_pos: 0 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_bme68x_co2equivalent
+                  text: "CO2: "
+              - label: 
+                  grid_cell_column_pos: 1 # place the widget in
+                  grid_cell_row_pos: 1 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_bme68x_vocequivalent
+                  text: "VOC: "
+              - label: 
+                  grid_cell_column_pos: 1 # place the widget in
+                  grid_cell_row_pos: 3 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_bme68x_iaqacc
+                  text: "Status"

@@ -1,0 +1,19 @@
+esphome:
+  name: ${esphome_name}
+
+sensor:
+  - platform: scd30 #Absolute CO2, temp, humidity
+    id: scd30_sens
+    co2:
+      name: "SCD30 CO2"
+      accuracy_decimals: 1
+    temperature:
+      name: "SCD30 Temperature"
+      accuracy_decimals: 1
+    humidity:
+      name: "SCD30 Humidity"
+      accuracy_decimals: 1
+    temperature_offset: 0 °C #was 1.5
+    address: 0x61
+    update_interval: ${sensor_update}
+

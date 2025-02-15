@@ -1,0 +1,45 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "esphome",
+			"problemMatcher": [],
+			"label": "ESPHome: Upload OTA",
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			}
+		},
+		{
+			"type": "shell",
+			"problemMatcher": [],
+			"label": "ESPHome: Build & Upload",
+			"command": "esphome run ${file}"
+		},
+		{
+			"type": "shell",
+			"problemMatcher": [],
+			"label": "ESPHome: Upload",
+			"command": "esphome upload ${file}"
+		},
+		{
+			"type": "shell",
+			"problemMatcher": [],
+			"label": "ESPHome: Clean",
+			"command": "esphome clean ${file}"
+		},
+		{
+			"type": "shell",
+			"problemMatcher": [],
+			"label": "ESPHome: Validate Config",
+			"command": "esphome config ${file}"
+		},
+		{
+			"type": "shell",
+			"problemMatcher": [],
+			"label": "ESPHome: Start Dashboard (localhost:6052)",
+			"command": "esphome dashboard ."
+		}
+
+	]
+}
