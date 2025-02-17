@@ -1,6 +1,6 @@
 substitutions:
-  friendly_name: "Fire1" #Banbury Shed
-  esphome_name: "fire1"
+  friendly_name: "Fire2" #Banbury Shed
+  esphome_name: "fire2"
   sensor_update: 60s
 
 esphome:

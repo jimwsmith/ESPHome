@@ -2,10 +2,11 @@ esphome:
   name: ${esphome_name}
 
 mqtt:
-  broker: mqtt.flespi.io
+  broker: allsmiths.synology.me
   port: 1883
-  username: aXeOrWbaTnwh6T5jvWdKO5yoFinEOaEDRNGIt5QcygtTDx22tFVp9kYwJioQDwkY
-#   password: !secret mqtt_password #not used
+  username: !secret mqtt_username
+  password: !secret mqtt_password
+  #no clientid reqd
   discovery: true # disable entity discovery
   discover_ip: true # enable device discovery
   discovery_retain: true #retain discovery messages
