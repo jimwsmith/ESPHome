@@ -13,6 +13,12 @@
 		{
 			"type": "shell",
 			"problemMatcher": [],
+			"label": "ESPHome: Build",
+			"command": "esphome compile ${file}"
+		},
+		{
+			"type": "shell",
+			"problemMatcher": [],
 			"label": "ESPHome: Build & Upload",
 			"command": "esphome run ${file}"
 		},
