@@ -62,6 +62,35 @@ sensor:
             text: 
               format: "CO\n %.0f ppm"
               args: [ 'x' ]
+        - lvgl.label.update:
+            id: lbl_bar_co
+            text: 
+              format: "CO: %.0f"
+              args: [ 'x' ]
+        - lvgl.bar.update:
+            id: bar_co
+            value: !lambda |- 
+              return (static_cast<int>(round(x)))*100/15; // note argument x is not in quotes here as lambda is C++
+      on_value_range:
+        - below: 5
+          then:
+            - lvgl.bar.update:
+                id: bar_co
+                indicator:
+                  bg_color: 0x00FF00 #Green
+        - above: 5
+          below: 10
+          then:
+            - lvgl.bar.update:
+                id: bar_co
+                indicator:
+                  bg_color: 0xFF8000 #Orange
+        - above: 10
+          then:
+            - lvgl.bar.update:
+                id: bar_co
+                indicator:
+                  bg_color: 0xFF0000 #Red
     - name: "NO2 Sensor"
 #      id: 6814_no2_sensor
       accuracy_decimals: 0
@@ -73,6 +102,35 @@ sensor:
             text: 
               format: "NO2\n %.0f ppm"
               args: [ 'x' ]
+        - lvgl.label.update:
+            id: lbl_bar_no2
+            text: 
+              format: "NO2: %.0f"
+              args: [ 'x' ]
+        - lvgl.bar.update:
+            id: bar_no2
+            value: !lambda |- 
+              return (static_cast<int>(round(x/75*100))); // note argument x is not in quotes here as lambda is C++
+      on_value_range:
+        - below: 25
+          then:
+            - lvgl.bar.update:
+                id: bar_no2
+                indicator:
+                  bg_color: 0x00FF00 #Green
+        - above: 25
+          below: 50
+          then:
+            - lvgl.bar.update:
+                id: bar_no2
+                indicator:
+                  bg_color: 0xFF8000 #Orange
+        - above: 50
+          then:
+            - lvgl.bar.update:
+                id: bar_no2
+                indicator:
+                  bg_color: 0xFF0000 #Red
     - name: "NH3 Sensor"
 #      id: 6814_nh3_sensor
       accuracy_decimals: 0
@@ -84,6 +142,35 @@ sensor:
             text: 
               format: "NH3\n %.0f ug/m3"
               args: [ 'x' ]
+        - lvgl.label.update:
+            id: lbl_bar_nh3
+            text: 
+              format: "NH3: %.0f"
+              args: [ 'x' ]
+        - lvgl.bar.update:
+            id: bar_nh3
+            value: !lambda |- 
+              return (static_cast<int>(round(x/75*100))); // note argument x is not in quotes here as lambda is C++
+      on_value_range:
+        - below: 10
+          then:
+            - lvgl.bar.update:
+                id: bar_nh3
+                indicator:
+                  bg_color: 0x00FF00 #Green
+        - above: 10
+          below: 20
+          then:
+            - lvgl.bar.update:
+                id: bar_nh3
+                indicator:
+                  bg_color: 0xFF8000 #Orange
+        - above: 20
+          then:
+            - lvgl.bar.update:
+                id: bar_nh3
+                indicator:
+                  bg_color: 0xFF0000 #Red
     - name: "C3H8 Sensor"
 #      id: 6814_c3h8_sensor
       accuracy_decimals: 0

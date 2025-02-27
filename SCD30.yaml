@@ -6,7 +6,37 @@ sensor:
     id: scd30_sens
     co2:
       name: "SCD30 CO2"
-      accuracy_decimals: 1
+      accuracy_decimals: 0
+      on_value:
+        - lvgl.label.update:
+            id: lbl_bar_co2
+            text: 
+              format: "CO2: %.0f"
+              args: [ 'x' ]
+        - lvgl.bar.update:
+            id: bar_co2
+            value: !lambda |- 
+              return (static_cast<int>(round(x)))*100/3000; // note argument x is not in quotes here as lambda is C++
+      on_value_range:
+        - below: 1000
+          then:
+            - lvgl.bar.update:
+                id: bar_co2
+                indicator:
+                  bg_color: 0x00FF00 #Green
+        - above: 1000
+          below: 1500
+          then:
+            - lvgl.bar.update:
+                id: bar_co2
+                indicator:
+                  bg_color: 0xFF8000 #Orange
+        - above: 2000
+          then:
+            - lvgl.bar.update:
+                id: bar_co2
+                indicator:
+                  bg_color: 0xFF0000 #Red
     temperature:
       name: "SCD30 Temperature"
       accuracy_decimals: 1

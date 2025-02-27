@@ -27,6 +27,62 @@ mqtt:
             md5_url: https://github.com/jimwsmith/ESPHome/releases/download/${esphome_name}_ota/firmware.md5
             url: https://github.com/jimwsmith/ESPHome/releases/download/${esphome_name}_ota/firmware.ota.bin
 
+# Example configuration entry
+text_sensor:
+  - platform: mqtt_subscribe
+    internal: true # Mark this sensor as only for use within this code - we don't nee to feed it back out to Home Assistant since it came from there!
+    id: climate_newsfeed
+    topic: homeassistant/climate_newsfeed/state
+    on_value: #When value changes update LVGL display
+      - logger.log: "Climate newsfeed updated"
+      - lvgl.label.update:
+          id: lbl_scrolling_news
+          text:
+            format: " %s | %s | %s | %s | %s | %s | %s | %s | %s | %s |"
+            # args: [ id(climate_headline_0).state.c_str() ]
+            # format: "| %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s "
+            args: [ id(climate_headline_0).state.c_str() , id(climate_headline_1).state.c_str() , id(climate_headline_2).state.c_str() , id(climate_headline_3).state.c_str() , id(climate_headline_4).state.c_str() , id(climate_headline_5).state.c_str() , id(climate_headline_6).state.c_str() , id(climate_headline_7).state.c_str() , id(climate_headline_8).state.c_str() , id(climate_headline_9).state.c_str() ]
+  - platform: mqtt_subscribe
+    internal: true # Mark this sensor as only for use within this code - we don't nee to feed it back out to Home Assistant since it came from there!
+    id: climate_headline_0
+    topic: homeassistant/climate_newsfeed/headline_0
+  - platform: mqtt_subscribe
+    internal: true # Mark this sensor as only for use within this code - we don't nee to feed it back out to Home Assistant since it came from there!
+    id: climate_headline_1
+    topic: homeassistant/climate_newsfeed/headline_1
+  - platform: mqtt_subscribe
+    internal: true # Mark this sensor as only for use within this code - we don't nee to feed it back out to Home Assistant since it came from there!
+    id: climate_headline_2
+    topic: homeassistant/climate_newsfeed/headline_2
+  - platform: mqtt_subscribe
+    internal: true # Mark this sensor as only for use within this code - we don't nee to feed it back out to Home Assistant since it came from there!
+    id: climate_headline_3
+    topic: homeassistant/climate_newsfeed/headline_3
+  - platform: mqtt_subscribe
+    internal: true # Mark this sensor as only for use within this code - we don't nee to feed it back out to Home Assistant since it came from there!
+    id: climate_headline_4
+    topic: homeassistant/climate_newsfeed/headline_4
+  - platform: mqtt_subscribe
+    internal: true # Mark this sensor as only for use within this code - we don't nee to feed it back out to Home Assistant since it came from there!
+    id: climate_headline_5
+    topic: homeassistant/climate_newsfeed/headline_5
+  - platform: mqtt_subscribe
+    internal: true # Mark this sensor as only for use within this code - we don't nee to feed it back out to Home Assistant since it came from there!
+    id: climate_headline_6
+    topic: homeassistant/climate_newsfeed/headline_6
+  - platform: mqtt_subscribe
+    internal: true # Mark this sensor as only for use within this code - we don't nee to feed it back out to Home Assistant since it came from there!
+    id: climate_headline_7
+    topic: homeassistant/climate_newsfeed/headline_7
+  - platform: mqtt_subscribe
+    internal: true # Mark this sensor as only for use within this code - we don't nee to feed it back out to Home Assistant since it came from there!
+    id: climate_headline_8
+    topic: homeassistant/climate_newsfeed/headline_8
+  - platform: mqtt_subscribe
+    internal: true # Mark this sensor as only for use within this code - we don't nee to feed it back out to Home Assistant since it came from there!
+    id: climate_headline_9
+    topic: homeassistant/climate_newsfeed/headline_9
+
 button: 
   - platform: restart
     id: restart_button

@@ -20,6 +20,35 @@ sensor:
             text: 
               format: "PM2.5:\n %.0f"
               args: [ 'x' ]
+        - lvgl.label.update:
+            id: lbl_bar_pm2_5
+            text: 
+              format: "PM2.5: %.0f"
+              args: [ 'x' ]
+        - lvgl.bar.update:
+            id: bar_pm2_5
+            value: !lambda |- 
+              return static_cast<int>(round(x/50*100)); // note argument x is not in quotes here as lambda is C++
+      on_value_range:
+        - below: 15
+          then:
+            - lvgl.bar.update:
+                id: bar_pm2_5
+                indicator:
+                  bg_color: 0x00FF00 #Green
+        - above: 15
+          below: 30
+          then:
+            - lvgl.bar.update:
+                id: bar_pm2_5
+                indicator:
+                  bg_color: 0xFF8000 #Orange
+        - above: 30
+          then:
+            - lvgl.bar.update:
+                id: bar_pm2_5
+                indicator:
+                  bg_color: 0xFF0000 #Red
     pm_10_0:
       name: "PM10.0"
       on_value: #When value changes update LVGL display
@@ -28,6 +57,35 @@ sensor:
             text: 
               format: "PM10:\n %.0f"
               args: [ 'x' ]
+        - lvgl.label.update:
+            id: lbl_bar_pm10
+            text: 
+              format: "PM10: %.0f"
+              args: [ 'x' ]
+        - lvgl.bar.update:
+            id: bar_pm10
+            value: !lambda |- 
+              return (static_cast<int>(round(x/100*100))); // note argument x is not in quotes here as lambda is C++
+      on_value_range:
+        - below: 45
+          then:
+            - lvgl.bar.update:
+                id: bar_pm10
+                indicator:
+                  bg_color: 0x00FF00 #Green
+        - above: 45
+          below: 70
+          then:
+            - lvgl.bar.update:
+                id: bar_pm10
+                indicator:
+                  bg_color: 0xFF8000 #Orange
+        - above: 70
+          then:
+            - lvgl.bar.update:
+                id: bar_pm10
+                indicator:
+                  bg_color: 0xFF0000 #Red            
     pmc_0_3:
       name: "PMC >0.3µm"
       on_value: #When value changes update LVGL display

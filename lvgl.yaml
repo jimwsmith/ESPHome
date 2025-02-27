@@ -13,6 +13,26 @@ text_sensor:
                 format: "${friendly_name}\n%s"
                 args: [ 'id(firmware_version).state.c_str()' ]  
 #==========================================================================================================================
+font:
+  # - file: "gfonts://Roboto@medium"
+  - file: 
+      fonts/Roboto-Medium.ttf
+    id: font_roboto_medium22
+    size: 22
+    glyphs: '!"%()+,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz/³µŋ'
+    glyphsets:
+      - GF_Latin_Core
+      - GF_Latin_Plus
+      - GF_Greek_Core
+      - GF_Cyrillic_Core
+#==========================================================================================================================
+image:
+  - file: https://esphome.io/_static/favicon-512x512.png
+    id: boot_logo
+    resize: 200x200
+    type: RGB565
+    use_transparency: true
+#==========================================================================================================================
 lvgl:
   displays:
     - m5stack_display
@@ -243,6 +263,212 @@ lvgl:
             - lvgl.widget.hide: boot_screen
 #==========================================================================================================================
   pages:
+#==========================================================================================================================
+    - id: air_quality_page
+      bg_color: 0x000000
+      text_color: 0xFFFFFF
+      widgets:
+        - obj:
+            align: TOP_MID
+            styles: header_footer
+            widgets:
+              - label:
+                  text: "Climate Clock"
+                  align: CENTER
+                  text_align: CENTER
+                  text_color: 0xFFFFFF
+        - obj: # a properly placed coontainer object for all these controls
+            text_color: 0xFFFFFF
+            align: CENTER
+            width: 320
+            height: 180 #240-(2*30) #Display area less header & footer
+            pad_all: 2
+            bg_opa: TRANSP
+            border_opa: TRANSP
+            outline_width: 0 #debug
+            layout: # enable the GRID layout for the children widgets
+              type: GRID # split the rows and the columns proportionally
+              grid_columns: [FR(25), FR(4), FR(43), FR(8)] # equal
+              grid_rows: [FR(1), FR(1), FR(1), FR(1), FR(1), FR(1), FR(1)] # like percents
+              pad_row: 4
+              pad_column: 2
+            widgets:
+            #-----------------------------------------------------
+              - label:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 0 # the corresponding cell
+                  grid_cell_y_align: CENTER
+                  id: lbl_bar_pm10
+                  text: PM10
+              - label:
+                  grid_cell_column_pos: 1 # place the widget in
+                  grid_cell_row_pos: 0 # the corresponding cell
+                  grid_cell_y_align: CENTER
+                  text: 0 #scale label bar start
+                  text_color: 0x808080 #Grey for bar dimension labels
+              - bar: 
+                  grid_cell_column_pos: 2 # place the widget in
+                  grid_cell_row_pos: 0 # the corresponding cell
+                  grid_cell_x_align: STRETCH #Have to use STRETCH so that bar size is adjusted to cell size
+                  grid_cell_y_align: STRETCH
+                  id: bar_pm10
+              - label:
+                  grid_cell_column_pos: 3 # place the widget in
+                  grid_cell_row_pos: 0 # the corresponding cell
+                  grid_cell_y_align: CENTER
+                  text: 100 #scale lable bar end
+                  text_color: 0x808080 #Grey for bar dimension labels
+            #-----------------------------------------------------
+              - label:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 1 # the corresponding cell
+                  grid_cell_y_align: CENTER
+                  id: lbl_bar_pm2_5
+                  text: "PM2.5"
+              - label:
+                  grid_cell_column_pos: 1 # place the widget in
+                  grid_cell_row_pos: 1 # the corresponding cell
+                  grid_cell_y_align: CENTER
+                  text: 0 #scale label bar start
+                  text_color: 0x808080 #Grey for bar dimension labels
+              - bar: 
+                  grid_cell_column_pos: 2 # place the widget in
+                  grid_cell_row_pos: 1 # the corresponding cell
+                  grid_cell_x_align: STRETCH #Have to use STRETCH so that bar size is adjusted to cell size
+                  grid_cell_y_align: STRETCH
+                  id: bar_pm2_5
+              - label:
+                  grid_cell_column_pos: 3 # place the widget in
+                  grid_cell_row_pos: 1 # the corresponding cell
+                  grid_cell_y_align: CENTER
+                  text: 50 #scale lable bar end
+                  text_color: 0x808080 #Grey for bar dimension labels
+            #-----------------------------------------------------
+              - label:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 2 # the corresponding cell
+                  grid_cell_y_align: CENTER
+                  id: lbl_bar_no2
+                  text: NO2
+              - label:
+                  grid_cell_column_pos: 1 # place the widget in
+                  grid_cell_row_pos: 2 # the corresponding cell
+                  grid_cell_y_align: CENTER
+                  text: 0 #scale label bar start
+                  text_color: 0x808080 #Grey for bar dimension labels
+              - bar: 
+                  grid_cell_column_pos: 2 # place the widget in
+                  grid_cell_row_pos: 2 # the corresponding cell
+                  grid_cell_x_align: STRETCH #Have to use STRETCH so that bar size is adjusted to cell size
+                  grid_cell_y_align: STRETCH
+                  id: bar_no2
+              - label:
+                  grid_cell_column_pos: 3 # place the widget in
+                  grid_cell_row_pos: 2 # the corresponding cell
+                  grid_cell_y_align: CENTER
+                  text: 100 #scale lable bar end
+                  text_color: 0x808080 #Grey for bar dimension labels
+            #-----------------------------------------------------
+              - label:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 3 # the corresponding cell
+                  grid_cell_y_align: CENTER
+                  id: lbl_bar_co
+                  text: CO
+              - label:
+                  grid_cell_column_pos: 1 # place the widget in
+                  grid_cell_row_pos: 3 # the corresponding cell
+                  grid_cell_y_align: CENTER
+                  text: 0 #scale label bar start
+                  text_color: 0x808080 #Grey for bar dimension labels
+              - bar: 
+                    grid_cell_column_pos: 2 # place the widget in
+                    grid_cell_row_pos: 3 # the corresponding cell
+                    grid_cell_x_align: STRETCH #Have to use STRETCH so that bar size is adjusted to cell size
+                    grid_cell_y_align: STRETCH
+                    id: bar_co
+              - label:
+                  grid_cell_column_pos: 3 # place the widget in
+                  grid_cell_row_pos: 3 # the corresponding cell
+                  grid_cell_y_align: CENTER
+                  text_color: 0x808080 #Grey for bar dimension labels
+                  text: 20 #scale lable bar end
+            #-----------------------------------------------------
+              - label:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 4 # the corresponding cell
+                  grid_cell_y_align: CENTER
+                  id: lbl_bar_co2
+                  text: CO2
+              - label:
+                  grid_cell_column_pos: 1 # place the widget in
+                  grid_cell_row_pos: 4 # the corresponding cell
+                  grid_cell_y_align: CENTER
+                  text_color: 0x808080 #Grey for bar dimension labels
+                  text: 0 #scale label bar start
+              - bar: 
+                  grid_cell_column_pos: 2 # place the widget in
+                  grid_cell_row_pos: 4 # the corresponding cell
+                  grid_cell_x_align: STRETCH #Have to use STRETCH so that bar size is adjusted to cell size
+                  grid_cell_y_align: STRETCH
+                  id: bar_co2
+              - label:
+                  grid_cell_column_pos: 3 # place the widget in
+                  grid_cell_row_pos: 4 # the corresponding cell
+                  grid_cell_y_align: CENTER
+                  text_color: 0x808080 #Grey for bar dimension labels
+                  text: 3000 #scale lable bar end
+            #-----------------------------------------------------
+              - label:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 5 # the corresponding cell
+                  grid_cell_y_align: CENTER
+                  id: lbl_bar_co2b
+                  text: CO2
+              - label:
+                  grid_cell_column_pos: 1 # place the widget in
+                  grid_cell_row_pos: 5 # the corresponding cell
+                  grid_cell_y_align: CENTER
+                  text_color: 0x808080 #Grey for bar dimension labels
+                  text: 0 #scale label bar start
+              - bar: 
+                  grid_cell_column_pos: 2 # place the widget in
+                  grid_cell_row_pos: 5 # the corresponding cell
+                  grid_cell_x_align: STRETCH #Have to use STRETCH so that bar size is adjusted to cell size
+                  grid_cell_y_align: STRETCH
+                  id: bar_co2b
+              - label:
+                  grid_cell_column_pos: 3 # place the widget in
+                  grid_cell_row_pos: 5 # the corresponding cell
+                  grid_cell_y_align: CENTER
+                  text_color: 0x808080 #Grey for bar dimension labels
+                  text: 3000 #scale lable bar end
+            #-----------------------------------------------------
+              - label:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 6 # the corresponding cell
+                  grid_cell_y_align: CENTER
+                  id: lbl_bar_nh3
+                  text: NH3
+              - label:
+                  grid_cell_column_pos: 1 # place the widget in
+                  grid_cell_row_pos: 6 # the corresponding cell
+                  grid_cell_y_align: CENTER
+                  text_color: 0x808080 #Grey for bar dimension labels
+                  text: 0 #scale label bar start
+              - bar: 
+                  grid_cell_column_pos: 2 # place the widget in
+                  grid_cell_row_pos: 6 # the corresponding cell
+                  grid_cell_x_align: STRETCH #Have to use STRETCH so that bar size is adjusted to cell size
+                  grid_cell_y_align: STRETCH
+                  id: bar_nh3
+              - label:
+                  grid_cell_column_pos: 3 # place the widget in
+                  grid_cell_row_pos: 6 # the corresponding cell
+                  grid_cell_y_align: CENTER
+                  text_color: 0x808080 #Grey for bar dimension labels
+                  text: 30 #scale lable bar end
+#--------------------------------------------------------------------------
     - id: main_page
       on_load:
         - lvgl.widget.focus: top_layer # focus_next
@@ -391,4 +617,28 @@ lvgl:
             text_font: montserrat_28 # Bigger text
             id: lbl_ota_source
             text: "OTA"
+        
+#==========================================================================================================================
+    - id: climate_clock_page
+      bg_color: 0x000000
+      text_color: 0xFFFFFF
+      widgets:
+        - obj:
+            align: TOP_MID
+            styles: header_footer
+            widgets:
+              - label:
+                  text: "Climate Clock"
+                  align: CENTER
+                  text_align: CENTER
+                  text_color: 0xFFFFFF
+        - label:
+            x: 0
+            y: 50
+            width: 320
+            text_font: font_roboto_medium22 # Bigger text
+            text_color: 0x00FFFF
+            id: lbl_scrolling_news
+            long_mode: SCROLL_CIRCULAR
+            text: "News ticker"
         

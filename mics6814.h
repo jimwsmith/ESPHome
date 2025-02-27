@@ -83,22 +83,23 @@ class mics6814 : public PollingComponent {
             oxratio = oxval/ oxprev;
             ESP_LOGD("MCS6814","Calib ratio Red %f, NH3 %f, OX %f", redratio, nh3ratio, oxratio); //Debug log
 
+            //Equations corrected to give zero as output for resistance ratio of 1
             //carbon monoxide
-            co_sensor->publish_state(pow(redratio, -1.177) * 4.4638);
+            co_sensor->publish_state((pow(redratio, -1.177)-1) * 4.4638);
             //nitrogen dioxide
-            no2_sensor->publish_state(pow(oxratio, 0.9979) * 0.1516);
+            no2_sensor->publish_state((pow(oxratio, 0.9979)-1) * 0.1516);
             //ammonia
-            nh3_sensor->publish_state(pow(nh3ratio, -1.903) * 0.6151);
+            nh3_sensor->publish_state((pow(nh3ratio, -1.903)-1) * 0.6151);
             //propane
-            c3h8_sensor->publish_state(pow(nh3ratio, -2.492) * 569.56);
+            c3h8_sensor->publish_state((pow(nh3ratio, -2.492)-1) * 569.56);
             //iso-butane
-            c4h10_sensor->publish_state(pow(nh3ratio, -1.888) * 503.2);
+            c4h10_sensor->publish_state((pow(nh3ratio, -1.888)-1) * 503.2);
             //methane
-            ch4_sensor->publish_state(pow(redratio, -4.093) * 837.38);
+            ch4_sensor->publish_state((pow(redratio, -4.093)-1) * 837.38);
             //hydrogen
-            h2_sensor->publish_state(pow(redratio, -1.781) * 0.828);
+            h2_sensor->publish_state((pow(redratio, -1.781)-1) * 0.828);
             //ethanol
-            c2h5oh_sensor->publish_state(pow(redratio, -1.58) * 1.363);
+            c2h5oh_sensor->publish_state((pow(redratio, -1.58)-1) * 1.363);
 
             if (id(calibration_switch).state) id(calibration_switch).turn_off(); //Turn off calibration when done
           }

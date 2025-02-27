@@ -14,11 +14,11 @@ packages:
   m5stackfire: !include M5StackFire.yaml
   wifi: !include wifi.yaml
   mqtt: !include mqtt.yaml
+  lvgl: !include lvgl.yaml
   bme68x: !include BME68x.yaml
   pmsa003i: !include pmsa003i.yaml
   mics6814: !include MICS6814.yaml
   scd30: !include scd30.yaml
-  lvgl: !include lvgl.yaml
 
 external_components:
   - source:
@@ -36,16 +36,16 @@ time:
   - platform: sntp 
     id: sntp_time
     on_time: #Automation to enable display screen saver
-      - hours: 2,3,4,5
-        minutes: 5
-        seconds: 0
-        then:
-          - switch.turn_on: switch_antiburn
-      - hours: 2,3,4,5
-        minutes: 35
-        seconds: 0
-        then:
-          - switch.turn_off: switch_antiburn
+      # - hours: 2,3,4,5
+      #   minutes: 5
+      #   seconds: 0
+      #   then:
+      #     - switch.turn_on: switch_antiburn
+      # - hours: 2,3,4,5
+      #   minutes: 35
+      #   seconds: 0
+      #   then:
+      #     - switch.turn_off: switch_antiburn
       - minutes: '*'
         seconds: 0
         then:
@@ -61,29 +61,3 @@ script:
           text: 
             format: "%s"
             args: [ 'id(sntp_time).now().strftime("%R").c_str()' ]
-
-# ============================================================================
-  #Get some data from Home Assistant other devices
-  # - platform: homeassistant
-  #   id: inside_temperature
-  #   entity_id: sensor.greenhouse_pots_temperature
-  #   internal: true
-
-  # - platform: homeassistant
-  #   id: outside_temperature
-  #   entity_id: sensor.t_h_shed_ext_temperature
-  #   internal: true
-
-font:
-  - file: "gfonts://Roboto@medium"
-    id: font_roboto_medium22
-    size: 22
-    glyphs: '!"%()+,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz/³µ'
-
-image:
-  - file: https://esphome.io/_static/favicon-512x512.png
-    id: boot_logo
-    resize: 200x200
-    type: RGB565
-    use_transparency: true
-
