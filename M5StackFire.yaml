@@ -130,6 +130,12 @@ light:
       - addressable_fireworks:
       - addressable_random_twinkle:
       - addressable_twinkle:
+      - pulse:
+          name: "Red Alarm"
+          transition_length: 0.5s
+          update_interval: 0.5s
+          min_brightness: 0%
+          max_brightness: 100%
 
 
 output:

@@ -264,7 +264,7 @@ lvgl:
 #==========================================================================================================================
   pages:
 #==========================================================================================================================
-    - id: air_quality_page
+    - id: air_quality_page # Should be teh first page after power-up
       bg_color: 0x000000
       text_color: 0xFFFFFF
       widgets:
@@ -286,6 +286,7 @@ lvgl:
             bg_opa: TRANSP
             border_opa: TRANSP
             outline_width: 0 #debug
+            scrollbar_mode: "OFF" #we don't want scrollbars displayed
             layout: # enable the GRID layout for the children widgets
               type: GRID # split the rows and the columns proportionally
               grid_columns: [FR(25), FR(4), FR(43), FR(8)] # equal
