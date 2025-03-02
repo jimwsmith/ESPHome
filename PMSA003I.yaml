@@ -28,22 +28,26 @@ sensor:
         - lvgl.bar.update:
             id: bar_pm2_5
             value: !lambda |- 
-              return static_cast<int>(round(x/50*100)); // note argument x is not in quotes here as lambda is C++
+              return (static_cast<int>(round(x/(id(pm2_5_max).state)*100))); // note argument x is not in quotes here as lambda is C++
       on_value_range:
-        - below: 15
+        - below: !lambda |-
+            return ( id(pm2_5_warn).state );
           then:
             - lvgl.bar.update:
                 id: bar_pm2_5
                 indicator:
                   bg_color: 0x00FF00 #Green
-        - above: 15
-          below: 30
+        - above: !lambda |-
+            return ( id(pm2_5_warn).state );
+          below: !lambda |-
+            return ( id(pm2_5_alarm).state );
           then:
             - lvgl.bar.update:
                 id: bar_pm2_5
                 indicator:
                   bg_color: 0xFF8000 #Orange
-        - above: 30
+        - above: !lambda |-
+            return ( id(pm2_5_alarm).state );
           then:
             - lvgl.bar.update:
                 id: bar_pm2_5
@@ -65,22 +69,26 @@ sensor:
         - lvgl.bar.update:
             id: bar_pm10
             value: !lambda |- 
-              return (static_cast<int>(round(x/100*100))); // note argument x is not in quotes here as lambda is C++
+              return (static_cast<int>(round(x/(id(pm10_max).state)*100))); // note argument x is not in quotes here as lambda is C++
       on_value_range:
-        - below: 45
+        - below: !lambda |-
+            return ( id(pm10_warn).state );
           then:
             - lvgl.bar.update:
                 id: bar_pm10
                 indicator:
                   bg_color: 0x00FF00 #Green
-        - above: 45
-          below: 70
+        - above: !lambda |-
+            return ( id(pm10_warn).state );
+          below: !lambda |-
+            return ( id(pm10_alarm).state );
           then:
             - lvgl.bar.update:
                 id: bar_pm10
                 indicator:
                   bg_color: 0xFF8000 #Orange
-        - above: 70
+        - above: !lambda |-
+            return ( id(pm10_alarm).state );
           then:
             - lvgl.bar.update:
                 id: bar_pm10

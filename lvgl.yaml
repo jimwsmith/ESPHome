@@ -317,7 +317,8 @@ lvgl:
                   grid_cell_column_pos: 3 # place the widget in
                   grid_cell_row_pos: 0 # the corresponding cell
                   grid_cell_y_align: CENTER
-                  text: 100 #scale lable bar end
+                  id: lbl_bar_pm10_max
+                  text: "?" #scale lable bar end
                   text_color: 0x808080 #Grey for bar dimension labels
             #-----------------------------------------------------
               - label:
@@ -342,7 +343,8 @@ lvgl:
                   grid_cell_column_pos: 3 # place the widget in
                   grid_cell_row_pos: 1 # the corresponding cell
                   grid_cell_y_align: CENTER
-                  text: 50 #scale lable bar end
+                  id: lbl_bar_pm2_5_max
+                  text: "?" #scale lable bar end
                   text_color: 0x808080 #Grey for bar dimension labels
             #-----------------------------------------------------
               - label:
@@ -367,7 +369,8 @@ lvgl:
                   grid_cell_column_pos: 3 # place the widget in
                   grid_cell_row_pos: 2 # the corresponding cell
                   grid_cell_y_align: CENTER
-                  text: 100 #scale lable bar end
+                  id: lbl_bar_no2_max
+                  text: "?" #scale lable bar end
                   text_color: 0x808080 #Grey for bar dimension labels
             #-----------------------------------------------------
               - label:
@@ -393,7 +396,8 @@ lvgl:
                   grid_cell_row_pos: 3 # the corresponding cell
                   grid_cell_y_align: CENTER
                   text_color: 0x808080 #Grey for bar dimension labels
-                  text: 20 #scale lable bar end
+                  id: lbl_bar_co_max
+                  text: "?" #scale lable bar end
             #-----------------------------------------------------
               - label:
                   grid_cell_column_pos: 0 # place the widget in
@@ -418,7 +422,8 @@ lvgl:
                   grid_cell_row_pos: 4 # the corresponding cell
                   grid_cell_y_align: CENTER
                   text_color: 0x808080 #Grey for bar dimension labels
-                  text: 3000 #scale lable bar end
+                  id: lbl_bar_co2_max
+                  text: "?" #scale lable bar end
             #-----------------------------------------------------
               - label:
                   grid_cell_column_pos: 0 # place the widget in
@@ -443,7 +448,8 @@ lvgl:
                   grid_cell_row_pos: 5 # the corresponding cell
                   grid_cell_y_align: CENTER
                   text_color: 0x808080 #Grey for bar dimension labels
-                  text: 3000 #scale lable bar end
+                  id: lbl_bar_co2b_max
+                  text: "?" #scale lable bar end
             #-----------------------------------------------------
               - label:
                   grid_cell_column_pos: 0 # place the widget in
@@ -468,7 +474,8 @@ lvgl:
                   grid_cell_row_pos: 6 # the corresponding cell
                   grid_cell_y_align: CENTER
                   text_color: 0x808080 #Grey for bar dimension labels
-                  text: 30 #scale lable bar end
+                  id: lbl_bar_nh3_max
+                  text: "?" #scale lable bar end
 #--------------------------------------------------------------------------
     - id: main_page
       on_load:

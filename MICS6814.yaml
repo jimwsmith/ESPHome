@@ -70,22 +70,26 @@ sensor:
         - lvgl.bar.update:
             id: bar_co
             value: !lambda |- 
-              return (static_cast<int>(round(x)))*100/15; // note argument x is not in quotes here as lambda is C++
+              return (static_cast<int>(round(x*100/(id(co_max).state)))); // note argument x is not in quotes here as lambda is C++
       on_value_range:
-        - below: 5
+        - below: !lambda |-
+            return ( id(co_warn).state );
           then:
             - lvgl.bar.update:
                 id: bar_co
                 indicator:
                   bg_color: 0x00FF00 #Green
-        - above: 5
-          below: 10
+        - above: !lambda |-
+            return ( id(co_warn).state );
+          below: !lambda |-
+            return ( id(co_alarm).state );
           then:
             - lvgl.bar.update:
                 id: bar_co
                 indicator:
                   bg_color: 0xFF8000 #Orange
-        - above: 10
+        - above: !lambda |-
+            return ( id(co_alarm).state );
           then:
             - lvgl.bar.update:
                 id: bar_co
@@ -110,22 +114,26 @@ sensor:
         - lvgl.bar.update:
             id: bar_no2
             value: !lambda |- 
-              return (static_cast<int>(round(x/75*100))); // note argument x is not in quotes here as lambda is C++
+              return (static_cast<int>(round(x*100/(id(no2_max).state)))); // note argument x is not in quotes here as lambda is C++
       on_value_range:
-        - below: 25
+        - below: !lambda |-
+            return ( id(no2_warn).state );
           then:
             - lvgl.bar.update:
                 id: bar_no2
                 indicator:
                   bg_color: 0x00FF00 #Green
-        - above: 25
-          below: 50
+        - above: !lambda |-
+            return ( id(no2_warn).state );
+          below: !lambda |-
+            return ( id(no2_alarm).state );
           then:
             - lvgl.bar.update:
                 id: bar_no2
                 indicator:
                   bg_color: 0xFF8000 #Orange
-        - above: 50
+        - above: !lambda |-
+            return ( id(no2_alarm).state );
           then:
             - lvgl.bar.update:
                 id: bar_no2
@@ -150,22 +158,26 @@ sensor:
         - lvgl.bar.update:
             id: bar_nh3
             value: !lambda |- 
-              return (static_cast<int>(round(x/75*100))); // note argument x is not in quotes here as lambda is C++
+              return (static_cast<int>(round(x*100/(id(nh3_max).state)))); // note argument x is not in quotes here as lambda is C++
       on_value_range:
-        - below: 10
+        - below: !lambda |-
+            return ( id(nh3_warn).state );
           then:
             - lvgl.bar.update:
                 id: bar_nh3
                 indicator:
                   bg_color: 0x00FF00 #Green
-        - above: 10
-          below: 20
+        - above: !lambda |-
+            return ( id(nh3_warn).state );
+          below: !lambda |-
+            return ( id(nh3_alarm).state );
           then:
             - lvgl.bar.update:
                 id: bar_nh3
                 indicator:
                   bg_color: 0xFF8000 #Orange
-        - above: 20
+        - above: !lambda |-
+            return ( id(nh3_alarm).state );
           then:
             - lvgl.bar.update:
                 id: bar_nh3

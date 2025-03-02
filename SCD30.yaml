@@ -16,22 +16,26 @@ sensor:
         - lvgl.bar.update:
             id: bar_co2
             value: !lambda |- 
-              return (static_cast<int>(round(x)))*100/3000; // note argument x is not in quotes here as lambda is C++
+              return (static_cast<int>(round(x)))*100/(id(co2_max).state); // note argument x is not in quotes here as lambda is C++
       on_value_range:
-        - below: 1000
+        - below: !lambda |- 
+              return (id(co2_warn).state);
           then:
             - lvgl.bar.update:
                 id: bar_co2
                 indicator:
                   bg_color: 0x00FF00 #Green
-        - above: 1000
-          below: 1500
+        - above: !lambda |- 
+              return (id(co2_warn).state);
+          below: !lambda |- 
+              return (id(co2_alarm).state);
           then:
             - lvgl.bar.update:
                 id: bar_co2
                 indicator:
                   bg_color: 0xFF8000 #Orange
-        - above: 2000
+        - above: !lambda |- 
+              return (id(co2_alarm).state);
           then:
             - lvgl.bar.update:
                 id: bar_co2
