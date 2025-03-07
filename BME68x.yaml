@@ -51,44 +51,46 @@ sensor:
       name: "BME68x CO2 Equivalent"
       id: bme68x_co2equivalent
       on_value: #When value changes update LVGL display
-        - lvgl.label.update:
-            id: lbl_bme68x_co2equivalent
-            text: 
-              format: "CO2 equiv\n %.0f ppm"
-              args: [ 'x' ]
-        - lvgl.label.update:
-            id: lbl_bar_co2b
-            text: 
-              format: "CO2: %.0f"
-              args: [ 'x' ]
-        - lvgl.bar.update:
-            id: bar_co2b
-            value: !lambda |- 
-              return (static_cast<int>(round(x*100/(id(co2_max).state)))); // note argument x is not in quotes here as lambda is C++
-      on_value_range:
-        - below: !lambda |-
-            return ( id(co2_warn).state );
-          then:
-            - lvgl.bar.update:
-                id: bar_co2b
-                indicator:
-                  bg_color: 0x00FF00 #Green
-        - above: !lambda |-
-            return ( id(co2_warn).state );
-          below: !lambda |-
-            return ( id(co2_alarm).state );
-          then:
-            - lvgl.bar.update:
-                id: bar_co2b
-                indicator:
-                  bg_color: 0xFF8000 #Orange
-        - above: !lambda |-
-            return ( id(co2_alarm).state );
-          then:
-            - lvgl.bar.update:
-                id: bar_co2b
-                indicator:
-                  bg_color: 0xFF0000 #Red
+        - script.execute: update_bar_co2b
+      # on_value: #When value changes update LVGL display
+      #   - lvgl.label.update:
+      #       id: lbl_bme68x_co2equivalent
+      #       text: 
+      #         format: "CO2 equiv\n %.0f ppm"
+      #         args: [ 'x' ]
+      #   - lvgl.label.update:
+      #       id: lbl_bar_co2b
+      #       text: 
+      #         format: "CO2: %.0f"
+      #         args: [ 'x' ]
+      #   - lvgl.bar.update:
+      #       id: bar_co2b
+      #       value: !lambda |- 
+      #         return (static_cast<int>(round(x*100/(id(co2_max).state)))); // note argument x is not in quotes here as lambda is C++
+      # on_value_range:
+      #   - below: !lambda |-
+      #       return ( id(co2_warn).state );
+      #     then:
+      #       - lvgl.bar.update:
+      #           id: bar_co2b
+      #           indicator:
+      #             bg_color: 0x00FF00 #Green
+      #   - above: !lambda |-
+      #       return ( id(co2_warn).state );
+      #     below: !lambda |-
+      #       return ( id(co2_alarm).state );
+      #     then:
+      #       - lvgl.bar.update:
+      #           id: bar_co2b
+      #           indicator:
+      #             bg_color: 0xFF8000 #Orange
+      #   - above: !lambda |-
+      #       return ( id(co2_alarm).state );
+      #     then:
+      #       - lvgl.bar.update:
+      #           id: bar_co2b
+      #           indicator:
+      #             bg_color: 0xFF0000 #Red
     breath_voc_equivalent:
       name: "BME68x Breath VOC Equivalent"
       id: bme68x_vocequivalent

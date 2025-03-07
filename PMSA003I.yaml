@@ -57,45 +57,47 @@ sensor:
       #             bg_color: 0xFF0000 #Red
     pm_10_0:
       name: "PM10.0"
+      id: pm10
       on_value: #When value changes update LVGL display
         - lvgl.label.update:
             id: lbl_pmsa003i_pm10
             text: 
               format: "PM10:\n %.0f"
               args: [ 'x' ]
-        - lvgl.label.update:
-            id: lbl_bar_pm10
-            text: 
-              format: "PM10: %.0f"
-              args: [ 'x' ]
-        - lvgl.bar.update:
-            id: bar_pm10
-            value: !lambda |- 
-              return (static_cast<int>(round(x/(id(pm10_max).state)*100))); // note argument x is not in quotes here as lambda is C++
-      on_value_range:
-        - below: !lambda |-
-            return ( id(pm10_warn).state );
-          then:
-            - lvgl.bar.update:
-                id: bar_pm10
-                indicator:
-                  bg_color: 0x00FF00 #Green
-        - above: !lambda |-
-            return ( id(pm10_warn).state );
-          below: !lambda |-
-            return ( id(pm10_alarm).state );
-          then:
-            - lvgl.bar.update:
-                id: bar_pm10
-                indicator:
-                  bg_color: 0xFF8000 #Orange
-        - above: !lambda |-
-            return ( id(pm10_alarm).state );
-          then:
-            - lvgl.bar.update:
-                id: bar_pm10
-                indicator:
-                  bg_color: 0xFF0000 #Red            
+        - script.execute: update_bar_pm10
+      #   - lvgl.label.update:
+      #       id: lbl_bar_pm10
+      #       text: 
+      #         format: "PM10: %.0f"
+      #         args: [ 'x' ]
+      #   - lvgl.bar.update:
+      #       id: bar_pm10
+      #       value: !lambda |- 
+      #         return (static_cast<int>(round(x/(id(pm10_max).state)*100))); // note argument x is not in quotes here as lambda is C++
+      # on_value_range:
+      #   - below: !lambda |-
+      #       return ( id(pm10_warn).state );
+      #     then:
+      #       - lvgl.bar.update:
+      #           id: bar_pm10
+      #           indicator:
+      #             bg_color: 0x00FF00 #Green
+      #   - above: !lambda |-
+      #       return ( id(pm10_warn).state );
+      #     below: !lambda |-
+      #       return ( id(pm10_alarm).state );
+      #     then:
+      #       - lvgl.bar.update:
+      #           id: bar_pm10
+      #           indicator:
+      #             bg_color: 0xFF8000 #Orange
+      #   - above: !lambda |-
+      #       return ( id(pm10_alarm).state );
+      #     then:
+      #       - lvgl.bar.update:
+      #           id: bar_pm10
+      #           indicator:
+      #             bg_color: 0xFF0000 #Red            
     pmc_0_3:
       name: "PMC >0.3µm"
       on_value: #When value changes update LVGL display

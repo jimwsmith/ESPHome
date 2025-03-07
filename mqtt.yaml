@@ -88,19 +88,19 @@ sensor:
     id: pm10_max
     topic: homeassistant/aqi_thresholds/pm10_max
     on_value:
-      - lvgl.label.update:
-          id: lbl_bar_pm10_max
-          text:
-            format: "%.0f" #Float but display only integer part
-            args: [ 'x' ]
+      - script.execute: update_bar_pm10
   - platform: mqtt_subscribe
     internal: true # Mark this sensor as only for use within this code - we don't nee to feed it back out to Home Assistant since it came from there!
     id: pm10_alarm
     topic: homeassistant/aqi_thresholds/pm10_alarm
+    on_value:
+      - script.execute: update_bar_pm10
   - platform: mqtt_subscribe
     internal: true # Mark this sensor as only for use within this code - we don't nee to feed it back out to Home Assistant since it came from there!
     id: pm10_warn
     topic: homeassistant/aqi_thresholds/pm10_warn
+    on_value:
+      - script.execute: update_bar_pm10
 
   - platform: mqtt_subscribe
     internal: true # Mark this sensor as only for use within this code - we don't nee to feed it back out to Home Assistant since it came from there!
@@ -126,82 +126,79 @@ sensor:
     id: no2_max
     topic: homeassistant/aqi_thresholds/no2_max
     on_value:
-      - lvgl.label.update:
-          id: lbl_bar_no2_max
-          text:
-            format: "%.0f" #Float but display only integer part
-            args: [ 'x' ]
+      - script.execute: update_bar_no2
   - platform: mqtt_subscribe
     internal: true # Mark this sensor as only for use within this code - we don't nee to feed it back out to Home Assistant since it came from there!
     id: no2_alarm
     topic: homeassistant/aqi_thresholds/no2_alarm
+    on_value:
+      - script.execute: update_bar_no2
   - platform: mqtt_subscribe
     internal: true # Mark this sensor as only for use within this code - we don't nee to feed it back out to Home Assistant since it came from there!
     id: no2_warn
     topic: homeassistant/aqi_thresholds/no2_warn
+    on_value:
+      - script.execute: update_bar_no2
 
   - platform: mqtt_subscribe
     internal: true # Mark this sensor as only for use within this code - we don't nee to feed it back out to Home Assistant since it came from there!
     id: co_max
     topic: homeassistant/aqi_thresholds/co_max
-    on_value:
-      - lvgl.label.update:
-          id: lbl_bar_co_max
-          text:
-            format: "%.0f" #Float but display only integer part
-            args: [ 'x' ]
+    on_value: #When value changes update LVGL display
+      - script.execute: update_bar_co
   - platform: mqtt_subscribe
     internal: true # Mark this sensor as only for use within this code - we don't nee to feed it back out to Home Assistant since it came from there!
     id: co_alarm
     topic: homeassistant/aqi_thresholds/co_alarm
+    on_value: #When value changes update LVGL display
+      - script.execute: update_bar_co
   - platform: mqtt_subscribe
     internal: true # Mark this sensor as only for use within this code - we don't nee to feed it back out to Home Assistant since it came from there!
     id: co_warn
     topic: homeassistant/aqi_thresholds/co_warn
+    on_value: #When value changes update LVGL display
+      - script.execute: update_bar_co
 
   - platform: mqtt_subscribe
     internal: true # Mark this sensor as only for use within this code - we don't nee to feed it back out to Home Assistant since it came from there!
     id: co2_max
     topic: homeassistant/aqi_thresholds/co2_max
-    on_value:
-      - lvgl.label.update:
-          id: lbl_bar_co2_max
-          text:
-            format: "%.0f" #Float but display only integer part
-            args: [ 'x' ]
-      - lvgl.label.update:
-          id: lbl_bar_co2b_max
-          text:
-            format: "%.0f" #Float but display only integer part
-            args: [ 'x' ]
+    on_value: #When value changes update LVGL display
+      - script.execute: update_bar_co2
+      - script.execute: update_bar_co2b
   - platform: mqtt_subscribe
     internal: true # Mark this sensor as only for use within this code - we don't nee to feed it back out to Home Assistant since it came from there!
     id: co2_alarm
     topic: homeassistant/aqi_thresholds/co2_alarm
+    on_value: #When value changes update LVGL display
+      - script.execute: update_bar_co2
+      - script.execute: update_bar_co2b
   - platform: mqtt_subscribe
     internal: true # Mark this sensor as only for use within this code - we don't nee to feed it back out to Home Assistant since it came from there!
     id: co2_warn
     topic: homeassistant/aqi_thresholds/co2_warn
+    on_value: #When value changes update LVGL display
+      - script.execute: update_bar_co2
+      - script.execute: update_bar_co2b
 
   - platform: mqtt_subscribe
     internal: true # Mark this sensor as only for use within this code - we don't nee to feed it back out to Home Assistant since it came from there!
     id: nh3_max
     topic: homeassistant/aqi_thresholds/nh3_max
-    on_value:
-      - lvgl.label.update:
-          id: lbl_bar_nh3_max
-          text:
-            format: "%.0f" #Float but display only integer part
-            args: [ 'x' ]
+    on_value: #When value changes update LVGL display
+      - script.execute: update_bar_nh3
   - platform: mqtt_subscribe
     internal: true # Mark this sensor as only for use within this code - we don't nee to feed it back out to Home Assistant since it came from there!
     id: nh3_alarm
     topic: homeassistant/aqi_thresholds/nh3_alarm
+    on_value: #When value changes update LVGL display
+      - script.execute: update_bar_nh3
   - platform: mqtt_subscribe
     internal: true # Mark this sensor as only for use within this code - we don't nee to feed it back out to Home Assistant since it came from there!
     id: nh3_warn
     topic: homeassistant/aqi_thresholds/nh3_warn
-
+    on_value: #When value changes update LVGL display
+      - script.execute: update_bar_nh3
 
 button: 
   - platform: restart

@@ -52,140 +52,26 @@ sensor:
               format: "Oxidising\n %.0f ohm"
               args: [ 'x' ]
     - name: "CO Sensor"
-#      id: 6814_co_sensor
+      id: co
       accuracy_decimals: 0
       unit_of_measurement: 'ppm'
       icon: "mdi:test-tube"
       on_value: #When value changes update LVGL display
-        - lvgl.label.update:
-            id: lbl_6814_co_sensor
-            text: 
-              format: "CO\n %.0f ppm"
-              args: [ 'x' ]
-        - lvgl.label.update:
-            id: lbl_bar_co
-            text: 
-              format: "CO: %.0f"
-              args: [ 'x' ]
-        - lvgl.bar.update:
-            id: bar_co
-            value: !lambda |- 
-              return (static_cast<int>(round(x*100/(id(co_max).state)))); // note argument x is not in quotes here as lambda is C++
-      on_value_range:
-        - below: !lambda |-
-            return ( id(co_warn).state );
-          then:
-            - lvgl.bar.update:
-                id: bar_co
-                indicator:
-                  bg_color: 0x00FF00 #Green
-        - above: !lambda |-
-            return ( id(co_warn).state );
-          below: !lambda |-
-            return ( id(co_alarm).state );
-          then:
-            - lvgl.bar.update:
-                id: bar_co
-                indicator:
-                  bg_color: 0xFF8000 #Orange
-        - above: !lambda |-
-            return ( id(co_alarm).state );
-          then:
-            - lvgl.bar.update:
-                id: bar_co
-                indicator:
-                  bg_color: 0xFF0000 #Red
+        - script.execute: update_bar_co
     - name: "NO2 Sensor"
-#      id: 6814_no2_sensor
+      id: no2
       accuracy_decimals: 0
       unit_of_measurement: 'ppm'
       icon: "mdi:test-tube"
       on_value: #When value changes update LVGL display
-        - lvgl.label.update:
-            id: lbl_6814_no2_sensor
-            text: 
-              format: "NO2\n %.0f ppm"
-              args: [ 'x' ]
-        - lvgl.label.update:
-            id: lbl_bar_no2
-            text: 
-              format: "NO2: %.0f"
-              args: [ 'x' ]
-        - lvgl.bar.update:
-            id: bar_no2
-            value: !lambda |- 
-              return (static_cast<int>(round(x*100/(id(no2_max).state)))); // note argument x is not in quotes here as lambda is C++
-      on_value_range:
-        - below: !lambda |-
-            return ( id(no2_warn).state );
-          # below warning threshold - so OK
-          then:
-            - lvgl.bar.update:
-                id: bar_no2
-                indicator:
-                  bg_color: 0x00FF00 #Green
-        - above: !lambda |-
-            return ( id(no2_warn).state );
-          below: !lambda |-
-            return ( id(no2_alarm).state );
-          # between warning and alarm threshold - so warn
-          then:
-            - lvgl.bar.update:
-                id: bar_no2
-                indicator:
-                  bg_color: 0xFF8000 #Orange
-        - above: !lambda |-
-            return ( id(no2_alarm).state );
-          # above alarm threshold so alarm
-          then:
-            - lvgl.bar.update:
-                id: bar_no2
-                indicator:
-                  bg_color: 0xFF0000 #Red
+        - script.execute: update_bar_no2
     - name: "NH3 Sensor"
-#      id: 6814_nh3_sensor
+      id: nh3
       accuracy_decimals: 0
       unit_of_measurement: 'µg/m³'
       icon: "mdi:test-tube"
       on_value: #When value changes update LVGL display
-        - lvgl.label.update:
-            id: lbl_6814_nh3_sensor
-            text: 
-              format: "NH3\n %.0f ug/m3"
-              args: [ 'x' ]
-        - lvgl.label.update:
-            id: lbl_bar_nh3
-            text: 
-              format: "NH3: %.0f"
-              args: [ 'x' ]
-        - lvgl.bar.update:
-            id: bar_nh3
-            value: !lambda |- 
-              return (static_cast<int>(round(x*100/(id(nh3_max).state)))); // note argument x is not in quotes here as lambda is C++
-      on_value_range:
-        - below: !lambda |-
-            return ( id(nh3_warn).state );
-          then:
-            - lvgl.bar.update:
-                id: bar_nh3
-                indicator:
-                  bg_color: 0x00FF00 #Green
-        - above: !lambda |-
-            return ( id(nh3_warn).state );
-          below: !lambda |-
-            return ( id(nh3_alarm).state );
-          then:
-            - lvgl.bar.update:
-                id: bar_nh3
-                indicator:
-                  bg_color: 0xFF8000 #Orange
-        - above: !lambda |-
-            return ( id(nh3_alarm).state );
-          then:
-            - lvgl.bar.update:
-                id: bar_nh3
-                indicator:
-                  bg_color: 0xFF0000 #Red
+        - script.execute: update_bar_nh3
     - name: "C3H8 Sensor"
 #      id: 6814_c3h8_sensor
       accuracy_decimals: 0

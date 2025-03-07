@@ -6,41 +6,44 @@ sensor:
     id: scd30_sens
     co2:
       name: "SCD30 CO2"
+      id: co2
       accuracy_decimals: 0
-      on_value:
-        - lvgl.label.update:
-            id: lbl_bar_co2
-            text: 
-              format: "CO2: %.0f"
-              args: [ 'x' ]
-        - lvgl.bar.update:
-            id: bar_co2
-            value: !lambda |- 
-              return (static_cast<int>(round(x)))*100/(id(co2_max).state); // note argument x is not in quotes here as lambda is C++
-      on_value_range:
-        - below: !lambda |- 
-              return (id(co2_warn).state);
-          then:
-            - lvgl.bar.update:
-                id: bar_co2
-                indicator:
-                  bg_color: 0x00FF00 #Green
-        - above: !lambda |- 
-              return (id(co2_warn).state);
-          below: !lambda |- 
-              return (id(co2_alarm).state);
-          then:
-            - lvgl.bar.update:
-                id: bar_co2
-                indicator:
-                  bg_color: 0xFF8000 #Orange
-        - above: !lambda |- 
-              return (id(co2_alarm).state);
-          then:
-            - lvgl.bar.update:
-                id: bar_co2
-                indicator:
-                  bg_color: 0xFF0000 #Red
+      on_value: #When value changes update LVGL display
+        - script.execute: update_bar_co2
+      # on_value:
+      #   - lvgl.label.update:
+      #       id: lbl_bar_co2
+      #       text: 
+      #         format: "CO2: %.0f"
+      #         args: [ 'x' ]
+      #   - lvgl.bar.update:
+      #       id: bar_co2
+      #       value: !lambda |- 
+      #         return (static_cast<int>(round(x)))*100/(id(co2_max).state); // note argument x is not in quotes here as lambda is C++
+      # on_value_range:
+      #   - below: !lambda |- 
+      #         return (id(co2_warn).state);
+      #     then:
+      #       - lvgl.bar.update:
+      #           id: bar_co2
+      #           indicator:
+      #             bg_color: 0x00FF00 #Green
+      #   - above: !lambda |- 
+      #         return (id(co2_warn).state);
+      #     below: !lambda |- 
+      #         return (id(co2_alarm).state);
+      #     then:
+      #       - lvgl.bar.update:
+      #           id: bar_co2
+      #           indicator:
+      #             bg_color: 0xFF8000 #Orange
+      #   - above: !lambda |- 
+      #         return (id(co2_alarm).state);
+      #     then:
+      #       - lvgl.bar.update:
+      #           id: bar_co2
+      #           indicator:
+      #             bg_color: 0xFF0000 #Red
     temperature:
       name: "SCD30 Temperature"
       accuracy_decimals: 1

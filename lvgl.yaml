@@ -33,7 +33,7 @@ image:
     type: RGB565
     use_transparency: true
 #==========================================================================================================================
-# Scripts to update bar displays so that either new thresholds or new values treigger the same code
+# Scripts to update bar displays so that either new thresholds or new values trigger the same code
 
 script: 
   - id : update_bar_pm2_5
@@ -61,6 +61,163 @@ script:
               if ((id(pm2_5).state)<(id(pm2_5_warn).state)) return lv_color_hex(0x00FF00); //Green
               if ((id(pm2_5).state)<(id(pm2_5_alarm).state)) return lv_color_hex(0xFF8000); //Orange
               return lv_color_hex(0xFF0000); //Red
+
+  - id : update_bar_pm10
+    then:
+      - lvgl.label.update:
+        # Update displayed text value
+          id: lbl_bar_pm10
+          text: 
+            format: "PM10: %.0f"
+            args: [ 'id(pm10).state' ]
+      - lvgl.label.update:
+        # Update displayed max value
+          id: lbl_bar_pm10_max
+          text:
+            format: "%.0f" #Float but display only integer part
+            args: [ 'id(pm10_max).state' ]
+      - lvgl.bar.update:
+        # Update bar value itself
+          id: bar_pm10
+          value: !lambda |- 
+            return (static_cast<int>(round((id(pm10).state)/(id(pm10_max).state)*100))); // scale value to 0-100 from 0-max
+        # Update displayed bar colour
+          indicator:
+            bg_color: !lambda |-
+              if ((id(pm10).state)<(id(pm10_warn).state)) return lv_color_hex(0x00FF00); //Green
+              if ((id(pm10).state)<(id(pm10_alarm).state)) return lv_color_hex(0xFF8000); //Orange
+              return lv_color_hex(0xFF0000); //Red
+
+  - id : update_bar_no2
+    then:
+      - lvgl.label.update:
+        # Update displayed text value
+          id: lbl_bar_no2
+          text: 
+            format: "NO2: %.0f"
+            args: [ 'id(no2).state' ]
+      - lvgl.label.update:
+        # Update displayed max value
+          id: lbl_bar_no2_max
+          text:
+            format: "%.0f" #Float but display only integer part
+            args: [ 'id(no2_max).state' ]
+      - lvgl.bar.update:
+        # Update bar value itself
+          id: bar_no2
+          value: !lambda |- 
+            return (static_cast<int>(round((id(no2).state)/(id(no2_max).state)*100))); // scale value to 0-100 from 0-max
+        # Update displayed bar colour
+          indicator:
+            bg_color: !lambda |-
+              if ((id(no2).state)<(id(no2_warn).state)) return lv_color_hex(0x00FF00); //Green
+              if ((id(no2).state)<(id(no2_alarm).state)) return lv_color_hex(0xFF8000); //Orange
+              return lv_color_hex(0xFF0000); //Red
+
+  - id : update_bar_co
+    then:
+      - lvgl.label.update:
+        # Update displayed text value
+          id: lbl_bar_co
+          text: 
+            format: "CO: %.0f"
+            args: [ 'id(co).state' ]
+      - lvgl.label.update:
+        # Update displayed max value
+          id: lbl_bar_co_max
+          text:
+            format: "%.0f" #Float but display only integer part
+            args: [ 'id(co_max).state' ]
+      - lvgl.bar.update:
+        # Update bar value itself
+          id: bar_co
+          value: !lambda |- 
+            return (static_cast<int>(round((id(co).state)/(id(co_max).state)*100))); // scale value to 0-100 from 0-max
+        # Update displayed bar colour
+          indicator:
+            bg_color: !lambda |-
+              if ((id(co).state)<(id(co_warn).state)) return lv_color_hex(0x00FF00); //Green
+              if ((id(co).state)<(id(co_alarm).state)) return lv_color_hex(0xFF8000); //Orange
+              return lv_color_hex(0xFF0000); //Red
+
+  - id : update_bar_co2
+    then:
+      - lvgl.label.update:
+        # Update displayed text value
+          id: lbl_bar_co2
+          text: 
+            format: "CO2: %.0f"
+            args: [ 'id(co2).state' ]
+      - lvgl.label.update:
+        # Update displayed max value
+          id: lbl_bar_co2_max
+          text:
+            format: "%.0f" #Float but display only integer part
+            args: [ 'id(co2_max).state' ]
+      - lvgl.bar.update:
+        # Update bar value itself
+          id: bar_co2
+          value: !lambda |- 
+            return (static_cast<int>(round((id(co2).state)/(id(co2_max).state)*100))); // scale value to 0-100 from 0-max
+        # Update displayed bar colour
+          indicator:
+            bg_color: !lambda |-
+              if ((id(co2).state)<(id(co2_warn).state)) return lv_color_hex(0x00FF00); //Green
+              if ((id(co2).state)<(id(co2_alarm).state)) return lv_color_hex(0xFF8000); //Orange
+              return lv_color_hex(0xFF0000); //Red
+
+  - id : update_bar_co2b
+    then:
+      - lvgl.label.update:
+        # Update displayed text value
+          id: lbl_bar_co2b
+          text: 
+            format: "CO2: %.0f"
+            args: [ 'id(bme68x_co2equivalent).state' ]
+      - lvgl.label.update:
+        # Update displayed max value
+          id: lbl_bar_co2b_max
+          text:
+            format: "%.0f" #Float but display only integer part
+            args: [ 'id(co2_max).state' ]
+      - lvgl.bar.update:
+        # Update bar value itself
+          id: bar_co2b
+          value: !lambda |- 
+            return (static_cast<int>(round((id(bme68x_co2equivalent).state)/(id(co2_max).state)*100))); // scale value to 0-100 from 0-max
+        # Update displayed bar colour
+          indicator:
+            bg_color: !lambda |-
+              if ((id(bme68x_co2equivalent).state)<(id(co2_warn).state)) return lv_color_hex(0x00FF00); //Green
+              if ((id(bme68x_co2equivalent).state)<(id(co2_alarm).state)) return lv_color_hex(0xFF8000); //Orange
+              return lv_color_hex(0xFF0000); //Red
+              
+  - id : update_bar_nh3
+    then:
+      - lvgl.label.update:
+        # Update displayed text value
+          id: lbl_bar_nh3
+          text: 
+            format: "NH3: %.0f"
+            args: [ 'id(nh3).state' ]
+      - lvgl.label.update:
+        # Update displayed max value
+          id: lbl_bar_nh3_max
+          text:
+            format: "%.0f" #Float but display only integer part
+            args: [ 'id(nh3_max).state' ]
+      - lvgl.bar.update:
+        # Update bar value itself
+          id: bar_nh3
+          value: !lambda |- 
+            return (static_cast<int>(round((id(nh3).state)/(id(nh3_max).state)*100))); // scale value to 0-100 from 0-max
+        # Update displayed bar colour
+          indicator:
+            bg_color: !lambda |-
+              if ((id(nh3).state)<(id(nh3_warn).state)) return lv_color_hex(0x00FF00); //Green
+              if ((id(nh3).state)<(id(nh3_alarm).state)) return lv_color_hex(0xFF8000); //Orange
+              return lv_color_hex(0xFF0000); //Red
+
 #==========================================================================================================================
 lvgl:
   displays:
