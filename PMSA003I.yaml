@@ -14,45 +14,47 @@ sensor:
               args: [ 'x' ]
     pm_2_5:
       name: "PM2.5"
+      id: pm2_5
       on_value: #When value changes update LVGL display
         - lvgl.label.update:
             id: lbl_pmsa003i_pm2_5
             text: 
               format: "PM2.5:\n %.0f"
               args: [ 'x' ]
-        - lvgl.label.update:
-            id: lbl_bar_pm2_5
-            text: 
-              format: "PM2.5: %.0f"
-              args: [ 'x' ]
-        - lvgl.bar.update:
-            id: bar_pm2_5
-            value: !lambda |- 
-              return (static_cast<int>(round(x/(id(pm2_5_max).state)*100))); // note argument x is not in quotes here as lambda is C++
-      on_value_range:
-        - below: !lambda |-
-            return ( id(pm2_5_warn).state );
-          then:
-            - lvgl.bar.update:
-                id: bar_pm2_5
-                indicator:
-                  bg_color: 0x00FF00 #Green
-        - above: !lambda |-
-            return ( id(pm2_5_warn).state );
-          below: !lambda |-
-            return ( id(pm2_5_alarm).state );
-          then:
-            - lvgl.bar.update:
-                id: bar_pm2_5
-                indicator:
-                  bg_color: 0xFF8000 #Orange
-        - above: !lambda |-
-            return ( id(pm2_5_alarm).state );
-          then:
-            - lvgl.bar.update:
-                id: bar_pm2_5
-                indicator:
-                  bg_color: 0xFF0000 #Red
+        - script.execute: update_bar_pm2_5
+      #   - lvgl.label.update:
+      #       id: lbl_bar_pm2_5
+      #       text: 
+      #         format: "PM2.5: %.0f"
+      #         args: [ 'x' ]
+      #   - lvgl.bar.update:
+      #       id: bar_pm2_5
+      #       value: !lambda |- 
+      #         return (static_cast<int>(round(x/(id(pm2_5_max).state)*100))); // note argument x is not in quotes here as lambda is C++
+      # on_value_range:
+      #   - below: !lambda |-
+      #       return ( id(pm2_5_warn).state );
+      #     then:
+      #       - lvgl.bar.update:
+      #           id: bar_pm2_5
+      #           indicator:
+      #             bg_color: 0x00FF00 #Green
+      #   - above: !lambda |-
+      #       return ( id(pm2_5_warn).state );
+      #     below: !lambda |-
+      #       return ( id(pm2_5_alarm).state );
+      #     then:
+      #       - lvgl.bar.update:
+      #           id: bar_pm2_5
+      #           indicator:
+      #             bg_color: 0xFF8000 #Orange
+      #   - above: !lambda |-
+      #       return ( id(pm2_5_alarm).state );
+      #     then:
+      #       - lvgl.bar.update:
+      #           id: bar_pm2_5
+      #           indicator:
+      #             bg_color: 0xFF0000 #Red
     pm_10_0:
       name: "PM10.0"
       on_value: #When value changes update LVGL display

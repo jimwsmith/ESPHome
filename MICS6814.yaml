@@ -118,6 +118,7 @@ sensor:
       on_value_range:
         - below: !lambda |-
             return ( id(no2_warn).state );
+          # below warning threshold - so OK
           then:
             - lvgl.bar.update:
                 id: bar_no2
@@ -127,6 +128,7 @@ sensor:
             return ( id(no2_warn).state );
           below: !lambda |-
             return ( id(no2_alarm).state );
+          # between warning and alarm threshold - so warn
           then:
             - lvgl.bar.update:
                 id: bar_no2
@@ -134,6 +136,7 @@ sensor:
                   bg_color: 0xFF8000 #Orange
         - above: !lambda |-
             return ( id(no2_alarm).state );
+          # above alarm threshold so alarm
           then:
             - lvgl.bar.update:
                 id: bar_no2

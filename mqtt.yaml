@@ -107,19 +107,19 @@ sensor:
     id: pm2_5_max
     topic: homeassistant/aqi_thresholds/pm2_5_max
     on_value:
-      - lvgl.label.update:
-          id: lbl_bar_pm2_5_max
-          text:
-            format: "%.0f" #Float but display only integer part
-            args: [ 'x' ]
+      - script.execute: update_bar_pm2_5
   - platform: mqtt_subscribe
     internal: true # Mark this sensor as only for use within this code - we don't nee to feed it back out to Home Assistant since it came from there!
     id: pm2_5_alarm
     topic: homeassistant/aqi_thresholds/pm2_5_alarm
+    on_value:
+      - script.execute: update_bar_pm2_5
   - platform: mqtt_subscribe
     internal: true # Mark this sensor as only for use within this code - we don't nee to feed it back out to Home Assistant since it came from there!
     id: pm2_5_warn
     topic: homeassistant/aqi_thresholds/pm2_5_warn
+    on_value:
+      - script.execute: update_bar_pm2_5
 
   - platform: mqtt_subscribe
     internal: true # Mark this sensor as only for use within this code - we don't nee to feed it back out to Home Assistant since it came from there!

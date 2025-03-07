@@ -54,7 +54,7 @@ class mics6814 : public PollingComponent {
     if (mics6814_present) {
       polling_count +=1; //Increment Polling count, once every second
 //            ESP_LOGD("MCS6814", "Loop %d", polling_count); //Debug log
-      if (polling_count > MISC6814_UPDATE_INTERVAL-2){ //Seconds loop count to enable heater
+      if (polling_count > MISC6814_UPDATE_INTERVAL-4){ //Seconds loop count to enable heater
         gas.setHeater(true); //Heater On
         gas.setR(64);
         if (polling_count > MISC6814_UPDATE_INTERVAL){ //Seconds loop count to take measurement after it stabilises

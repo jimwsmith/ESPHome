@@ -33,6 +33,35 @@ image:
     type: RGB565
     use_transparency: true
 #==========================================================================================================================
+# Scripts to update bar displays so that either new thresholds or new values treigger the same code
+
+script: 
+  - id : update_bar_pm2_5
+    then:
+      - lvgl.label.update:
+        # Update displayed text value
+          id: lbl_bar_pm2_5
+          text: 
+            format: "PM2.5: %.0f"
+            args: [ 'id(pm2_5).state' ]
+      - lvgl.label.update:
+        # Update displayed max value
+          id: lbl_bar_pm2_5_max
+          text:
+            format: "%.0f" #Float but display only integer part
+            args: [ 'id(pm2_5_max).state' ]
+      - lvgl.bar.update:
+        # Update bar value itself
+          id: bar_pm2_5
+          value: !lambda |- 
+            return (static_cast<int>(round((id(pm2_5).state)/(id(pm2_5_max).state)*100))); // scale value to 0-100 from 0-max
+        # Update displayed bar colour
+          indicator:
+            bg_color: !lambda |-
+              if ((id(pm2_5).state)<(id(pm2_5_warn).state)) return lv_color_hex(0x00FF00); //Green
+              if ((id(pm2_5).state)<(id(pm2_5_alarm).state)) return lv_color_hex(0xFF8000); //Orange
+              return lv_color_hex(0xFF0000); //Red
+#==========================================================================================================================
 lvgl:
   displays:
     - m5stack_display
