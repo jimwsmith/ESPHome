@@ -58,9 +58,11 @@ script:
         # Update displayed bar colour
           indicator:
             bg_color: !lambda |-
+              if (isnan(id(pm2_5).state)) return lv_color_hex(0x808080); //Grey
               if ((id(pm2_5).state)<(id(pm2_5_warn).state)) return lv_color_hex(0x00FF00); //Green
               if ((id(pm2_5).state)<(id(pm2_5_alarm).state)) return lv_color_hex(0xFF8000); //Orange
               return lv_color_hex(0xFF0000); //Red
+      - script.execute: update_alarm_LED
 
   - id : update_bar_pm10
     then:
@@ -84,9 +86,11 @@ script:
         # Update displayed bar colour
           indicator:
             bg_color: !lambda |-
+              if (isnan(id(pm10).state)) return lv_color_hex(0x808080); //Grey
               if ((id(pm10).state)<(id(pm10_warn).state)) return lv_color_hex(0x00FF00); //Green
               if ((id(pm10).state)<(id(pm10_alarm).state)) return lv_color_hex(0xFF8000); //Orange
               return lv_color_hex(0xFF0000); //Red
+      - script.execute: update_alarm_LED
 
   - id : update_bar_no2
     then:
@@ -110,9 +114,11 @@ script:
         # Update displayed bar colour
           indicator:
             bg_color: !lambda |-
+              if (isnan(id(no2).state)) return lv_color_hex(0x808080); //Grey
               if ((id(no2).state)<(id(no2_warn).state)) return lv_color_hex(0x00FF00); //Green
               if ((id(no2).state)<(id(no2_alarm).state)) return lv_color_hex(0xFF8000); //Orange
               return lv_color_hex(0xFF0000); //Red
+      - script.execute: update_alarm_LED
 
   - id : update_bar_co
     then:
@@ -136,9 +142,11 @@ script:
         # Update displayed bar colour
           indicator:
             bg_color: !lambda |-
+              if (isnan(id(co).state)) return lv_color_hex(0x808080); //Grey
               if ((id(co).state)<(id(co_warn).state)) return lv_color_hex(0x00FF00); //Green
               if ((id(co).state)<(id(co_alarm).state)) return lv_color_hex(0xFF8000); //Orange
               return lv_color_hex(0xFF0000); //Red
+      - script.execute: update_alarm_LED
 
   - id : update_bar_co2
     then:
@@ -162,9 +170,11 @@ script:
         # Update displayed bar colour
           indicator:
             bg_color: !lambda |-
+              if (isnan(id(co2).state)) return lv_color_hex(0x808080); //Grey
               if ((id(co2).state)<(id(co2_warn).state)) return lv_color_hex(0x00FF00); //Green
               if ((id(co2).state)<(id(co2_alarm).state)) return lv_color_hex(0xFF8000); //Orange
               return lv_color_hex(0xFF0000); //Red
+      - script.execute: update_alarm_LED
 
   - id : update_bar_co2b
     then:
@@ -188,10 +198,12 @@ script:
         # Update displayed bar colour
           indicator:
             bg_color: !lambda |-
+              if (isnan(id(bme68x_co2equivalent).state)) return lv_color_hex(0x808080); //Grey
               if ((id(bme68x_co2equivalent).state)<(id(co2_warn).state)) return lv_color_hex(0x00FF00); //Green
               if ((id(bme68x_co2equivalent).state)<(id(co2_alarm).state)) return lv_color_hex(0xFF8000); //Orange
               return lv_color_hex(0xFF0000); //Red
-              
+      - script.execute: update_alarm_LED
+
   - id : update_bar_nh3
     then:
       - lvgl.label.update:
@@ -214,9 +226,51 @@ script:
         # Update displayed bar colour
           indicator:
             bg_color: !lambda |-
+              if (isnan(id(nh3).state)) return lv_color_hex(0x808080); //Grey
               if ((id(nh3).state)<(id(nh3_warn).state)) return lv_color_hex(0x00FF00); //Green
               if ((id(nh3).state)<(id(nh3_alarm).state)) return lv_color_hex(0xFF8000); //Orange
               return lv_color_hex(0xFF0000); //Red
+      - script.execute: update_alarm_LED
+
+  - id : update_alarm_LED
+    then: 
+      - if:
+          condition:
+            or:
+              - lambda: 'return (id(pm2_5).state) > (id(pm2_5_alarm).state);'
+              - lambda: 'return (id(pm10).state) > (id(pm10_alarm).state);'
+              - lambda: 'return (id(no2).state) > (id(no2_alarm).state);'
+              - lambda: 'return (id(co).state) > (id(co_alarm).state);'
+              - lambda: 'return (id(co2).state) > (id(co2_alarm).state);'
+              - lambda: 'return (id(bme68x_co2equivalent).state) > (id(co2_alarm).state);'
+              - lambda: 'return (id(nh3).state) > (id(nh3_alarm).state);'
+          then:
+            - light.turn_on: 
+                id: side_light
+                effect: "Alarm Pulse"
+                red: 100%
+                green: 0%
+                blue: 0%
+          else:
+            - if:
+                condition:
+                  or:
+                    - lambda: 'return (id(pm2_5).state) > (id(pm2_5_warn).state);'
+                    - lambda: 'return (id(pm10).state) > (id(pm10_warn).state);'
+                    - lambda: 'return (id(no2).state) > (id(no2_warn).state);'
+                    - lambda: 'return (id(co).state) > (id(co_warn).state);'
+                    - lambda: 'return (id(co2).state) > (id(co2_warn).state);'
+                    - lambda: 'return (id(bme68x_co2equivalent).state) > (id(co2_warn).state);'
+                    - lambda: 'return (id(nh3).state) > (id(nh3_warn).state);'
+                then:
+                  - light.turn_on: 
+                      id: side_light
+                      effect: "Warn Pulse"
+                      red: 100%
+                      green: 50%
+                      blue: 0%
+                else:
+                  - light.turn_off: side_light
 
 #==========================================================================================================================
 lvgl:

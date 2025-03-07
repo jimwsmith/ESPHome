@@ -131,11 +131,17 @@ light:
       - addressable_random_twinkle:
       - addressable_twinkle:
       - pulse:
-          name: "Red Alarm"
+          name: "Alarm Pulse"
           transition_length: 0.5s
           update_interval: 0.5s
           min_brightness: 0%
           max_brightness: 100%
+      - pulse:
+          name: "Warn Pulse"
+          transition_length: 1.5s
+          update_interval: 2s
+          min_brightness: 0%
+          max_brightness: 50%
 
 
 output:
