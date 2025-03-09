@@ -1,6 +1,16 @@
 esphome:
   name: ${esphome_name}
 
+button:
+  - platform: template
+    name: "SCD30 Manual calibration"
+    id: scd30_calibrate
+    entity_category: "config"
+    on_press:
+      then:
+        - scd30.force_recalibration_with_reference:
+            value: !lambda 'return id(scd30_calibration_level).state;'
+
 sensor:
   - platform: scd30 #Absolute CO2, temp, humidity
     id: scd30_sens

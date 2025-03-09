@@ -20,6 +20,9 @@ mqtt:
     - topic: ${esphome_name}/restart
       then:
         - button.press: restart_button
+    - topic: ${esphome_name}/scd30_calibrate
+      then:
+        - button.press: scd30_calibrate
     - topic: ${esphome_name}/ota
       then:
         - logger.log: "Starting OTA"
@@ -199,6 +202,10 @@ sensor:
     topic: homeassistant/aqi_thresholds/nh3_warn
     on_value: #When value changes update LVGL display
       - script.execute: update_bar_nh3
+  - platform: mqtt_subscribe
+    internal: true # Mark this sensor as only for use within this code - we don't nee to feed it back out to Home Assistant since it came from there!
+    id: scd30_calibration_level
+    topic: homeassistant/scd30_calibration/level
 
 button: 
   - platform: restart
