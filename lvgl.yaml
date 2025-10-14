@@ -27,7 +27,7 @@ font:
       - GF_Cyrillic_Core
 #==========================================================================================================================
 image:
-  - file: https://esphome.io/_static/favicon-512x512.png
+  - file: https://esphome.io/favicon-512x512.png #relocated to remove _static location ref in url
     id: boot_logo
     resize: 200x200
     type: RGB565
@@ -206,31 +206,31 @@ script:
 
   - id : update_bar_nh3
     then:
-      - lvgl.label.update:
-        # Update displayed text value
-          id: lbl_bar_nh3
-          text: 
-            format: "NH3: %.0f"
-            args: [ 'id(nh3).state' ]
-      - lvgl.label.update:
-        # Update displayed max value
-          id: lbl_bar_nh3_max
-          text:
-            format: "%.0f" #Float but display only integer part
-            args: [ 'id(nh3_max).state' ]
-      - lvgl.bar.update:
-        # Update bar value itself
-          id: bar_nh3
-          value: !lambda |- 
-            return (static_cast<int>(round((id(nh3).state)/(id(nh3_max).state)*100))); // scale value to 0-100 from 0-max
-        # Update displayed bar colour
-          indicator:
-            bg_color: !lambda |-
-              if (isnan(id(nh3).state)) return lv_color_hex(0x808080); //Grey
-              if ((id(nh3).state)<(id(nh3_warn).state)) return lv_color_hex(0x00FF00); //Green
-              if ((id(nh3).state)<(id(nh3_alarm).state)) return lv_color_hex(0xFF8000); //Orange
-              return lv_color_hex(0xFF0000); //Red
-      - script.execute: update_alarm_LED
+    #   - lvgl.label.update:
+    #     # Update displayed text value
+    #       id: lbl_bar_nh3
+    #       text: 
+    #         format: "NH3: %.0f"
+    #         args: [ 'id(nh3).state' ]
+    #   - lvgl.label.update:
+    #     # Update displayed max value
+    #       id: lbl_bar_nh3_max
+    #       text:
+    #         format: "%.0f" #Float but display only integer part
+    #         args: [ 'id(nh3_max).state' ]
+    #   - lvgl.bar.update:
+    #     # Update bar value itself
+    #       id: bar_nh3
+    #       value: !lambda |- 
+    #         return (static_cast<int>(round((id(nh3).state)/(id(nh3_max).state)*100))); // scale value to 0-100 from 0-max
+    #     # Update displayed bar colour
+    #       indicator:
+    #         bg_color: !lambda |-
+    #           if (isnan(id(nh3).state)) return lv_color_hex(0x808080); //Grey
+    #           if ((id(nh3).state)<(id(nh3_warn).state)) return lv_color_hex(0x00FF00); //Green
+    #           if ((id(nh3).state)<(id(nh3_alarm).state)) return lv_color_hex(0xFF8000); //Orange
+    #           return lv_color_hex(0xFF0000); //Red
+    #   - script.execute: update_alarm_LED
 
   - id : update_alarm_LED
     then: 
@@ -243,7 +243,7 @@ script:
               - lambda: 'return (id(co).state) > (id(co_alarm).state);'
               - lambda: 'return (id(co2).state) > (id(co2_alarm).state);'
               - lambda: 'return (id(bme68x_co2equivalent).state) > (id(co2_alarm).state);'
-              - lambda: 'return (id(nh3).state) > (id(nh3_alarm).state);'
+#              - lambda: 'return (id(nh3).state) > (id(nh3_alarm).state);'
           then:
             - light.turn_on: 
                 id: side_light
@@ -261,7 +261,7 @@ script:
                     - lambda: 'return (id(co).state) > (id(co_warn).state);'
                     - lambda: 'return (id(co2).state) > (id(co2_warn).state);'
                     - lambda: 'return (id(bme68x_co2equivalent).state) > (id(co2_warn).state);'
-                    - lambda: 'return (id(nh3).state) > (id(nh3_warn).state);'
+#                    - lambda: 'return (id(nh3).state) > (id(nh3_warn).state);'
                 then:
                   - light.turn_on: 
                       id: side_light
@@ -504,7 +504,7 @@ lvgl:
 #==========================================================================================================================
   pages:
 #==========================================================================================================================
-    - id: air_quality_page # Should be teh first page after power-up
+    - id: air_quality_page # Should be the first page after power-up
       bg_color: 0x000000
       text_color: 0xFFFFFF
       widgets:
@@ -691,31 +691,31 @@ lvgl:
                   id: lbl_bar_co2b_max
                   text: "?" #scale lable bar end
             #-----------------------------------------------------
-              - label:
-                  grid_cell_column_pos: 0 # place the widget in
-                  grid_cell_row_pos: 6 # the corresponding cell
-                  grid_cell_y_align: CENTER
-                  id: lbl_bar_nh3
-                  text: NH3
-              - label:
-                  grid_cell_column_pos: 1 # place the widget in
-                  grid_cell_row_pos: 6 # the corresponding cell
-                  grid_cell_y_align: CENTER
-                  text_color: 0x808080 #Grey for bar dimension labels
-                  text: 0 #scale label bar start
-              - bar: 
-                  grid_cell_column_pos: 2 # place the widget in
-                  grid_cell_row_pos: 6 # the corresponding cell
-                  grid_cell_x_align: STRETCH #Have to use STRETCH so that bar size is adjusted to cell size
-                  grid_cell_y_align: STRETCH
-                  id: bar_nh3
-              - label:
-                  grid_cell_column_pos: 3 # place the widget in
-                  grid_cell_row_pos: 6 # the corresponding cell
-                  grid_cell_y_align: CENTER
-                  text_color: 0x808080 #Grey for bar dimension labels
-                  id: lbl_bar_nh3_max
-                  text: "?" #scale lable bar end
+              # - label:
+              #     grid_cell_column_pos: 0 # place the widget in
+              #     grid_cell_row_pos: 6 # the corresponding cell
+              #     grid_cell_y_align: CENTER
+              #     id: lbl_bar_nh3
+              #     text: NH3
+              # - label:
+              #     grid_cell_column_pos: 1 # place the widget in
+              #     grid_cell_row_pos: 6 # the corresponding cell
+              #     grid_cell_y_align: CENTER
+              #     text_color: 0x808080 #Grey for bar dimension labels
+              #     text: 0 #scale label bar start
+              # - bar: 
+              #     grid_cell_column_pos: 2 # place the widget in
+              #     grid_cell_row_pos: 6 # the corresponding cell
+              #     grid_cell_x_align: STRETCH #Have to use STRETCH so that bar size is adjusted to cell size
+              #     grid_cell_y_align: STRETCH
+              #     id: bar_nh3
+              # - label:
+              #     grid_cell_column_pos: 3 # place the widget in
+              #     grid_cell_row_pos: 6 # the corresponding cell
+              #     grid_cell_y_align: CENTER
+              #     text_color: 0x808080 #Grey for bar dimension labels
+              #     id: lbl_bar_nh3_max
+              #     text: "?" #scale lable bar end
 #--------------------------------------------------------------------------
     - id: main_page
       on_load:

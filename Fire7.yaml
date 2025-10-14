@@ -7,8 +7,12 @@ esphome:
   name: ${esphome_name}
   friendly_name: ${friendly_name}
   on_boot:
-    - delay: 8s
-    - lvgl.widget.hide: boot_screen
+    - priority: -100 #Ensure this runs after lvgl is initialised
+      then:
+        - delay: 8s
+        - lvgl.widget.hide: boot_screen
+        - delay: 10s
+        - switch.turn_on: calibration_switch # Run a calibration on bootup for MCS6814
 
 packages:
   m5stackfire: !include M5StackFire.yaml

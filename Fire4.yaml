@@ -7,8 +7,12 @@ esphome:
   name: ${esphome_name}
   friendly_name: ${friendly_name}
   on_boot:
-    - delay: 8s
-    - lvgl.widget.hide: boot_screen
+    - priority: -100 #Ensure this runs after lvgl is initialised
+      then:
+        - delay: 8s
+        - lvgl.widget.hide: boot_screen
+        - delay: 10s
+        - switch.turn_on: calibration_switch # Run a calibration on bootup for MCS6814
 
 packages:
   m5stackfire: !include M5StackFire.yaml
@@ -36,16 +40,16 @@ time:
   - platform: sntp 
     id: sntp_time
     on_time: #Automation to enable display screen saver
-      - hours: 2,3,4,5
-        minutes: 5
-        seconds: 0
-        then:
-          - switch.turn_on: switch_antiburn
-      - hours: 2,3,4,5
-        minutes: 35
-        seconds: 0
-        then:
-          - switch.turn_off: switch_antiburn
+      # - hours: 2,3,4,5
+      #   minutes: 5
+      #   seconds: 0
+      #   then:
+      #     - switch.turn_on: switch_antiburn
+      # - hours: 2,3,4,5
+      #   minutes: 35
+      #   seconds: 0
+      #   then:
+      #     - switch.turn_off: switch_antiburn
       - minutes: '*'
         seconds: 0
         then:
