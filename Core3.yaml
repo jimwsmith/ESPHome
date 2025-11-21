@@ -1,0 +1,202 @@
+substitutions:
+  friendly_name: "Core3n1" #Core 2 module
+  esphome_name: "core3n1"
+  devicename: m5core3
+  upper_devicename: M5Core3
+  sensor_update: 60s
+
+esphome:
+  name: $devicename
+  platformio_options:
+    upload_speed: 1500000
+    board_build.f_cpu : 240000000L
+  libraries:
+    # - m5stack/M5GFX@^0.1.11
+    # - m5stack/M5Unified@^0.1.11
+#    - m5stack/M5GFX
+    - m5stack/M5Unified
+
+esp32:
+#  board: esp32-s3-devkitc-1 
+  board: m5stack-cores3
+  framework:
+#    type: arduino 
+    type: esp-idf
+  flash_size: 16MB # Need to manually override defaults so M5STACK FIRE memory
+
+psram:
+  mode: quad #octal didn't work
+  speed: 80MHz
+
+
+external_components:
+  # - source: github://stefanthoss/esphome-axp2101
+  #   components: [ axp2101 ]
+
+  - source:
+      type: git
+      url: https://github.com/gnumpi/esphome_m5stack_core_s3
+      # type: local
+      # path: /Users/siekmann/Privat/Projects/espHome/M5Stack_Core_S3/esphome/components
+    components: [ esp32_m5stack_core_s3, aw9523 ]
+
+  # - source:
+  #     #type: git
+  #     #url: https://github.com/gnumpi/esphome_audio
+  #     #ref: main
+  #     type: local
+  #     path: /Users/siekmann/Privat/Projects/espHome/esphome_audio/esphome/components
+
+  #   components: [ adf_pipeline, i2s_audio, usb_audio ]
+
+
+logger:
+  level: DEBUG
+
+spi:
+  clk_pin: GPIO36
+  mosi_pin: GPIO37
+  # miso_pin: GPIO35 #This is correct for M5Stack Core S3 but conflicts with definition of DCpin for display
+
+i2c:
+  - id: bus_a
+    sda: GPIO12
+    scl: GPIO11
+    scan: true
+
+esp32_m5stack_core_s3:
+
+aw9523:
+  id: aw9523_1
+  address: 0x58
+
+# binary_sensor:
+
+# sensor:
+#   - platform: axp2101
+#     model: M5CORE2
+#     address: 0x34
+#     i2c_id: bus_a
+#     update_interval: 30s
+#     brightness: 75%
+#     battery_voltage:
+#       name: "Battery Voltage"
+#     battery_level:
+#       name: "Battery Level"
+#     battery_charging:
+#       name: "Battery Charging"
+
+display:
+  - platform: ili9xxx 
+    model: M5Stack 
+    dimensions: 320x240
+    cs_pin: GPIO3
+    dc_pin: GPIO35
+    id: m5stack_display
+    invert_colors: true
+    auto_clear_enabled: false
+    reset_pin:
+      aw9523: aw9523_1
+      port: 1
+      pin: 1
+      mode:
+        output: true
+  
+touchscreen:
+  - platform: ft63x6
+    i2c_id: bus_a
+    reset_pin:
+      aw9523: aw9523_1
+      port: 0
+      pin: 0
+      mode:
+        output: true
+    calibration: #Shouldn't be needed but without this scaling in y direction was 50% out!
+      x_min: 0
+      x_max: 319
+      y_min: 0
+      y_max: 239
+    # interrupt_pin: (not supported)
+    #   aw9523: aw9523_1
+    #   port: 1
+    #   pin: 2
+    #   mode:
+    #     input: true
+    # on_touch: (debug code for calibration)
+    #  - logger.log:
+    #      format: Touch at (%d, %d)
+    #      args: [touch.x, touch.y]
+    #  - lambda: |-
+    #       ESP_LOGI("cal", "x=%d, y=%d, x_raw=%d, y_raw=%0d",
+    #           touch.x,
+    #           touch.y,
+    #           touch.x_raw,
+    #           touch.y_raw
+    #           );
+
+packages:
+#  m5stackfire: !include M5StackCore2.yaml
+  wifi: !include wifi.yaml
+  lvgl: !include lvglCore3.yaml
+
+time:
+  - platform: sntp 
+    id: sntp_time
+    on_time: #Automation to enable display screen saver
+      # - hours: 2,3,4,5
+      #   minutes: 5
+      #   seconds: 0
+      #   then:
+      #     - switch.turn_on: switch_antiburn
+      # - hours: 2,3,4,5
+      #   minutes: 35
+      #   seconds: 0
+      #   then:
+      #     - switch.turn_off: switch_antiburn
+      - minutes: '*'
+        seconds: 0
+        then:
+          - script.execute: time_update #Updates time in top_level lvgl display
+    on_time_sync:
+      - script.execute: time_update
+  # RTC from m5Stack Dial ESPhome example
+  - platform: pcf8563
+    id: rtctime
+    i2c_id: bus_a
+    address: 0x51
+    update_interval: never
+
+script:
+  - id: time_update
+    then:
+      - lvgl.label.update:
+          id: lbl_time
+          text: 
+            format: "%s"
+            args: [ 'id(sntp_time).now().strftime("%R").c_str()' ]
+      - pcf8563.write_time:
+
+
+# switch:
+# - platform: template
+#   name: "LCD Backlight"
+#   id: switch_lcd_backlight
+#   restore_mode: "RESTORE_DEFAULT_ON"
+#   turn_on_action:
+#     - lambda:
+#         M5.Display.setBrightness(127);
+#   turn_off_action:
+#     - lambda: |-
+#         M5.Display.setBrightness(0);
+# output:
+#   - platform: ledc
+#     pin: 32
+#     id: gpio_backlight_pwm
+
+# light:
+#   - platform: monochromatic
+#     output: gpio_backlight_pwm
+#     name: ${devicename} Display Backlight
+#     id: back_light
+#     restore_mode: ALWAYS_ON
+

@@ -1,0 +1,33 @@
+esphome:
+  name: ${esphome_name}
+
+mqtt:
+  broker: allsmiths.synology.me
+  port: 1883
+  username: !secret mqtt_username
+  password: !secret mqtt_password
+  #no clientid reqd
+  discovery: true # disable entity discovery
+  discover_ip: true # enable device discovery
+  discovery_retain: true #retain discovery messages
+  discovery_unique_id_generator: mac #Use Mac address to generate unique entity Ids
+#   on_connect:
+#     - lvgl.widget.show: lbl_hastatus
+#   on_disconnect:
+#     - lvgl.widget.hide: lbl_hastatus
+
+  on_message: 
+    - topic: ${esphome_name}/restart
+      then:
+        - button.press: restart_button
+    - topic: ${esphome_name}/ota
+      then:
+        - logger.log: "Starting OTA"
+        - ota.http_request.flash:
+            md5_url: https://github.com/jimwsmith/ESPHome/releases/download/${esphome_name}_ota/firmware.md5
+            url: https://github.com/jimwsmith/ESPHome/releases/download/${esphome_name}_ota/firmware.ota.bin
+
+button: 
+  - platform: restart
+    id: restart_button
+    name: Restart

@@ -53,7 +53,10 @@ ota:
         - lambda: "id(lv_id).loop();" # Needed as main loop is blocked during OTA
 
 wifi:
+  output_power: 8.5  
   networks:
+    - ssid: !secret wifi_comp_ssid
+      password: !secret wifi_comp_password
     - ssid: !secret wifi_home_ssid
       password: !secret wifi_home_password
     - ssid: !secret wifi_phone_ssid
@@ -61,9 +64,9 @@ wifi:
     - ssid: !secret wifi_bshed_ssid
       password: !secret wifi_bshed_password
   # Enable fallback hotspot (captive portal) in case wifi connection fails
-  ap:
-    ssid: "${friendly_name} Fallback Hotspot"
-    password: "jJ1NYBE0mELq"
+  # ap:
+  #   ssid: "${friendly_name} Fallback Hotspot"
+  #   password: "jJ1NYBE0mELq"
   on_connect:
     - lvgl.widget.show: lbl_hastatus
   on_disconnect:
@@ -95,6 +98,8 @@ sensor:
               text:
                 format: "Wi-Fi:\n%.0fdB"
                 args: [ 'id(wifi_signal_db).state' ]  
+  - platform: uptime
+    name: ${esphome_name} Uptime
 
 text_sensor:
   - platform: wifi_info

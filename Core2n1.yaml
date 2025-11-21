@@ -1,0 +1,67 @@
+substitutions:
+  friendly_name: "Core2n1" #Core 2 module
+  esphome_name: "core2n1"
+  devicename: m5core2
+  upper_devicename: M5Core2
+  sensor_update: 60s
+
+esphome:
+  name: ${esphome_name}
+  friendly_name: ${friendly_name}
+  platformio_options:
+    upload_speed: 460800
+  on_boot:
+    - priority: -100 #Ensure this runs after lvgl is initialised
+      then:
+        - delay: 8s
+        - lvgl.widget.hide: boot_screen
+
+packages:
+  m5stackfire: !include M5StackCore2.yaml
+  wifi: !include wifi.yaml
+#  mqtt: !include mqttGPS.yaml
+  lvgl: !include lvglCore2.yaml
+
+external_components:
+  - source:
+      type: git
+      url: https://github.com/ssieb/custom_components
+
+
+# Enable logging
+logger:
+  logs:
+    component: DEBUG #Supress excessive warnings about display writing - alternative DEBUG
+  
+#captive_portal:
+
+time:
+  - platform: sntp 
+    id: sntp_time
+    on_time: #Automation to enable display screen saver
+      # - hours: 2,3,4,5
+      #   minutes: 5
+      #   seconds: 0
+      #   then:
+      #     - switch.turn_on: switch_antiburn
+      # - hours: 2,3,4,5
+      #   minutes: 35
+      #   seconds: 0
+      #   then:
+      #     - switch.turn_off: switch_antiburn
+      - minutes: '*'
+        seconds: 0
+        then:
+          - script.execute: time_update #Updates time in top_level lvgl display
+    on_time_sync:
+      - script.execute: time_update
+
+script:
+  - id: time_update
+    then:
+      - lvgl.label.update:
+          id: lbl_time
+          text: 
+            format: "%s"
+            args: [ 'id(sntp_time).now().strftime("%R").c_str()' ]
+

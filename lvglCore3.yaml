@@ -1,0 +1,400 @@
+esphome:
+  name: ${esphome_name}
+
+text_sensor:
+  - platform: version
+    name: "Firmware Version"
+    id: firmware_version
+    on_value:
+        then:
+          - lvgl.label.update:
+              id: lbl_app_name
+              text:
+                format: "${friendly_name}\n%s"
+                args: [ 'id(firmware_version).state.c_str()' ]  
+#==========================================================================================================================
+font:
+  # - file: "gfonts://Roboto@medium"
+  - file: 
+      fonts/Roboto-Medium.ttf
+    id: font_roboto_medium22
+    size: 22
+    glyphs: '!"%()+,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz/³µŋ'
+    glyphsets:
+      - GF_Latin_Core
+      - GF_Latin_Plus
+      - GF_Greek_Core
+      - GF_Cyrillic_Core
+#==========================================================================================================================
+image:
+  - file: https://esphome.io/favicon-512x512.png #relocated to remove _static location ref in url
+    id: boot_logo
+    resize: 200x200
+    type: RGB565
+    use_transparency: true
+#==========================================================================================================================
+
+#==========================================================================================================================
+lvgl:
+  displays:
+    - m5stack_display
+  resume_on_input: true #resume from pause on button press (encoder rotate)
+  id: lv_id #Only reqd so that ota can force updates to lvgl display even when main loop not running
+#==========================================================================================================================
+  theme:
+    label:
+      text_font: montserrat_14 # set all your labels to use your custom defined font
+    button:
+      bg_color: 0x2F8CD8
+      bg_grad_color: 0x005782
+      bg_grad_dir: VER
+      bg_opa: COVER
+      border_color: 0x0077b3
+      border_width: 1
+      text_color: 0xFFFFFF
+      pressed: # set some button colors to be different in pressed state
+        bg_color: 0x006699
+        bg_grad_color: 0x00334d
+      checked: # set some button colors to be different in checked state
+        bg_color: 0x1d5f96
+        bg_grad_color: 0x03324A
+        text_color: 0xfff300
+#       focused:
+# #        bg_color: 0x00cc00
+#         border_color: 0xff0000
+# #        bg_grad_dir: NONE
+#         border_width: 4
+    buttonmatrix:
+#      bg_opa: COVER
+      bg_opa: TRANSP
+      border_color: 0x0077b3
+      border_width: 0 #Must be same border width focussed and non-focussed otherwise buttons shift up from screen bottom when focussed
+      text_color: 0xFFFFFF
+      pad_all: 0
+      # focused:
+      #   # bg_color: 0x00cc00
+      #   border_color: 0xff0000
+      #   # bg_grad_dir: NONE
+      #   border_width: 2
+      items: # set all your buttonmatrix buttons to use your custom defined styles and font
+        bg_color: 0x2F8CD8
+        bg_grad_color: 0x005782
+        bg_grad_dir: VER
+        bg_opa: COVER
+        border_color: 0x0077b3
+        border_width: 1
+        text_color: 0xFFFFFF
+        text_font: montserrat_14
+        pressed:
+          bg_color: 0x006699
+          bg_grad_color: 0x00334d
+        checked:
+          bg_color: 0x1d5f96
+          bg_grad_color: 0x03324A
+          text_color: 0x005580
+        # focused:
+        #   bg_color: 0x00cc00
+        #   border_color: 0xff0000
+        #   bg_grad_dir: NONE
+        #   border_width: 2
+        #   border_post: true
+    switch:
+      bg_color: 0xC0C0C0
+      bg_grad_color: 0xb0b0b0
+      bg_grad_dir: VER
+      bg_opa: COVER
+      focused:
+        # bg_color: 0x00cc00
+        border_color: 0xff0000
+        # bg_grad_dir: NONE
+        border_width: 2
+      checked:
+        bg_color: 0x1d5f96
+        bg_grad_color: 0x03324A
+        bg_grad_dir: VER
+        bg_opa: COVER
+      knob:
+        bg_color: 0xFFFFFF
+        bg_grad_color: 0xC0C0C0
+        bg_grad_dir: VER
+        bg_opa: COVER
+    slider:
+      border_width: 1
+      border_opa: COVER
+      bg_color: 0xcccaca
+      bg_opa: COVER
+      pad_all: 0
+      pressed: #Occurs momentarily when changed value is accepted
+        border_color: 0xff0000
+        # bg_grad_dir: NONE
+        border_width: 4
+        border_opa: COVER
+        bg_color: 0x00cc00 #only affects the background not covered by indicator bar
+      # focused:
+      #   border_color: 0xff0000
+      #   # bg_grad_dir: NONE
+      #   border_width: 2
+      #   border_opa: COVER
+      indicator:
+        bg_color: 0x1d5f96
+        bg_grad_color: 0x03324A
+        bg_grad_dir: VER
+        bg_opa: COVER
+        # focused:
+        #   # bg_color: 0x00cc00
+        #   border_color: 0xff0000
+        #   # bg_grad_dir: NONE
+        #   border_width: 2
+      knob:
+        bg_color: 0x2F8CD8
+        bg_grad_color: 0x005782
+        bg_grad_dir: VER
+        bg_opa: COVER
+        border_color: 0x0077b3
+        border_width: 1
+        text_color: 0xFFFFFF
+        # focused:
+        #   bg_color: 0x00cc00
+        #   border_color: 0xff0000
+        #   bg_grad_dir: NONE
+        #   border_width: 2
+#==========================================================================================================================
+  style_definitions:
+    - id: header_footer
+      bg_color: 0x2F8CD8
+      bg_grad_color: 0x005782
+      bg_grad_dir: VER
+      bg_opa: COVER
+      border_opa: TRANSP
+      # border_opa: COVER
+      radius: 0
+      pad_all: 0
+      pad_row: 0
+      pad_column: 0
+      border_color:  0x0077b3
+      text_color: 0xFFFFFF
+      width: 100%
+      height: 30
+  top_layer:
+    widgets:
+      - label:
+          text: "B"
+          id: lbl_battery
+#          hidden: true
+          align: top_right
+          x: -22
+          y: 7
+          text_align: right
+          text_color: 0xFFFFFF
+      - label:
+          text: "\uF1EB"
+          id: lbl_hastatus
+          hidden: true
+          align: top_right
+          x: -2
+          y: 7
+          text_align: right
+          text_color: 0xFFFFFF
+      - label:
+          text: "Time" # Will be overwritten by the time update script
+          id: lbl_time
+          align: top_left
+          x: 2
+          y: 7
+          text_align: left
+          text_color: 0xFFFFFF
+      - buttonmatrix:
+          align: bottom_mid
+          styles: header_footer
+          pad_all: 0
+          outline_width: 0
+          id: top_layer
+          items:
+            styles: header_footer
+          rows:
+            - buttons:
+              - id: focus_next
+                text: "\uF053"
+                on_press:
+                  then:
+                    - lvgl.page.previous:
+                    - logger.log: "Left pressed"
+              - id: page_home
+                text: "\uF015"
+                on_press:
+                  then:
+                    - logger.log: "Home pressed"
+                    - lvgl.page.show: main_page
+              - id: page_next
+                text: "\uF054"
+                on_press:
+                  then:
+                    - logger.log: "Next P pressed"
+                    - lvgl.page.next:
+      - obj:
+          id: boot_screen
+          x: 0
+          y: 0
+          width: 100%
+          height: 100%
+          bg_color: 0xffffff
+          bg_opa: COVER
+          radius: 0
+          pad_all: 0
+          border_width: 0
+          widgets:
+            - image:
+                align: CENTER
+                src: boot_logo
+                y: -40
+            - spinner:
+                align: CENTER
+                y: 95
+                height: 50
+                width: 50
+                spin_time: 1s
+                arc_length: 60deg
+                arc_width: 8
+                indicator:
+                  arc_color: 0x18bcf2
+                  arc_width: 8
+          on_press:
+            - logger.log: "Boot pressed"
+            - lvgl.widget.hide: boot_screen
+#==========================================================================================================================
+  pages:
+#==========================================================================================================================
+#--------------------------------------------------------------------------
+    - id: second_page
+      widgets:
+        - obj:
+            align: TOP_MID
+            styles: header_footer
+            widgets:
+              - label:
+                  text: "A second page"
+                  align: CENTER
+                  text_align: CENTER
+                  text_color: 0xFFFFFF
+        - button:
+            x: 10
+            y: 40
+            width: 70
+            height: 30
+            id: btn_id
+            checkable: true
+            on_value:
+              then:
+                - logger.log:
+                    format: "Button checked state: %d"
+                    args: [ x ]
+            widgets:
+              - label:
+                  align: center
+                  text: "Backlight Dim"
+
+        - slider:
+            x: 50
+            y: 100
+            width: 200
+            id: dimmer_slider
+            value: 75
+            min_value: 0
+            max_value: 255 #brightness in HA goes from 0 to 255 so match slider range to that
+            on_release: #Only use on release to avoid flood of changes for each micro step of slider.  With encoder it means new slider position only recognised when enter is pressed
+              then:
+                # - light.control:
+                #     id: back_light
+                #     brightness: !lambda return x/255; //Brightness needs float 0 to 1.0
+                # - lambda: |-
+                #     CoreS3.Display.setBrightness(x);
+                - logger.log:
+                    format: "Slider state: %f, %f"
+                    args: [ x, x/255 ]
+        
+#==========================================================================================================================
+    - id: main_page
+      # on_load:
+      #   - lvgl.widget.focus: top_layer # focus_next
+      bg_color: 0x000000
+      widgets:
+        - obj: # Title block
+            align: TOP_MID
+            styles: header_footer
+            widgets:
+              - label:
+                  text: "ESPHome Core3 Display"
+                  align: CENTER
+                  text_align: CENTER
+                  text_color: 0xFFFFFF
+        - obj: # a properly placed coontainer object for all these controls
+            text_color: 0xFFFFFF
+            align: CENTER
+            width: 320
+            height: 160 #240-(2*30) #Display area less header & footer
+            pad_all: 6
+            bg_opa: TRANSP
+            border_opa: TRANSP
+            outline_width: 1 #debug
+            layout: # enable the GRID layout for the children widgets
+              type: GRID # split the rows and the columns proportionally
+              grid_columns: [FR(1), FR(1), FR(1)] # equal
+              grid_rows: [FR(1), FR(1), FR(1), FR(1)] # like percents
+              pad_row: 6
+              pad_column: 8
+            widgets:
+              - label:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 0 # the corresponding cell
+                  grid_cell_column_span: 2 #Span 2 columns as firmware version is a long string
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_app_name
+                  text: ${friendly_name}
+              - label:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 1 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_wifi_strength
+                  text: wifi
+              - label:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 2 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_wifi_ssid
+                  text: ssid
+              - label:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 3 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_wifi_ip
+                  text: ip addr
+#==========================================================================================================================
+    - id: ota_page
+      widgets:
+        - obj:
+            align: TOP_MID
+            styles: header_footer
+            widgets:
+              - label:
+                  text: "Firmware Update"
+                  align: CENTER
+                  text_align: CENTER
+                  text_color: 0xFFFFFF
+        - bar:
+            x: 50
+            y: 100
+            width: 220
+            id: bar_ota_progress
+            value: 1
+            min_value: 0
+            max_value: 100 #OTA progress
+        - label:
+            x: 50
+            y: 50
+            text_font: montserrat_28 # Bigger text
+            id: lbl_ota_source
+            text: "OTA"
