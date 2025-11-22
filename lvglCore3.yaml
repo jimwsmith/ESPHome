@@ -265,52 +265,128 @@ lvgl:
   pages:
 #==========================================================================================================================
 #--------------------------------------------------------------------------
-    - id: second_page
+    - id: heating_page
+      bg_color: 0x000000 #black
       widgets:
         - obj:
             align: TOP_MID
             styles: header_footer
             widgets:
               - label:
-                  text: "A second page"
+                  text: "Heating Control"
                   align: CENTER
                   text_align: CENTER
-                  text_color: 0xFFFFFF
-        - button:
-            x: 10
-            y: 40
-            width: 70
-            height: 30
-            id: btn_id
-            checkable: true
-            on_value:
-              then:
-                - logger.log:
-                    format: "Button checked state: %d"
-                    args: [ x ]
+                  text_color: 0xFFFFFF #white
+        - obj: # a properly placed coontainer object for all these controls
+            text_color: 0xFFFFFF
+            align: CENTER
+            width: 320
+            height: 180 #240-(2*30) #Display area less header & footer
+            pad_all: 6
+            bg_opa: TRANSP
+            border_opa: TRANSP
+            # outline_width: 1 #debug top check we fill available space
+            layout: # enable the GRID layout for the children widgets
+              type: GRID # split the rows and the columns proportionally
+              grid_columns: [FR(1), FR(1)] # equal
+              grid_rows: [FR(1), FR(1), FR(1), FR(1), FR(1)] # like percents
+              pad_row: 6
+              pad_column: 8
             widgets:
+              - button:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 0 # the corresponding cell
+                  grid_cell_column_span: 2 #Span 2 columns
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: btn_heating_pump
+                  checkable: true
+                  checked:
+                    bg_color: red
+                    text_color: black
+                    bg_grad_dir: NONE
+                  on_value:
+                    then:
+                      - logger.log:
+                          format: "Heating Pump button state: %d"
+                          args: [ x ]
+                  widgets:
+                    - label:
+                        align: center
+                        text: "Heating"
+                  on_click:
+                    - homeassistant.action:
+                        action: switch.toggle
+                        data:
+                          entity_id: switch.heating_pump_switch_1
               - label:
-                  align: center
-                  text: "Backlight Dim"
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 1 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_jim_study_temp
+                  text: "Jim Study"
+              - label:
+                  grid_cell_column_pos: 1 # place the widget in
+                  grid_cell_row_pos: 1 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_hall_temp
+                  text: "Hall"
+              - label:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 2 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_sue_study_temp
+                  text: "Sue Study"
+              - label:
+                  grid_cell_column_pos: 1 # place the widget in
+                  grid_cell_row_pos: 2 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_spare_rm_temp
+                  text: "Spare Rm"
+              - label:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 3 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_main_bed_rm_temp
+                  text: "Main Bed"
+              - label:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 4 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_kitchen_temp
+                  text: "Kitchen"
+              - label:
+                  grid_cell_column_pos: 1 # place the widget in
+                  grid_cell_row_pos: 4 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_lounge_temp
+                  text: "Lounge"
 
-        - slider:
-            x: 50
-            y: 100
-            width: 200
-            id: dimmer_slider
-            value: 75
-            min_value: 0
-            max_value: 255 #brightness in HA goes from 0 to 255 so match slider range to that
-            on_release: #Only use on release to avoid flood of changes for each micro step of slider.  With encoder it means new slider position only recognised when enter is pressed
-              then:
-                # - light.control:
-                #     id: back_light
-                #     brightness: !lambda return x/255; //Brightness needs float 0 to 1.0
-                # - lambda: |-
-                #     CoreS3.Display.setBrightness(x);
-                - logger.log:
-                    format: "Slider state: %f, %f"
-                    args: [ x, x/255 ]
+        # - slider:
+        #     x: 50
+        #     y: 100
+        #     width: 200
+        #     id: dimmer_slider
+        #     value: 75
+        #     min_value: 0
+        #     max_value: 255 #brightness in HA goes from 0 to 255 so match slider range to that
+        #     on_release: #Only use on release to avoid flood of changes for each micro step of slider.  With encoder it means new slider position only recognised when enter is pressed
+        #       then:
+        #         # - light.control:
+        #         #     id: back_light
+        #         #     brightness: !lambda return x/255; //Brightness needs float 0 to 1.0
+        #         # - lambda: |-
+        #         #     CoreS3.Display.setBrightness(x);
+        #         - logger.log:
+        #             format: "Slider state: %f, %f"
+        #             args: [ x, x/255 ]
         
 #==========================================================================================================================
     - id: main_page

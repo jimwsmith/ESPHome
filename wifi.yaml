@@ -2,24 +2,6 @@
 esphome:
   name: ${esphome_name}
 
-# Enable Home Assistant API
-# api:
-#   reboot_timeout: 0s #disable reboots whilst we recode everything to use mqtt
-#   encryption:
-#     key: !secret api_encryption
-#   on_client_connected:
-#     - if:
-#         condition:
-#           lambda: 'return (0 == client_info.find("Home Assistant "));'
-#         then:
-#           - lvgl.widget.show: lbl_hastatus
-#   on_client_disconnected:
-#     - if:
-#         condition:
-#           lambda: 'return (0 == client_info.find("Home Assistant "));'
-#         then:
-#           - lvgl.widget.hide: lbl_hastatus
-
 http_request: 
   verify_ssl: false #ESP32 cannot manage SSL connections
 
@@ -53,7 +35,7 @@ ota:
         - lambda: "id(lv_id).loop();" # Needed as main loop is blocked during OTA
 
 wifi:
-  output_power: 8.5  
+#  output_power: 8.5  
   networks:
     - ssid: !secret wifi_comp_ssid
       password: !secret wifi_comp_password

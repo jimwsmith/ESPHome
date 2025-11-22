@@ -16,6 +16,31 @@ esphome:
 #    - m5stack/M5GFX
     - m5stack/M5Unified
 
+
+packages:
+#  m5stackfire: !include M5StackCore2.yaml
+  wifi: !include wifi.yaml
+  lvgl: !include lvglCore3.yaml
+
+# Enable Home Assistant API
+api:
+  reboot_timeout: 0s #disable reboots whilst we recode everything to use mqtt
+  encryption:
+    key: !secret api_encryption
+  on_client_connected:
+    - if:
+        condition:
+          lambda: 'return (0 == client_info.find("Home Assistant "));'
+        then:
+          - lvgl.widget.hide: boot_screen
+  on_client_disconnected:
+    - if:
+        condition:
+          lambda: 'return (0 == client_info.find("Home Assistant "));'
+        then:
+          - lvgl.widget.show: boot_screen
+
+
 esp32:
 #  board: esp32-s3-devkitc-1 
   board: m5stack-cores3
@@ -85,7 +110,7 @@ aw9523:
 #       name: "Battery Level"
 #     battery_charging:
 #       name: "Battery Charging"
-
+#=========================================================================================================
 display:
   - platform: ili9xxx 
     model: M5Stack 
@@ -134,11 +159,6 @@ touchscreen:
     #           touch.y_raw
     #           );
 
-packages:
-#  m5stackfire: !include M5StackCore2.yaml
-  wifi: !include wifi.yaml
-  lvgl: !include lvglCore3.yaml
-
 time:
   - platform: sntp 
     id: sntp_time
@@ -177,17 +197,17 @@ script:
       - pcf8563.write_time:
 
 
-# switch:
-# - platform: template
-#   name: "LCD Backlight"
-#   id: switch_lcd_backlight
-#   restore_mode: "RESTORE_DEFAULT_ON"
-#   turn_on_action:
-#     - lambda:
-#         M5.Display.setBrightness(127);
-#   turn_off_action:
-#     - lambda: |-
-#         M5.Display.setBrightness(0);
+switch:
+- platform: template
+  name: "LCD Backlight"
+  id: switch_lcd_backlight
+  restore_mode: "RESTORE_DEFAULT_ON"
+  turn_on_action:
+    - lambda: |-
+        M5.Display.setBrightness(127);
+  turn_off_action:
+    - lambda: |-
+        M5.Display.setBrightness(0);
 # output:
 #   - platform: ledc
 #     pin: 32
@@ -200,3 +220,88 @@ script:
 #     id: back_light
 #     restore_mode: ALWAYS_ON
 
+#=========================================================================================================
+binary_sensor:
+  - platform: homeassistant
+    id: heating_pump
+    entity_id: switch.heating_pump_switch_1
+    publish_initial_state: true
+    on_state:
+      then:
+        lvgl.widget.update:
+          id: btn_heating_pump
+          state:
+            checked: !lambda return x;
+
+#=========================================================================================================
+sensor:
+  - platform: homeassistant
+    id: t_h_jim_study_temperature
+    entity_id: sensor.t_h_jim_study_temperature
+    on_value: 
+      then:
+        lvgl.label.update:
+          id: lbl_jim_study_temp
+          text:
+            format: "Jim Study: %.1f°C"
+            args: [ 'id(t_h_jim_study_temperature).state' ]  
+  - platform: homeassistant
+    id: t_h_sue_study_temperature
+    entity_id: sensor.t_h_sue_study_temperature
+    on_value: 
+      then:
+        lvgl.label.update:
+          id: lbl_sue_study_temp
+          text:
+            format: "Sue Study: %.1f°C"
+            args: [ 'id(t_h_sue_study_temperature).state' ]
+  - platform: homeassistant
+    id: t_h_kitchen_temperature
+    entity_id: sensor.t_h_kitchen_temperature
+    on_value: 
+      then:
+        lvgl.label.update:
+          id: lbl_kitchen_temp
+          text:
+            format: "Kitchen: %.1f°C"
+            args: [ 'id(t_h_kitchen_temperature).state' ]
+  - platform: homeassistant
+    id: t_h_lounge_temperature
+    entity_id: sensor.t_h_lounge_temperature
+    on_value: 
+      then:
+        lvgl.label.update:
+          id: lbl_lounge_temp
+          text:
+            format: "Lounge: %.1f°C"
+            args: [ 'id(t_h_lounge_temperature).state' ]
+  - platform: homeassistant
+    id: t_h_hall_temperature
+    entity_id: sensor.t_h_hall_temperature
+    on_value: 
+      then:
+        lvgl.label.update:
+          id: lbl_hall_temp
+          text:
+            format: "Hall: %.1f°C"
+            args: [ 'id(t_h_hall_temperature).state' ]
+  - platform: homeassistant
+    id: t_h_spare_room_temperature
+    entity_id: sensor.t_h_spare_room_temperature
+    on_value: 
+      then:
+        lvgl.label.update:
+          id: lbl_spare_rm_temp
+          text:
+            format: "Spare Rm: %.1f°C"
+            args: [ 'id(t_h_spare_room_temperature).state' ]
+  - platform: homeassistant
+    id: t_h_main_bed_rm_temperature
+    entity_id: sensor.temperature_humidity_sensor_8_temperature
+    on_value: 
+      then:
+        lvgl.label.update:
+          id: lbl_main_bed_rm_temp
+          text:
+            format: "Main BedRm: %.1f°C"
+            args: [ 'id(t_h_main_bed_rm_temperature).state' ]
