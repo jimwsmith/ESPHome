@@ -332,7 +332,7 @@ lvgl:
             align: CENTER
             width: 320
             height: 180 #240-(2*30) #Display area less header & footer
-            pad_all: 2
+            pad_all: 0
             bg_opa: TRANSP #COVER
             border_opa: TRANSP
             # outline_width: 1 #debug top check we fill available space
@@ -622,26 +622,7 @@ lvgl:
                   id: lbl_lounge_humidity
                   text: "Lounge"
                   styles: lbl_temperature_humidity
-
-        # - slider:
-        #     x: 50
-        #     y: 100
-        #     width: 200
-        #     id: dimmer_slider
-        #     value: 75
-        #     min_value: 0
-        #     max_value: 255 #brightness in HA goes from 0 to 255 so match slider range to that
-        #     on_release: #Only use on release to avoid flood of changes for each micro step of slider.  With encoder it means new slider position only recognised when enter is pressed
-        #       then:
-        #         # - light.control:
-        #         #     id: back_light
-        #         #     brightness: !lambda return x/255; //Brightness needs float 0 to 1.0
-        #         # - lambda: |-
-        #         #     CoreS3.Display.setBrightness(x);
-        #         - logger.log:
-        #             format: "Slider state: %f, %f"
-        #             args: [ x, x/255 ]
-        
+       
 #==========================================================================================================================
     - id: main_page
       # on_load:
@@ -704,6 +685,8 @@ lvgl:
                   text: ip addr
 #==========================================================================================================================
     - id: ota_page
+      bg_color: pink
+      skip: true #don't include in menu cycle
       widgets:
         - obj:
             align: TOP_MID
