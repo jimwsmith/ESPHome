@@ -4,6 +4,7 @@ substitutions:
   devicename: m5core3
   upper_devicename: M5Core3
   sensor_update: 60s
+  temp_bar_scale: "3.0"
 
 esphome:
   name: $devicename
@@ -240,139 +241,180 @@ sensor:
     entity_id: sensor.t_h_jim_study_temperature
     on_value: 
       then:
-        lvgl.label.update:
-          id: lbl_jim_study_temp
-          text:
-            format: "Jim Study: %.1f°C"
-            args: [ 'id(t_h_jim_study_temperature).state' ]  
+        - lvgl.label.update:
+            id: lbl_jim_study_temp
+            text:
+              format: "Jim Study: %.1f°C"
+              args: [ 'id(t_h_jim_study_temperature).state' ]
+        - lvgl.bar.update:
+            id: bar_jim_study_temp
+            value: !lambda 'return (id(t_h_jim_study_temperature).state) * $temp_bar_scale;'
   - platform: homeassistant
     id: t_h_sue_study_temperature
     entity_id: sensor.t_h_sue_study_temperature
     on_value: 
       then:
-        lvgl.label.update:
-          id: lbl_sue_study_temp
-          text:
-            format: "Sue Study: %.1f°C"
-            args: [ 'id(t_h_sue_study_temperature).state' ]
+        - lvgl.label.update:
+            id: lbl_sue_study_temp
+            text:
+              format: "Sue Study: %.1f°C"
+              args: [ 'id(t_h_sue_study_temperature).state' ]
+        - lvgl.bar.update:
+            id: bar_sue_study_temp
+            value: !lambda 'return (id(t_h_sue_study_temperature).state) * $temp_bar_scale;'
   - platform: homeassistant
     id: t_h_kitchen_temperature
     entity_id: sensor.t_h_kitchen_temperature
     on_value: 
       then:
-        lvgl.label.update:
-          id: lbl_kitchen_temp
-          text:
-            format: "Kitchen: %.1f°C"
-            args: [ 'id(t_h_kitchen_temperature).state' ]
+        - lvgl.label.update:
+            id: lbl_kitchen_temp
+            text:
+              format: "Kitchen: %.1f°C"
+              args: [ 'id(t_h_kitchen_temperature).state' ]
+        - lvgl.bar.update:
+            id: bar_kitchen_temp
+            value: !lambda 'return (id(t_h_kitchen_temperature).state) * $temp_bar_scale;'
   - platform: homeassistant
     id: t_h_lounge_temperature
     entity_id: sensor.t_h_lounge_temperature
     on_value: 
       then:
-        lvgl.label.update:
-          id: lbl_lounge_temp
-          text:
-            format: "Lounge: %.1f°C"
-            args: [ 'id(t_h_lounge_temperature).state' ]
+        - lvgl.label.update:
+            id: lbl_lounge_temp
+            text:
+              format: "Lounge: %.1f°C"
+              args: [ 'id(t_h_lounge_temperature).state' ]
+        - lvgl.bar.update:
+            id: bar_lounge_temp
+            value: !lambda 'return (id(t_h_lounge_temperature).state) * $temp_bar_scale;'
   - platform: homeassistant
     id: t_h_hall_temperature
     entity_id: sensor.t_h_hall_temperature
     on_value: 
       then:
-        lvgl.label.update:
-          id: lbl_hall_temp
-          text:
-            format: "Hall: %.1f°C"
-            args: [ 'id(t_h_hall_temperature).state' ]
+        - lvgl.label.update:
+            id: lbl_hall_temp
+            text:
+              format: "Hall: %.1f°C"
+              args: [ 'id(t_h_hall_temperature).state' ]
+        - lvgl.bar.update:
+            id: bar_hall_temp
+            value: !lambda 'return (id(t_h_hall_temperature).state) * $temp_bar_scale;'
   - platform: homeassistant
     id: t_h_spare_room_temperature
     entity_id: sensor.t_h_spare_room_temperature
     on_value: 
       then:
-        lvgl.label.update:
-          id: lbl_spare_rm_temp
-          text:
-            format: "Spare Rm: %.1f°C"
-            args: [ 'id(t_h_spare_room_temperature).state' ]
+        - lvgl.label.update:
+            id: lbl_spare_rm_temp
+            text:
+              format: "Spare Rm: %.1f°C"
+              args: [ 'id(t_h_spare_room_temperature).state' ]
+        - lvgl.bar.update:
+            id: bar_spare_rm_temp
+            value: !lambda 'return (id(t_h_spare_room_temperature).state) * $temp_bar_scale;'
   - platform: homeassistant
     id: t_h_main_bed_rm_temperature
     entity_id: sensor.temperature_humidity_sensor_8_temperature
     on_value: 
       then:
-        lvgl.label.update:
-          id: lbl_main_bed_rm_temp
-          text:
-            format: "Main BedRm: %.1f°C"
-            args: [ 'id(t_h_main_bed_rm_temperature).state' ]
-
+        - lvgl.label.update:
+            id: lbl_main_bed_rm_temp
+            text:
+              format: "Main BedRm: %.1f°C"
+              args: [ 'id(t_h_main_bed_rm_temperature).state' ]
+        - lvgl.bar.update:
+            id: bar_main_bed_rm_temp
+            value: !lambda 'return (id(t_h_main_bed_rm_temperature).state) * $temp_bar_scale;'
   - platform: homeassistant
     id: t_h_jim_study_humidity
     entity_id: sensor.t_h_jim_study_humidity
     on_value: 
       then:
-        lvgl.label.update:
-          id: lbl_jim_study_humidity
-          text:
-            format: "%.0f%%"
-            args: [ 'id(t_h_jim_study_humidity).state' ]  
+        - lvgl.label.update:
+            id: lbl_jim_study_humidity
+            text:
+              format: "%.0f%%"
+              args: [ 'id(t_h_jim_study_humidity).state' ]  
+        - lvgl.bar.update:
+            id: bar_jim_study_humidity
+            value: !lambda 'return id(t_h_jim_study_humidity).state;'
   - platform: homeassistant
     id: t_h_sue_study_humidity
     entity_id: sensor.t_h_sue_study_humidity
     on_value: 
       then:
-        lvgl.label.update:
-          id: lbl_sue_study_humidity
-          text:
-            format: "%.0f%%"
-            args: [ 'id(t_h_sue_study_humidity).state' ]
+        - lvgl.label.update:
+            id: lbl_sue_study_humidity
+            text:
+              format: "%.0f%%"
+              args: [ 'id(t_h_sue_study_humidity).state' ]
+        - lvgl.bar.update:  
+            id: bar_sue_study_humidity
+            value: !lambda 'return id(t_h_sue_study_humidity).state;'
   - platform: homeassistant
     id: t_h_kitchen_humidity
     entity_id: sensor.t_h_kitchen_humidity
     on_value: 
       then:
-        lvgl.label.update:
-          id: lbl_kitchen_humidity
-          text:
-            format: "%.0f%%"
-            args: [ 'id(t_h_kitchen_humidity).state' ]
+        - lvgl.label.update:
+            id: lbl_kitchen_humidity
+            text:
+              format: "%.0f%%"
+              args: [ 'id(t_h_kitchen_humidity).state' ]
+        - lvgl.bar.update:  
+            id: bar_kitchen_humidity
+            value: !lambda 'return id(t_h_kitchen_humidity).state;'
   - platform: homeassistant
     id: t_h_lounge_humidity
     entity_id: sensor.t_h_lounge_humidity
     on_value: 
       then:
-        lvgl.label.update:
-          id: lbl_lounge_humidity
-          text:
-            format: "%.0f%%"
-            args: [ 'id(t_h_lounge_humidity).state' ]
+        - lvgl.label.update:
+            id: lbl_lounge_humidity
+            text:
+              format: "%.0f%%"
+              args: [ 'id(t_h_lounge_humidity).state' ]
+        - lvgl.bar.update:
+            id: bar_lounge_humidity
+            value: !lambda 'return id(t_h_lounge_humidity).state;'
   - platform: homeassistant
     id: t_h_hall_humidity
     entity_id: sensor.t_h_hall_humidity
     on_value: 
       then:
-        lvgl.label.update:
-          id: lbl_hall_humidity
-          text:
-            format: "%.0f%%"
-            args: [ 'id(t_h_hall_humidity).state' ]
+        - lvgl.label.update:
+            id: lbl_hall_humidity
+            text:
+              format: "%.0f%%"
+              args: [ 'id(t_h_hall_humidity).state' ]
+        - lvgl.bar.update:
+            id: bar_hall_humidity
+            value: !lambda 'return id(t_h_hall_humidity).state;'
   - platform: homeassistant
     id: t_h_spare_room_humidity
     entity_id: sensor.t_h_spare_room_humidity
     on_value: 
       then:
-        lvgl.label.update:
-          id: lbl_spare_rm_humidity
-          text:
-            format: "%.0f%%"
-            args: [ 'id(t_h_spare_room_humidity).state' ]
+        - lvgl.label.update:
+            id: lbl_spare_rm_humidity
+            text:
+              format: "%.0f%%"
+              args: [ 'id(t_h_spare_room_humidity).state' ]
+        - lvgl.bar.update:
+            id: bar_spare_rm_humidity
+            value: !lambda 'return id(t_h_spare_room_humidity).state;'
   - platform: homeassistant
     id: t_h_main_bed_rm_humidity
     entity_id: sensor.temperature_humidity_sensor_8_humidity
     on_value: 
       then:
-        lvgl.label.update:
-          id: lbl_main_bed_rm_humidity
-          text:
-            format: "%.0f%%"
-            args: [ 'id(t_h_main_bed_rm_humidity).state' ]
+        - lvgl.label.update:
+            id: lbl_main_bed_rm_humidity
+            text:
+              format: "%.0f%%"
+              args: [ 'id(t_h_main_bed_rm_humidity).state' ]
+        - lvgl.bar.update:    
+            id: bar_main_bed_rm_humidity
+            value: !lambda 'return id(t_h_main_bed_rm_humidity).state;'

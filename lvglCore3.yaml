@@ -41,6 +41,42 @@ lvgl:
   resume_on_input: true #resume from pause on button press (encoder rotate)
   id: lv_id #Only reqd so that ota can force updates to lvgl display even when main loop not running
 #==========================================================================================================================
+  gradients:
+    - id: color_bar
+      direction: hor
+      dither: none
+      stops:
+        - color: 0xFF0000
+          position: 0
+        - color: 0xFFFF00
+          position: 42
+        - color: 0x00FF00
+          position: 84
+        - color: 0x00FFFF
+          position: 127
+        - color: 0x0000FF
+          position: 169
+        - color: 0xFF00FF
+          position: 212
+        - color: 0xFF0000
+          position: 255
+    - id: blue_red_bar
+      direction: hor
+      dither: none
+      stops:
+        - color: blue
+          position: 0
+        - color: red
+          position: 255
+    - id: green_blue_bar
+      direction: hor
+      dither: none
+      stops:
+        - color: green
+          position: 0
+        - color: blue
+          position: 255
+
   theme:
     label:
       text_font: montserrat_14 # set all your labels to use your custom defined font
@@ -175,6 +211,20 @@ lvgl:
       text_color: 0xFFFFFF
       width: 100%
       height: 30
+
+    - id: bar_temperature
+      bg_opa: TRANSP #COVER
+    - id: indicator_temperature
+      bg_grad: blue_red_bar
+      bg_opa: 50%
+    - id: bar_humidity
+      bg_opa: TRANSP #COVER
+    - id: indicator_humidity
+      bg_grad: green_blue_bar
+      bg_opa: 50%
+    - id: lbl_temperature_humidity
+      text_align: RIGHT
+
   top_layer:
     widgets:
       - label:
@@ -278,19 +328,19 @@ lvgl:
                   text_align: CENTER
                   text_color: 0xFFFFFF #white
         - obj: # a properly placed coontainer object for all these controls
-            text_color: 0xFFFFFF
+            text_color: white
             align: CENTER
             width: 320
             height: 180 #240-(2*30) #Display area less header & footer
-            pad_all: 6
-            bg_opa: TRANSP
+            pad_all: 2
+            bg_opa: TRANSP #COVER
             border_opa: TRANSP
             # outline_width: 1 #debug top check we fill available space
             layout: # enable the GRID layout for the children widgets
               type: GRID # split the rows and the columns proportionally
               grid_columns: [FR(1), FR(1)] # equal
               grid_rows: [FR(1), FR(1), FR(1), FR(1), FR(1), FR(1), FR(1), FR(1), FR(1), FR(1)] # like percents
-              pad_row: 6
+              pad_row: 4
               pad_column: 8
             widgets:
               - button:
@@ -320,6 +370,16 @@ lvgl:
                         action: switch.toggle
                         data:
                           entity_id: switch.heating_pump_switch_1
+              - bar:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 2 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: bar_jim_study_temp
+                  value: 100
+                  styles: bar_temperature
+                  indicator: 
+                    styles: indicator_temperature
               - label:
                   grid_cell_column_pos: 0 # place the widget in
                   grid_cell_row_pos: 2 # the corresponding cell
@@ -327,7 +387,17 @@ lvgl:
                   grid_cell_y_align: STRETCH
                   id: lbl_jim_study_temp
                   text: "Jim Study"
-                  text_align: RIGHT
+                  styles: lbl_temperature_humidity
+              - bar:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 3 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: bar_jim_study_humidity
+                  value: 100
+                  styles: bar_temperature
+                  indicator: 
+                    styles: indicator_humidity
               - label:
                   grid_cell_column_pos: 0 # place the widget in
                   grid_cell_row_pos: 3 # the corresponding cell
@@ -335,7 +405,17 @@ lvgl:
                   grid_cell_y_align: STRETCH
                   id: lbl_jim_study_humidity
                   text: "Jim Study"
-                  text_align: RIGHT
+                  styles: lbl_temperature_humidity
+              - bar:
+                  grid_cell_column_pos: 1 # place the widget in
+                  grid_cell_row_pos: 2 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: bar_hall_temp
+                  value: 100
+                  styles: bar_temperature
+                  indicator: 
+                    styles: indicator_temperature
               - label:
                   grid_cell_column_pos: 1 # place the widget in
                   grid_cell_row_pos: 2 # the corresponding cell
@@ -343,7 +423,17 @@ lvgl:
                   grid_cell_y_align: STRETCH
                   id: lbl_hall_temp
                   text: "Hall"
-                  text_align: RIGHT
+                  styles: lbl_temperature_humidity
+              - bar:
+                  grid_cell_column_pos: 1 # place the widget in
+                  grid_cell_row_pos: 3 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: bar_hall_humidity
+                  value: 100
+                  styles: bar_temperature
+                  indicator: 
+                    styles: indicator_humidity
               - label:
                   grid_cell_column_pos: 1 # place the widget in
                   grid_cell_row_pos: 3 # the corresponding cell
@@ -351,7 +441,17 @@ lvgl:
                   grid_cell_y_align: STRETCH
                   id: lbl_hall_humidity
                   text: "Hall"
-                  text_align: RIGHT
+                  styles: lbl_temperature_humidity
+              - bar:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 4 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: bar_sue_study_temp
+                  value: 100
+                  styles: bar_temperature
+                  indicator: 
+                    styles: indicator_temperature
               - label:
                   grid_cell_column_pos: 0 # place the widget in
                   grid_cell_row_pos: 4 # the corresponding cell
@@ -359,7 +459,17 @@ lvgl:
                   grid_cell_y_align: STRETCH
                   id: lbl_sue_study_temp
                   text: "Sue Study"
-                  text_align: RIGHT
+                  styles: lbl_temperature_humidity
+              - bar:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 5 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: bar_sue_study_humidity
+                  value: 100
+                  styles: bar_temperature
+                  indicator: 
+                    styles: indicator_humidity
               - label:
                   grid_cell_column_pos: 0 # place the widget in
                   grid_cell_row_pos: 5 # the corresponding cell
@@ -367,7 +477,17 @@ lvgl:
                   grid_cell_y_align: STRETCH
                   id: lbl_sue_study_humidity
                   text: "Sue Study"
-                  text_align: RIGHT
+                  styles: lbl_temperature_humidity
+              - bar:
+                  grid_cell_column_pos: 1 # place the widget in
+                  grid_cell_row_pos: 4 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: bar_spare_rm_temp
+                  value: 100
+                  styles: bar_temperature
+                  indicator: 
+                    styles: indicator_temperature
               - label:
                   grid_cell_column_pos: 1 # place the widget in
                   grid_cell_row_pos: 4 # the corresponding cell
@@ -375,7 +495,17 @@ lvgl:
                   grid_cell_y_align: STRETCH
                   id: lbl_spare_rm_temp
                   text: "Spare Rm"
-                  text_align: RIGHT
+                  styles: lbl_temperature_humidity
+              - bar:
+                  grid_cell_column_pos: 1 # place the widget in
+                  grid_cell_row_pos: 5 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: bar_spare_rm_humidity
+                  value: 100
+                  styles: bar_temperature
+                  indicator: 
+                    styles: indicator_humidity
               - label:
                   grid_cell_column_pos: 1 # place the widget in
                   grid_cell_row_pos: 5 # the corresponding cell
@@ -383,7 +513,17 @@ lvgl:
                   grid_cell_y_align: STRETCH
                   id: lbl_spare_rm_humidity
                   text: "Spare Rm"
-                  text_align: RIGHT
+                  styles: lbl_temperature_humidity
+              - bar:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 6 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: bar_main_bed_rm_temp
+                  value: 100
+                  styles: bar_temperature
+                  indicator: 
+                    styles: indicator_temperature
               - label:
                   grid_cell_column_pos: 0 # place the widget in
                   grid_cell_row_pos: 6 # the corresponding cell
@@ -391,7 +531,17 @@ lvgl:
                   grid_cell_y_align: STRETCH
                   id: lbl_main_bed_rm_temp
                   text: "Main Bed"
-                  text_align: RIGHT
+                  styles: lbl_temperature_humidity
+              - bar:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 7 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: bar_main_bed_rm_humidity
+                  value: 100
+                  styles: bar_temperature
+                  indicator: 
+                    styles: indicator_humidity
               - label:
                   grid_cell_column_pos: 0 # place the widget in
                   grid_cell_row_pos: 7 # the corresponding cell
@@ -399,7 +549,17 @@ lvgl:
                   grid_cell_y_align: STRETCH
                   id: lbl_main_bed_rm_humidity
                   text: "Main Bed"
-                  text_align: RIGHT
+                  styles: lbl_temperature_humidity
+              - bar:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 8 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: bar_kitchen_temp
+                  value: 100
+                  styles: bar_temperature
+                  indicator: 
+                    styles: indicator_temperature
               - label:
                   grid_cell_column_pos: 0 # place the widget in
                   grid_cell_row_pos: 8 # the corresponding cell
@@ -407,7 +567,17 @@ lvgl:
                   grid_cell_y_align: STRETCH
                   id: lbl_kitchen_temp
                   text: "Kitchen"
-                  text_align: RIGHT
+                  styles: lbl_temperature_humidity
+              - bar:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 9 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: bar_kitchen_humidity
+                  value: 100
+                  styles: bar_temperature
+                  indicator: 
+                    styles: indicator_humidity
               - label:
                   grid_cell_column_pos: 0 # place the widget in
                   grid_cell_row_pos: 9 # the corresponding cell
@@ -415,7 +585,17 @@ lvgl:
                   grid_cell_y_align: STRETCH
                   id: lbl_kitchen_humidity
                   text: "Kitchen"
-                  text_align: RIGHT
+                  styles: lbl_temperature_humidity
+              - bar:
+                  grid_cell_column_pos: 1 # place the widget in
+                  grid_cell_row_pos: 8 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: bar_lounge_temp
+                  value: 100
+                  styles: bar_temperature
+                  indicator: 
+                    styles: indicator_temperature
               - label:
                   grid_cell_column_pos: 1 # place the widget in
                   grid_cell_row_pos: 8 # the corresponding cell
@@ -423,7 +603,17 @@ lvgl:
                   grid_cell_y_align: STRETCH
                   id: lbl_lounge_temp
                   text: "Lounge"
-                  text_align: RIGHT
+                  styles: lbl_temperature_humidity
+              - bar:
+                  grid_cell_column_pos: 1 # place the widget in
+                  grid_cell_row_pos: 9 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: bar_lounge_humidity
+                  value: 100
+                  styles: bar_temperature
+                  indicator: 
+                    styles: indicator_humidity
               - label:
                   grid_cell_column_pos: 1 # place the widget in
                   grid_cell_row_pos: 9 # the corresponding cell
@@ -431,7 +621,7 @@ lvgl:
                   grid_cell_y_align: STRETCH
                   id: lbl_lounge_humidity
                   text: "Lounge"
-                  text_align: RIGHT
+                  styles: lbl_temperature_humidity
 
         # - slider:
         #     x: 50
