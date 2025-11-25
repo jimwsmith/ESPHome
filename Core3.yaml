@@ -197,17 +197,17 @@ script:
       - pcf8563.write_time:
 
 
-switch:
-- platform: template
-  name: "LCD Backlight"
-  id: switch_lcd_backlight
-  restore_mode: "RESTORE_DEFAULT_ON"
-  turn_on_action:
-    - lambda: |-
-        M5.Display.setBrightness(127);
-  turn_off_action:
-    - lambda: |-
-        M5.Display.setBrightness(0);
+# switch:
+# - platform: template
+#   name: "LCD Backlight"
+#   id: switch_lcd_backlight
+#   restore_mode: "RESTORE_DEFAULT_ON"
+  # turn_on_action:
+  #   - lambda: |-
+  #       M5.Display.setBrightness(127);
+  # turn_off_action:
+  #   - lambda: |-
+  #       M5.Display.setBrightness(0);
 # output:
 #   - platform: ledc
 #     pin: 32
@@ -305,3 +305,74 @@ sensor:
           text:
             format: "Main BedRm: %.1f°C"
             args: [ 'id(t_h_main_bed_rm_temperature).state' ]
+
+  - platform: homeassistant
+    id: t_h_jim_study_humidity
+    entity_id: sensor.t_h_jim_study_humidity
+    on_value: 
+      then:
+        lvgl.label.update:
+          id: lbl_jim_study_humidity
+          text:
+            format: "%.0f%%"
+            args: [ 'id(t_h_jim_study_humidity).state' ]  
+  - platform: homeassistant
+    id: t_h_sue_study_humidity
+    entity_id: sensor.t_h_sue_study_humidity
+    on_value: 
+      then:
+        lvgl.label.update:
+          id: lbl_sue_study_humidity
+          text:
+            format: "%.0f%%"
+            args: [ 'id(t_h_sue_study_humidity).state' ]
+  - platform: homeassistant
+    id: t_h_kitchen_humidity
+    entity_id: sensor.t_h_kitchen_humidity
+    on_value: 
+      then:
+        lvgl.label.update:
+          id: lbl_kitchen_humidity
+          text:
+            format: "%.0f%%"
+            args: [ 'id(t_h_kitchen_humidity).state' ]
+  - platform: homeassistant
+    id: t_h_lounge_humidity
+    entity_id: sensor.t_h_lounge_humidity
+    on_value: 
+      then:
+        lvgl.label.update:
+          id: lbl_lounge_humidity
+          text:
+            format: "%.0f%%"
+            args: [ 'id(t_h_lounge_humidity).state' ]
+  - platform: homeassistant
+    id: t_h_hall_humidity
+    entity_id: sensor.t_h_hall_humidity
+    on_value: 
+      then:
+        lvgl.label.update:
+          id: lbl_hall_humidity
+          text:
+            format: "%.0f%%"
+            args: [ 'id(t_h_hall_humidity).state' ]
+  - platform: homeassistant
+    id: t_h_spare_room_humidity
+    entity_id: sensor.t_h_spare_room_humidity
+    on_value: 
+      then:
+        lvgl.label.update:
+          id: lbl_spare_rm_humidity
+          text:
+            format: "%.0f%%"
+            args: [ 'id(t_h_spare_room_humidity).state' ]
+  - platform: homeassistant
+    id: t_h_main_bed_rm_humidity
+    entity_id: sensor.temperature_humidity_sensor_8_humidity
+    on_value: 
+      then:
+        lvgl.label.update:
+          id: lbl_main_bed_rm_humidity
+          text:
+            format: "%.0f%%"
+            args: [ 'id(t_h_main_bed_rm_humidity).state' ]

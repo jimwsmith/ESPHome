@@ -289,7 +289,7 @@ lvgl:
             layout: # enable the GRID layout for the children widgets
               type: GRID # split the rows and the columns proportionally
               grid_columns: [FR(1), FR(1)] # equal
-              grid_rows: [FR(1), FR(1), FR(1), FR(1), FR(1)] # like percents
+              grid_rows: [FR(1), FR(1), FR(1), FR(1), FR(1), FR(1), FR(1), FR(1), FR(1), FR(1)] # like percents
               pad_row: 6
               pad_column: 8
             widgets:
@@ -297,6 +297,7 @@ lvgl:
                   grid_cell_column_pos: 0 # place the widget in
                   grid_cell_row_pos: 0 # the corresponding cell
                   grid_cell_column_span: 2 #Span 2 columns
+                  grid_cell_row_span: 2 #Span 2 rows
                   grid_cell_x_align: STRETCH
                   grid_cell_y_align: STRETCH
                   id: btn_heating_pump
@@ -321,53 +322,116 @@ lvgl:
                           entity_id: switch.heating_pump_switch_1
               - label:
                   grid_cell_column_pos: 0 # place the widget in
-                  grid_cell_row_pos: 1 # the corresponding cell
+                  grid_cell_row_pos: 2 # the corresponding cell
                   grid_cell_x_align: STRETCH
                   grid_cell_y_align: STRETCH
                   id: lbl_jim_study_temp
                   text: "Jim Study"
-              - label:
-                  grid_cell_column_pos: 1 # place the widget in
-                  grid_cell_row_pos: 1 # the corresponding cell
-                  grid_cell_x_align: STRETCH
-                  grid_cell_y_align: STRETCH
-                  id: lbl_hall_temp
-                  text: "Hall"
-              - label:
-                  grid_cell_column_pos: 0 # place the widget in
-                  grid_cell_row_pos: 2 # the corresponding cell
-                  grid_cell_x_align: STRETCH
-                  grid_cell_y_align: STRETCH
-                  id: lbl_sue_study_temp
-                  text: "Sue Study"
-              - label:
-                  grid_cell_column_pos: 1 # place the widget in
-                  grid_cell_row_pos: 2 # the corresponding cell
-                  grid_cell_x_align: STRETCH
-                  grid_cell_y_align: STRETCH
-                  id: lbl_spare_rm_temp
-                  text: "Spare Rm"
+                  text_align: RIGHT
               - label:
                   grid_cell_column_pos: 0 # place the widget in
                   grid_cell_row_pos: 3 # the corresponding cell
                   grid_cell_x_align: STRETCH
                   grid_cell_y_align: STRETCH
-                  id: lbl_main_bed_rm_temp
-                  text: "Main Bed"
+                  id: lbl_jim_study_humidity
+                  text: "Jim Study"
+                  text_align: RIGHT
+              - label:
+                  grid_cell_column_pos: 1 # place the widget in
+                  grid_cell_row_pos: 2 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_hall_temp
+                  text: "Hall"
+                  text_align: RIGHT
+              - label:
+                  grid_cell_column_pos: 1 # place the widget in
+                  grid_cell_row_pos: 3 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_hall_humidity
+                  text: "Hall"
+                  text_align: RIGHT
               - label:
                   grid_cell_column_pos: 0 # place the widget in
                   grid_cell_row_pos: 4 # the corresponding cell
                   grid_cell_x_align: STRETCH
                   grid_cell_y_align: STRETCH
-                  id: lbl_kitchen_temp
-                  text: "Kitchen"
+                  id: lbl_sue_study_temp
+                  text: "Sue Study"
+                  text_align: RIGHT
+              - label:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 5 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_sue_study_humidity
+                  text: "Sue Study"
+                  text_align: RIGHT
               - label:
                   grid_cell_column_pos: 1 # place the widget in
                   grid_cell_row_pos: 4 # the corresponding cell
                   grid_cell_x_align: STRETCH
                   grid_cell_y_align: STRETCH
+                  id: lbl_spare_rm_temp
+                  text: "Spare Rm"
+                  text_align: RIGHT
+              - label:
+                  grid_cell_column_pos: 1 # place the widget in
+                  grid_cell_row_pos: 5 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_spare_rm_humidity
+                  text: "Spare Rm"
+                  text_align: RIGHT
+              - label:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 6 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_main_bed_rm_temp
+                  text: "Main Bed"
+                  text_align: RIGHT
+              - label:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 7 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_main_bed_rm_humidity
+                  text: "Main Bed"
+                  text_align: RIGHT
+              - label:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 8 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_kitchen_temp
+                  text: "Kitchen"
+                  text_align: RIGHT
+              - label:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 9 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_kitchen_humidity
+                  text: "Kitchen"
+                  text_align: RIGHT
+              - label:
+                  grid_cell_column_pos: 1 # place the widget in
+                  grid_cell_row_pos: 8 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
                   id: lbl_lounge_temp
                   text: "Lounge"
+                  text_align: RIGHT
+              - label:
+                  grid_cell_column_pos: 1 # place the widget in
+                  grid_cell_row_pos: 9 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_lounge_humidity
+                  text: "Lounge"
+                  text_align: RIGHT
 
         # - slider:
         #     x: 50
