@@ -1,0 +1,66 @@
+substitutions:
+  devicename: ainsley
+  tx_pin: GPIO4
+  rx_pin: GPIO5
+  led_pin: GPIO14
+  button_pin: GPIO13
+
+esphome:
+  name: $devicename
+
+esp8266:
+  board: esp07s #esp01_1m #d1_mini_pro
+
+wifi:
+  networks:
+    - ssid: !secret wifi_comp_ssid
+      password: !secret wifi_comp_password
+    - ssid: !secret wifi_home_ssid
+      password: !secret wifi_home_password
+    - ssid: !secret wifi_phone_ssid
+      password: !secret wifi_phone_password
+    - ssid: !secret wifi_bshed_ssid
+      password: !secret wifi_bshed_password
+
+mqtt:
+  broker: allsmiths.synology.me
+  port: 1883
+  username: !secret mqtt_username
+  password: !secret mqtt_password
+  #no clientid reqd
+  discovery: true # disable entity discovery
+  discover_ip: true # enable device discovery
+  discovery_retain: true #retain discovery messages
+  discovery_unique_id_generator: mac #Use Mac address to generate unique entity Ids
+
+ota:
+  platform: esphome
+
+logger:
+  baud_rate: 0 # disable uart logging (MQTT logging still happens) as we need to retain the serial port free for comms with AT Mega
+  level: DEBUG
+
+button: 
+  - platform: restart
+    id: restart_button
+    name: Restart
+
+binary_sensor:
+  - platform: gpio
+    pin: 
+      number: $button_pin
+      inverted: True
+    name: "$devicename ESP8266 Button"
+
+light:
+  - platform: status_led
+    name: "$devicename ESP8266 LED"
+    id: devicename_led
+    pin: 
+      number: $led_pin
+      inverted: False
+
+# status_led:
+#   pin: 
+#     number: D4
+#     inverted: True
