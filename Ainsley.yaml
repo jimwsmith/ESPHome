@@ -1,9 +1,10 @@
 substitutions:
-  devicename: ainsley
+  devicename: ainsleymonitor
   tx_pin: GPIO4
   rx_pin: GPIO5
   led_pin: GPIO14
   button_pin: GPIO13
+  sensor_update: 60s
 
 esphome:
   name: $devicename
@@ -21,6 +22,22 @@ wifi:
       password: !secret wifi_phone_password
     - ssid: !secret wifi_bshed_ssid
       password: !secret wifi_bshed_password
+
+interval:
+  - interval: $sensor_update
+    then: #publish wifi info every sensor_update interval as it is not valid when WiFi first starts up
+      - mqtt.publish:
+          topic: $devicename/sensor/wifi_ssid/state
+          payload: !lambda |-
+            return id(wifi_ssid).state;
+      - mqtt.publish:
+          topic: $devicename/sensor/wifi_dns/state
+          payload: !lambda |-
+            return id(wifi_dns).state;
+      - mqtt.publish:
+          topic: $devicename/sensor/wifi_ip/state
+          payload: !lambda |-
+            return id(wifi_ip).state;
 
 mqtt:
   broker: allsmiths.synology.me
@@ -50,17 +67,39 @@ binary_sensor:
     pin: 
       number: $button_pin
       inverted: True
-    name: "$devicename ESP8266 Button"
+    name: "ESP8266 Button"
 
 light:
   - platform: status_led
-    name: "$devicename ESP8266 LED"
+    name: "ESP8266 LED"
     id: devicename_led
     pin: 
       number: $led_pin
       inverted: False
 
-# status_led:
-#   pin: 
-#     number: D4
-#     inverted: True
+text_sensor:
+  - platform: wifi_info
+    ssid:
+      icon: mdi:wifi
+      id: wifi_ssid
+      name: "WiFi SSID"
+    dns_address:
+      icon: mdi:wifi
+      id: wifi_dns
+      name: "WiFi DNS"
+    ip_address:
+      icon: mdi:wifi
+      id: wifi_ip
+      name: "WiFi IP"
+
+sensor:
+  - platform: wifi_signal # Reports the WiFi signal strength/RSSI in dB
+    icon: mdi:wifi
+    name: "WiFi Signal dB"
+    id: wifi_signal_db
+    unit_of_measurement: "dB"
+    update_interval: ${sensor_update}
+    entity_category: "diagnostic"
+                
+  - platform: uptime
+    name: "Uptime"
