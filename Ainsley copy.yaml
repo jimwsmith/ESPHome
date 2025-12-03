@@ -19,7 +19,6 @@ uart:
   stop_bits: 1
   tx_pin: $tx_pin
   rx_pin: $rx_pin
-  rx_buffer_size: 512
 
 external_components:
   - source: github://eigger/espcomponents@latest
@@ -27,7 +26,7 @@ external_components:
     refresh: always
 
 uartex:
-  rx_timeout: 10ms
+  rx_timeout: 100ms
   tx_delay: 50ms
   tx_timeout: 500ms
   tx_retry_cnt: 3
@@ -58,7 +57,7 @@ sensor:
     state: "V1"
     state_number:
       offset: 2
-      length: 16 #If value received is shorter than this, decoding seems OK
+      length: 6 #If value received is shorter than this, decoding seems OK
       precision: 2
       decode: "ascii"
     accuracy_decimals: 2
@@ -70,7 +69,7 @@ sensor:
     state: "V2"
     state_number:
       offset: 2
-      length: 16
+      length: 4
       precision: 0
       decode: "ascii"
 
@@ -160,8 +159,6 @@ wifi:
       password: !secret wifi_bshed_password
   on_connect:
     - uart.write: "\n\nESP8266 Reboot, WiFi connected\r\n"
-  on_disconnect:
-    - uart.write: "\nWiFi disconnected\r\n"
     
 interval:
   - interval: $sensor_update
@@ -189,10 +186,6 @@ mqtt:
   discover_ip: true # enable device discovery
   discovery_retain: true #retain discovery messages
   discovery_unique_id_generator: mac #Use Mac address to generate unique entity Ids
-  on_connect:
-    - uart.write: "\nMQTT connected\r\n"
-  on_disconnect:
-    - uart.write: "\nMQTT disconnected\r\n"
 
 ota:
   platform: esphome
