@@ -31,7 +31,7 @@ uartex:
   tx_delay: 50ms
   tx_timeout: 500ms
   tx_retry_cnt: 3
-
+  rx_priority: loop #Lower priority for Rx than main loop tasks
   # rx_header: [0x02, 0x01]
   rx_footer: [0x0D, 0x0A]
   # tx_header: [0x02, 0x01]
@@ -212,6 +212,15 @@ binary_sensor:
       number: $button_pin
       inverted: True
     name: "ESP8266 Button"
+  - platform: uartex
+    state: "B1"
+    state_on:
+      offset: 2
+      data: [0x31] # ASCII '1'
+    state_off:
+      offset: 2
+      data: [0x30] # ASCII '0'
+    name: "ATMega Button"
 
 light:
   - platform: status_led
