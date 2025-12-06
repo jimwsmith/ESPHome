@@ -6,11 +6,27 @@ substitutions:
   button_pin: GPIO13
   sensor_update: 60s
 
+# Global Variables
+# globals:
+#   - id: my_global_int
+#     type: int
+#     restore_value: no #on the ESP8266, you only have a total of 96 bytes available for this! Defaults to no.
+#     initial_value: '0'
+
 esphome:
   name: $devicename
+  on_boot: 
+    - priority: -100 #run this very late in the boot process
+      then:
+        - uart.write: "\r\n" #clear out any partial data sent as Uart started
+        - uart.write: "Info\r\n" #Requesting version info from AT Mega on boot"
+      
 
 esp8266:
-  board: esp07s #esp01_1m #d1_mini_pro
+  board: esp07s #d1_mini_pro
+
+packages: 
+  uart: !include AinsleyUart.yaml
 
 uart:
   baud_rate: 9600
@@ -21,132 +37,25 @@ uart:
   rx_pin: $rx_pin
   rx_buffer_size: 512
 
-external_components:
-  - source: github://eigger/espcomponents@latest
-    components: [ uartex ]
-    refresh: always
-
-uartex:
-  rx_timeout: 10ms
-  tx_delay: 50ms
-  tx_timeout: 500ms
-  tx_retry_cnt: 3
-  rx_priority: loop #Lower priority for Rx than main loop tasks
-  # rx_header: [0x02, 0x01]
-  rx_footer: [0x0D, 0x0A]
-  # tx_header: [0x02, 0x01]
-  tx_footer: [0x0D, 0x0A]
-
-  version:
-    disabled: False
-  error:
-    disabled: False
-  log:
-    disabled: True #False
-
-sensor:
+number:
   - platform: template
-    id: num_from_text
-    name: "Number from text"
-    unit_of_measurement: "units"
-    accuracy_decimals: 2
-
-  - platform: uartex
-    id: test_sensor_1
-    name: "Test Sensor 1"
-    unit_of_measurement: "units"
-    state: "V1"
-    state_number:
-      offset: 2
-      length: 16 #If value received is shorter than this, decoding seems OK
-      precision: 2
-      decode: "ascii"
-    accuracy_decimals: 2
-
-  - platform: uartex #Working example for integer ascii values
-    id: test_sensor_2
-    name: "Test Sensor 2"
-    unit_of_measurement: "units"
-    state: "V2"
-    state_number:
-      offset: 2
-      length: 16
-      precision: 0
-      decode: "ascii"
-
-  - platform: uartex
-    id: test_sensor_3
-    name: "Test Sensor 3"
-    unit_of_measurement: "units"
-    accuracy_decimals: 2
-    state: "V3"
-    lambda: |-
-      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+2), len-2).c_str());
-      return n.has_value() ? n.value() : NAN;
-
-
-  - platform: uartex
-    id: test_sensor_4
-    name: "Test Sensor 4"
-    unit_of_measurement: "units"
-    accuracy_decimals: 3
-    state: "V4"
-    lambda: |-
-      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+2), len-2));
-      return n.has_value() ? n.value() : NAN;
-
-  - platform: uartex
-    id: test_sensor_5
-    name: "Test Sensor 5"
-    unit_of_measurement: "units"
-    accuracy_decimals: 3
-    state: "V5"
-    lambda: |-
-      std::string str =  std::string(reinterpret_cast<const char*>(data+2), len-2); // Simply 
-
-      auto n = parse_number<float>(str);
-      return n.has_value() ? n.value() : NAN;
-
-  - platform: wifi_signal # Reports the WiFi signal strength/RSSI in dB
-    icon: mdi:wifi
-    name: "WiFi Signal dB"
-    id: wifi_signal_db
-    unit_of_measurement: "dB"
-    update_interval: ${sensor_update}
+    id: wifi_error_count
+    name: "WiFi Error Count"
+    unit_of_measurement: "errors"
     entity_category: "diagnostic"
-                
-  - platform: uptime
-    name: "Uptime"
-
-
-text_sensor:
-  - platform: uartex
-    id: test_text_sensor
-    name: "Test Text Sensor"
-    state: "T1"
-    lambda: |-
-      // return std::string(reinterpret_cast<const char*>(data), len); // Simply return the received string
-      return std::string(reinterpret_cast<const char*>(data+2), len-2); // Simply return the received string excluding first 2 chars
-    on_value:
-      then:
-        - sensor.template.publish:
-            id: num_from_text
-            state: !lambda |-
-              auto n = parse_number<float>(x);
-              return n.has_value() ? n.value() : NAN;
-  - platform: wifi_info
-    ssid:
-      icon: mdi:wifi
-      id: wifi_ssid
-      name: "WiFi SSID"
-    dns_address:
-      icon: mdi:wifi
-      id: wifi_dns
-      name: "WiFi DNS"
-    ip_address:
-      icon: mdi:wifi
-      id: wifi_ip
-      name: "WiFi IP"
+    max_value: 1000000
+    min_value: 0  
+    step: 1
+    optimistic: true  
+  - platform: template
+    id: mqtt_error_count
+    name: "MQTT Error Count"
+    entity_category: "diagnostic"
+    unit_of_measurement: "errors"
+    max_value: 1000000
+    min_value: 0  
+    step: 1
+    optimistic: true  
 
 wifi:
   networks:
@@ -158,10 +67,12 @@ wifi:
       password: !secret wifi_phone_password
     - ssid: !secret wifi_bshed_ssid
       password: !secret wifi_bshed_password
-  on_connect:
-    - uart.write: "\n\nESP8266 Reboot, WiFi connected\r\n"
+  # on_connect:
+    # - uart.write: "\n\nESP8266 Reboot, WiFi connected\r\n"
   on_disconnect:
-    - uart.write: "\nWiFi disconnected\r\n"
+    # - uart.write: "\nWiFi disconnected\r\n"
+    - number.increment:
+        id: wifi_error_count
     
 interval:
   - interval: $sensor_update
@@ -189,10 +100,13 @@ mqtt:
   discover_ip: true # enable device discovery
   discovery_retain: true #retain discovery messages
   discovery_unique_id_generator: mac #Use Mac address to generate unique entity Ids
-  on_connect:
-    - uart.write: "\nMQTT connected\r\n"
+  # on_connect:
+    # - uart.write: "\nMQTT connected\r\n"
   on_disconnect:
-    - uart.write: "\nMQTT disconnected\r\n"
+    # - uart.write: "\nMQTT disconnected\r\n"
+    - number.increment:
+        id: mqtt_error_count
+  keepalive: 15s # default is 15s apparently but I had to set to 10s to prevent frequent MQTT disconnects
 
 ota:
   platform: esphome
@@ -206,22 +120,6 @@ button:
     id: restart_button
     name: Restart
 
-binary_sensor:
-  - platform: gpio
-    pin: 
-      number: $button_pin
-      inverted: True
-    name: "ESP8266 Button"
-  - platform: uartex
-    state: "B1"
-    state_on:
-      offset: 2
-      data: [0x31] # ASCII '1'
-    state_off:
-      offset: 2
-      data: [0x30] # ASCII '0'
-    name: "ATMega Button"
-
 light:
   - platform: status_led
     name: "ESP8266 LED"
@@ -230,3 +128,37 @@ light:
       number: $led_pin
       inverted: False
     restore_mode: RESTORE_DEFAULT_OFF
+
+sensor:
+  - platform: wifi_signal # Reports the WiFi signal strength/RSSI in dB
+    icon: mdi:wifi
+    name: "WiFi Signal dB"
+    id: wifi_signal_db
+    unit_of_measurement: "dB"
+    update_interval: ${sensor_update}
+    entity_category: "diagnostic"
+                
+  - platform: uptime
+    name: "Uptime"
+
+text_sensor:
+  - platform: wifi_info
+    ssid:
+      icon: mdi:wifi
+      id: wifi_ssid
+      name: "WiFi SSID"
+    dns_address:
+      icon: mdi:wifi
+      id: wifi_dns
+      name: "WiFi DNS"
+    ip_address:
+      icon: mdi:wifi
+      id: wifi_ip
+      name: "WiFi IP"
+
+binary_sensor:
+  - platform: gpio
+    pin: 
+      number: $button_pin
+      inverted: True
+    name: "ESP8266 Button"
