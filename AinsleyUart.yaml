@@ -27,8 +27,8 @@ uartex:
 
 sensor: 
   - platform: uartex
-    id: Mega_uptime_sensor
-    name: "Mega Uptime"
+    id: atmega_uptime
+    name: "ATMega Uptime"
     unit_of_measurement: "m"
     state: "H1"
     state_number:
@@ -37,6 +37,7 @@ sensor:
       precision: 0
       decode: "ascii"
     accuracy_decimals: 0
+    # device_class: "duration"
 
   - platform: uartex
     id: atmega_button_counter

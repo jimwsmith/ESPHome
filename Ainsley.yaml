@@ -185,7 +185,7 @@ sensor:
     entity_category: "diagnostic"
                 
   - platform: uptime
-    name: "Uptime"
+    name: "ESP8266 Uptime"
 
 text_sensor:
   - platform: wifi_info
