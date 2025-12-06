@@ -1,10 +1,11 @@
 substitutions:
-  devicename: ainsleymonitor
+  devicename: boat
   tx_pin: GPIO1
   rx_pin: GPIO3
   led_pin: GPIO14
   button_pin: GPIO13
   sensor_update: 60s
+  led_strbuf_size: "16"
 
 # Global Variables
 # globals:
@@ -16,6 +17,9 @@ substitutions:
 esphome:
   name: $devicename
   on_boot: 
+    - priority: 600 #Uart should be configured before this runs
+      then:
+        - uart.write: "\r\n" #clear out any partial data sent as Uart started so that LED setup string will be interpreted OK
     - priority: -100 #run this very late in the boot process
       then:
         - uart.write: "\r\n" #clear out any partial data sent as Uart started
@@ -121,13 +125,55 @@ button:
     name: Restart
 
 light:
-  - platform: status_led
+  - platform: status_led #Built in LED to show status for SP8266
     name: "ESP8266 LED"
     id: devicename_led
     pin: 
       number: $led_pin
       inverted: False
+    restore_mode: RESTORE_DEFAULT_ON
+
+  - platform: rgb #Individual control of RGB elemenst of LED strip driven from AT Mega via ESP8266
+    name: "ATMega RGB Light"
+    id: ainsley_rgb_light
+    red: output_red
+    green: output_green
+    blue: output_blue
+    default_transition_length: 0s #instant change of colour as we cannot cope with transitions
     restore_mode: RESTORE_DEFAULT_OFF
+
+output:
+# Consider adding \r\n at start of each command if issues arise with LED control
+  - platform: template
+    id: output_red
+    type: float
+    write_action:
+      - logger.log:
+          format: "Setting RED output to %.2f"
+          args: [ 'state' ]
+      - uart.write: !lambda  |-
+          char buf[$led_strbuf_size];
+          snprintf(buf, $led_strbuf_size, "LR%02X\r\n", (int)(255*state)); //Send colour value to AT Mega
+          std::string s = buf;
+          return std::vector<unsigned char>( s.begin(), s.end() );
+  - platform: template
+    id: output_green
+    type: float
+    write_action:
+      - uart.write: !lambda  |-
+          char buf[$led_strbuf_size];
+          snprintf(buf, $led_strbuf_size, "LG%02X\r\n", (int)(255*state)); //Send colour value to AT Mega
+          std::string s = buf;
+          return std::vector<unsigned char>( s.begin(), s.end() );
+  - platform: template
+    id: output_blue
+    type: float
+    write_action:
+      - uart.write: !lambda  |-
+          char buf[$led_strbuf_size];
+          snprintf(buf, $led_strbuf_size, "LB%02X\r\n", (int)(255*state)); //Send colour value to AT Mega
+          std::string s = buf;
+          return std::vector<unsigned char>( s.begin(), s.end() );
 
 sensor:
   - platform: wifi_signal # Reports the WiFi signal strength/RSSI in dB

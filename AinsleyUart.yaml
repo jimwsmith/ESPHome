@@ -16,18 +16,33 @@ uartex:
   tx_footer: [0x0D, 0x0A]
 
   version:
+    name: "Uartex Version"
     disabled: False
   error:
+    name: "Uartex Error"
     disabled: False
   log:
+    name: "Uartex Log"
     disabled: True #False
 
 sensor: 
   - platform: uartex
-    id: test_sensor_1
-    name: "Test Sensor 1"
+    id: Mega_uptime_sensor
+    name: "Mega Uptime"
+    unit_of_measurement: "m"
+    state: "H1"
+    state_number:
+      offset: 2
+      length: 16 #If value received is shorter than this, decoding seems OK
+      precision: 0
+      decode: "ascii"
+    accuracy_decimals: 0
+
+  - platform: uartex
+    id: atmega_button_counter
+    name: "ATMega Button Counter"
     unit_of_measurement: "units"
-    state: "V1"
+    state: "B2"
     state_number:
       offset: 2
       length: 16 #If value received is shorter than this, decoding seems OK
