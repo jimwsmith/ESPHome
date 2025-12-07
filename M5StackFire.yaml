@@ -26,8 +26,9 @@ spi:
 # Power Management
 ip5306:
   battery_level:
-    name: ${friendly_name} Battery Percent
+    name: Fire Battery
     id: battery_percent
+    entity_category: "diagnostic"
     on_value: #When value changes update LVGL display
     - lvgl.label.update:
         id: lbl_battery
@@ -44,9 +45,11 @@ ip5306:
   charger_connected:
     name: ${friendly_name} Charger Connected
     id: connected
+    entity_category: "diagnostic"
   charge_full:
     name: ${friendly_name} Charge Full
     id: full
+    entity_category: "diagnostic"
 
 binary_sensor:
   - platform: gpio

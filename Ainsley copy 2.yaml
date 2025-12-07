@@ -1,9 +1,13 @@
 substitutions:
   devicename: boat
-  tx_pin: GPIO1
-  rx_pin: GPIO3
-  led_pin: GPIO14
-  button_pin: GPIO13
+  # led_pin: GPIO14 #ATMega with ESP8266
+  # button_pin: GPIO13
+  # tx_pin: GPIO1
+  # rx_pin: GPIO3
+  led_pin: GPIO2 #D1 Mini Pro ESP8266 note LED is inverted logic
+  button_pin: GPIO0
+  tx_pin: GPIO15
+  rx_pin: GPIO13
   sensor_update: 60s
   led_strbuf_size: "16"
 
@@ -16,21 +20,27 @@ substitutions:
 
 esphome:
   name: $devicename
-  on_boot: 
-    - priority: 600 #Uart should be configured before this runs
-      then:
-        - uart.write: "\r\n" #clear out any partial data sent as Uart started so that LED setup string will be interpreted OK
-    - priority: -100 #run this very late in the boot process
-      then:
-        - uart.write: "\r\n" #clear out any partial data sent as Uart started
-        - uart.write: "Info\r\n" #Requesting version info from AT Mega on boot"
+  # on_boot: 
+  #   - priority: 600 #Uart should be configured before this runs
+  #     then:
+  #       - uart.write: "\r\n" #clear out any partial data sent as Uart started so that LED setup string will be interpreted OK
+  #   - priority: -100 #run this very late in the boot process
+  #     then:
+  #       - uart.write: "\r\n" #clear out any partial data sent as Uart started
+  #       - uart.write: "Info\r\n" #Requesting version info from AT Mega on boot"
       
 
 esp8266:
-  board: esp07s #d1_mini_pro
+  # board: esp07s #d1_mini_pro
+  # board: d1_mini_pro
+  board: nodemcuv2 #Actualy Node MCUV3
 
 packages: 
   uart: !include AinsleyUart.yaml
+
+logger:
+  # baud_rate: 0 # disable uart logging (MQTT logging still happens) as we need to retain the serial port free for comms with AT Mega
+  level: DEBUG
 
 uart:
   baud_rate: 9600
@@ -115,10 +125,6 @@ mqtt:
 ota:
   platform: esphome
 
-logger:
-  baud_rate: 0 # disable uart logging (MQTT logging still happens) as we need to retain the serial port free for comms with AT Mega
-  level: DEBUG
-
 button: 
   - platform: restart #virtual button to remotely reboot device
     id: restart_button
@@ -130,7 +136,8 @@ light:
     id: devicename_led
     pin: 
       number: $led_pin
-      inverted: False
+      # inverted: False #AT Mega with ESP8266
+      inverted: True #D1 Mini Pro ESP8266
     restore_mode: RESTORE_DEFAULT_ON
 
   - platform: rgb #Individual control of RGB elemenst of LED strip driven from AT Mega via ESP8266

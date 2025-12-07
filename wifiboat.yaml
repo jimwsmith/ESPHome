@@ -1,0 +1,122 @@
+# wifi.yaml file to be included as a package in esphome configurations
+esphome:
+  name: ${esphome_name}
+
+http_request: 
+  verify_ssl: false #ESP32 cannot manage SSL connections
+
+ota:
+  - platform: http_request # Triggered by a specific MQTT message
+    on_begin:
+        - lvgl.page.show: ota_page
+        - lvgl.label.update:
+            id: lbl_ota_source
+            text: "MQTT Trigger"
+        - lambda: "id(lv_id).loop();" # Needed as main loop is blocked during OTA
+    on_progress:
+      then:
+        - lvgl.bar.update:
+            id: bar_ota_progress
+            value: !lambda "return (int)x;"
+        - lambda: "id(lv_id).loop();" # Needed as main loop is blocked during OTA
+  - platform: esphome # Triggered by a normal software upload on same network
+    password: !secret ota_password
+    on_begin:
+        - lvgl.page.show: ota_page
+        - lvgl.label.update:
+            id: lbl_ota_source
+            text: "ESPHome OTA"
+        - lambda: "id(lv_id).loop();" # Needed as main loop is blocked during OTA
+    on_progress:
+      then:
+        - lvgl.bar.update:
+            id: bar_ota_progress
+            value: !lambda "return (int)x;"
+        - lambda: "id(lv_id).loop();" # Needed as main loop is blocked during OTA
+
+wifi:
+  networks:
+    - ssid: !secret wifi_comp_ssid
+      password: !secret wifi_comp_password
+    - ssid: !secret wifi_home_ssid
+      password: !secret wifi_home_password
+    - ssid: !secret wifi_phone_ssid
+      password: !secret wifi_phone_password
+    - ssid: !secret wifi_bshed_ssid
+      password: !secret wifi_bshed_password
+  on_connect:
+    - lvgl.widget.show: lbl_hastatus
+    - uart.write: "\r\nFire WiFi connected\r\n"
+  on_disconnect:
+    - lvgl.widget.hide: lbl_hastatus
+    - uart.write: "\r\nFire WiFi disconnected\r\n"
+    - number.increment:
+        id: wifi_error_count
+
+sensor:
+  - platform: wifi_signal # Reports the WiFi signal strength/RSSI in dB
+    icon: mdi:wifi
+    name: "WiFi Signal dB"
+    id: wifi_signal_db
+    unit_of_measurement: "dB"
+    update_interval: ${sensor_update}
+    entity_category: "diagnostic"
+    on_value:
+        then:
+          - lvgl.label.update:
+              id: lbl_wifi_strength
+              text:
+                format: "Wi-Fi:\n%.0fdB"
+                args: [ 'id(wifi_signal_db).state' ]  
+                
+  # - platform: copy # Reports the WiFi signal strength in %
+  #   icon: mdi:wifi
+  #   id: wifi_signal_db_percent
+  #   source_id: wifi_signal_db
+  #   name: "WiFi Signal Percent"
+  #   filters:
+  #     - lambda: return min(max(2 * (x + 100.0), 0.0), 100.0);
+  #   unit_of_measurement: "%"
+  #   entity_category: "diagnostic"
+  #   device_class: ""
+  #   on_value:
+  #       then:
+  #         - lvgl.label.update:
+  #             id: lbl_wifi_strength
+  #             text:
+  #               format: "Wi-Fi:\n%.0fdB"
+  #               args: [ 'id(wifi_signal_db).state' ]  
+  - platform: uptime
+    name: Uptime
+    entity_category: "diagnostic"
+
+text_sensor:
+  - platform: wifi_info
+    ssid:
+      icon: mdi:wifi
+      id: wifi_ssid
+      name: WiFi SSID
+      on_value:
+          then:
+            - lvgl.label.update:
+                id: lbl_wifi_ssid
+                text:
+                  format: "Wi-Fi SSID:\n%s"
+                  args: [ 'id(wifi_ssid).state.c_str()' ]  
+                  # args: [ 'x' ]  
+    dns_address:
+      icon: mdi:wifi
+      name: WiFi DNS Address
+    ip_address:
+      icon: mdi:wifi
+      id: wifi_ip
+      name: WiFi IP Address
+      on_value:
+          then:
+            - lvgl.label.update:
+                id: lbl_wifi_ip
+                text:
+                  format: "Wi-Fi IP:\n%s"
+                  args: [ 'id(wifi_ip).state.c_str()' ]  
+  #   scan_results:
+  #     name: ESP Latest Scan Results
