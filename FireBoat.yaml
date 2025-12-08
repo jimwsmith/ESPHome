@@ -1,5 +1,5 @@
 substitutions:
-  friendly_name: "FireBoat"
+  friendly_name: "Boat"
   esphome_name: "fireboat"
   sensor_update: 60s
 
@@ -25,7 +25,7 @@ packages:
   m5stackfire: !include M5StackFire.yaml
   wifi: !include wifiboat.yaml
   lvgl: !include lvglboat.yaml
-  uart: !include FireUart.yaml
+  uart: !include FireUartex.yaml
 
 uart:
   baud_rate: 9600

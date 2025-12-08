@@ -1,0 +1,716 @@
+
+external_components:
+  - source: github://eigger/espcomponents@latest
+    components: [ uartex ]
+    refresh: always
+
+uartex:
+  rx_timeout: 10ms
+  tx_delay: 50ms
+  tx_timeout: 500ms
+  tx_retry_cnt: 3
+  rx_priority: loop #Lower priority for Rx than main loop tasks
+  # rx_header: [0x02, 0x01]
+  rx_footer: [0x0D, 0x0A]
+  # tx_header: [0x02, 0x01]
+  tx_footer: [0x0D, 0x0A]
+
+  version:
+    name: "Uartex Version"
+    disabled: False
+  error:
+    name: "Uartex Error"
+    disabled: False
+  log:
+    name: "Uartex Log"
+    disabled: True #False
+
+sensor: 
+  - platform: uartex
+    id: atmega_uptime
+    name: "ATMega Uptime"
+    entity_category: "diagnostic"
+    unit_of_measurement: "m"
+    state: "H1"
+    state_number:
+      offset: 2
+      length: 16 #If value received is shorter than this, decoding seems OK
+      precision: 0
+      decode: "ascii"
+    accuracy_decimals: 0
+    # device_class: "duration"
+
+  - platform: uartex
+    id: atmega_button_counter
+    name: "ATMega Button Counter"
+    unit_of_measurement: "units"
+    state: "B2"
+    state_number:
+      offset: 2
+      length: 16 #If value received is shorter than this, decoding seems OK
+      precision: 0
+      decode: "ascii"
+    accuracy_decimals: 0
+
+  - platform: uartex
+    id: vb_dc_battery_voltage
+    name: "DC Battery Voltage"
+    device_class: "voltage"
+    unit_of_measurement: "V"
+    accuracy_decimals: 1
+    state: "VB01"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4).c_str());
+      return n.has_value() ? n.value() : NAN;
+
+  - platform: uartex
+    id: vb_dc_inverter_current
+    name: "DC Inverter Current"    
+    device_class: "current"
+    unit_of_measurement: "A"
+    accuracy_decimals: 1
+    state: "VB02"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4).c_str());
+      return n.has_value() ? n.value() : NAN;
+
+  - platform: uartex
+    id: vb_dc_charger_current
+    name: "DC Charger Current"
+    device_class: "current"
+    unit_of_measurement: "A"
+    accuracy_decimals: 1
+    state: "VB03"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4).c_str());
+      return n.has_value() ? n.value() : NAN;
+
+  - platform: uartex
+    id: vb_inverter_frequency
+    name: "Inverter Frequency"
+    device_class: "frequency"
+    unit_of_measurement: "Hz"
+    accuracy_decimals: 1
+    state: "VB04"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4).c_str());
+      return n.has_value() ? n.value() : NAN;
+
+  - platform: uartex
+    id: vb_dc_power
+    name: "DC Power"
+    device_class: "power"
+    unit_of_measurement: "W"
+    accuracy_decimals: 1
+    state: "VB05"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4).c_str());
+      return n.has_value() ? n.value() : NAN;
+
+  - platform: uartex
+    id: vb_ac_mains_voltage
+    name: "AC Mains Voltage"
+    device_class: "voltage"
+    unit_of_measurement: "V"
+    accuracy_decimals: 1
+    state: "VB06"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4).c_str());
+      return n.has_value() ? n.value() : NAN;
+
+  - platform: uartex
+    id: vb_ac_mains_current
+    name: "AC Mains Current"    
+    device_class: "current"
+    unit_of_measurement: "A"
+    accuracy_decimals: 1
+    state: "VB07"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4).c_str());
+      return n.has_value() ? n.value() : NAN;
+
+  - platform: uartex
+    id: vb_ac_power
+    name: "AC Mains Power"
+    device_class: "power"
+    unit_of_measurement: "W"
+    accuracy_decimals: 1
+    state: "VB08"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4).c_str());
+      return n.has_value() ? n.value() : NAN;
+
+  - platform: uartex
+    id: vb_ac_inverter_voltage
+    name: "AC Inverter Voltage"
+    device_class: "voltage"
+    unit_of_measurement: "V"
+    accuracy_decimals: 1
+    state: "VB09"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4).c_str());
+      return n.has_value() ? n.value() : NAN;
+
+  - platform: uartex
+    id: vb_ac_inverter_current
+    name: "AC Inverter Current"    
+    device_class: "current"
+    unit_of_measurement: "A"
+    accuracy_decimals: 1
+    state: "VB10"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4).c_str());
+      return n.has_value() ? n.value() : NAN;
+
+  - platform: uartex
+    id: vb_mains_frequency
+    name: "Mains Frequency"
+    device_class: "frequency"
+    unit_of_measurement: "Hz"
+    accuracy_decimals: 1
+    state: "VB11"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4).c_str());
+      return n.has_value() ? n.value() : NAN;
+
+  - platform: uartex
+    id: vb_ac_inverter_power
+    name: "AC Inverter Power"
+    device_class: "power"
+    unit_of_measurement: "W"
+    accuracy_decimals: 1
+    state: "VB12"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4).c_str());
+      return n.has_value() ? n.value() : NAN;
+    
+  - platform: uartex
+    id: ve_bmv_soc
+    name: "Battery SOC"
+    device_class: "battery"
+    unit_of_measurement: "%"
+    accuracy_decimals: 1
+    state: "VE09"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4).c_str());
+      return n.has_value() ? n.value() : NAN;
+
+  - platform: uartex
+    id: ve_bmv_voltage
+    name: "Battery Voltage"
+    device_class: "voltage"
+    unit_of_measurement: "V"
+    accuracy_decimals: 2
+    state: "VE10"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4).c_str());
+      return n.has_value() ? n.value() : NAN;
+
+  - platform: uartex
+    id: ve_bmv_startv
+    name: "Starter Voltage"
+    device_class: "voltage"
+    unit_of_measurement: "V"
+    accuracy_decimals: 2
+    state: "VE12"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4).c_str());
+      return n.has_value() ? n.value() : NAN;
+
+  - platform: uartex
+    id: ve_bmv_power
+    name: "Battery Power"
+    device_class: "power"
+    unit_of_measurement: "W"
+    accuracy_decimals: 1
+    state: "VE04"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4).c_str());
+      return n.has_value() ? n.value() : NAN;
+
+  - platform: uartex
+    id: ve_bmv_current
+    name: "Battery Current"
+    device_class: "current"
+    unit_of_measurement: "A"
+    accuracy_decimals: 2
+    state: "VE05"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4).c_str());
+      return n.has_value() ? n.value() : NAN;
+
+  - platform: uartex
+    id: ve_bmv_alarm
+    name: "Battery Alarm"
+    unit_of_measurement: "units"
+    accuracy_decimals: 0
+    state: "VE06"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4).c_str());
+      return n.has_value() ? n.value() : NAN;
+
+  - platform: uartex
+    id: ve_bmv_relay
+    name: "Battery Relay"
+    unit_of_measurement: "units"
+    accuracy_decimals: 0
+    state: "VE07"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4).c_str());
+      return n.has_value() ? n.value() : NAN;
+
+  - platform: uartex
+    id: ve_mptt_voltage
+    name: "MPTT Voltage"
+    device_class: "voltage"
+    unit_of_measurement: "V"
+    accuracy_decimals: 2
+    state: "VE08"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4).c_str());
+      return n.has_value() ? n.value() : NAN;
+
+  - platform: uartex
+    id: ve_mptt_panel_voltage
+    name: "Solar Voltage"
+    device_class: "voltage"
+    unit_of_measurement: "V"
+    accuracy_decimals: 2
+    state: "VE09"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4).c_str());
+      return n.has_value() ? n.value() : NAN;
+
+  - platform: uartex
+    id: ve_mppt_power
+    name: "Solar Power"
+    device_class: "power"
+    unit_of_measurement: "W"
+    accuracy_decimals: 1
+    state: "VE10"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4).c_str());
+      return n.has_value() ? n.value() : NAN;
+
+  - platform: uartex
+    id: ve_mptt_current
+    name: "Solar Current"
+    device_class: "current"
+    unit_of_measurement: "A"
+    accuracy_decimals: 2
+    state: "VE11"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4).c_str());
+      return n.has_value() ? n.value() : NAN;
+
+  - platform: uartex
+    id: vt_light_lux
+    name: "Light Lux"
+    # device_class: "light"
+    unit_of_measurement: "lx"
+    accuracy_decimals: 0
+    state: "VT01"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4).c_str());
+      return n.has_value() ? n.value() : NAN;
+
+  - platform: uartex
+    id: vt_engine_rpm
+    name: "Engine RPM"
+    unit_of_measurement: "rpm"
+    accuracy_decimals: 0
+    state: "VT02"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4).c_str());
+      return n.has_value() ? n.value() : NAN;
+
+  - platform: uartex
+    id: vt_dht1_temp
+    name: "Lounge Temp"
+    device_class: "temperature"
+    unit_of_measurement: "°C"
+    accuracy_decimals: 1
+    state: "VT03"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4).c_str());
+      return n.has_value() ? n.value() : NAN;
+
+  - platform: uartex
+    id: vt_dht1_humidity
+    name: "Lounge Humidity"
+    device_class: "humidity"
+    unit_of_measurement: "%"
+    accuracy_decimals: 1
+    state: "VT04"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4).c_str());
+      return n.has_value() ? n.value() : NAN;
+
+  - platform: uartex
+    id: vt_dht2_temp
+    name: "Dining Temp"
+    device_class: "temperature"
+    unit_of_measurement: "°C"
+    accuracy_decimals: 1
+    state: "VT05"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4).c_str());
+      return n.has_value() ? n.value() : NAN;
+
+  - platform: uartex
+    id: vt_dht2_humidity
+    name: "Dining Humidity"
+    device_class: "humidity"
+    unit_of_measurement: "%"
+    accuracy_decimals: 1
+    state: "VT06"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4).c_str());
+      return n.has_value() ? n.value() : NAN;
+
+  - platform: uartex
+    id: vt_dht3_temp
+    name: "Bedroom Temp"
+    device_class: "temperature"
+    unit_of_measurement: "°C"
+    accuracy_decimals: 1
+    state: "VT07"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4).c_str());
+      return n.has_value() ? n.value() : NAN;
+
+  - platform: uartex
+    id: vt_dht3_humidity
+    name: "Bedroom Humidity"
+    device_class: "humidity"
+    unit_of_measurement: "%"
+    accuracy_decimals: 1
+    state: "VT08"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4).c_str());
+      return n.has_value() ? n.value() : NAN;
+
+  - platform: uartex
+    id: vt_dht4_temp
+    name: "Cupboard Temp"
+    device_class: "temperature"
+    unit_of_measurement: "°C"
+    accuracy_decimals: 1
+    state: "VT09"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4).c_str());
+      return n.has_value() ? n.value() : NAN;
+
+  - platform: uartex
+    id: vt_dht4_humidity
+    name: "Cupboard Humidity"
+    device_class: "humidity"
+    unit_of_measurement: "%"
+    accuracy_decimals: 1
+    state: "VT10"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4).c_str());
+      return n.has_value() ? n.value() : NAN;
+
+  - platform: uartex
+    id: vt_dht5_temp
+    name: "Bathroom Temp"
+    device_class: "temperature"
+    unit_of_measurement: "°C"
+    accuracy_decimals: 1
+    state: "VT11"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4).c_str());
+      return n.has_value() ? n.value() : NAN;
+
+  - platform: uartex
+    id: vt_dht5_humidity
+    name: "Bathroom Humidity"
+    device_class: "humidity"
+    unit_of_measurement: "%"
+    accuracy_decimals: 1
+    state: "VT12"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4).c_str());
+      return n.has_value() ? n.value() : NAN;
+
+  - platform: uartex
+    id: vt_temp1
+    name: "Water Cyl Top"
+    device_class: "temperature"
+    unit_of_measurement: "°C"
+    accuracy_decimals: 1
+    state: "VT13"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4).c_str());
+      return n.has_value() ? n.value() : NAN;
+  
+  - platform: uartex
+    id: vt_temp2
+    name: "Water Cyl Bottom"
+    device_class: "temperature"
+    unit_of_measurement: "°C"
+    accuracy_decimals: 1
+    state: "VT14"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4).c_str());
+      return n.has_value() ? n.value() : NAN;
+  
+  - platform: uartex
+    id: vt_temp3
+    name: "Eberspacher Flow"
+    device_class: "temperature"
+    unit_of_measurement: "°C"
+    accuracy_decimals: 1
+    state: "VT15"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4).c_str());
+      return n.has_value() ? n.value() : NAN;
+
+  - platform: uartex
+    id: vt_temp4
+    name: "Eberspacher Return"
+    device_class: "temperature"
+    unit_of_measurement: "°C"
+    accuracy_decimals: 1
+    state: "VT16"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4).c_str());
+      return n.has_value() ? n.value() : NAN;
+
+  - platform: uartex
+    id: vt_temp5
+    name: "Engine Flow"
+    device_class: "temperature"
+    unit_of_measurement: "°C"
+    accuracy_decimals: 1
+    state: "VT17"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4).c_str());
+      return n.has_value() ? n.value() : NAN;
+
+  - platform: uartex
+    id: vt_temp6
+    name: "Engine Return"
+    device_class: "temperature"
+    unit_of_measurement: "°C"
+    accuracy_decimals: 1
+    state: "VT18"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4).c_str());
+      return n.has_value() ? n.value() : NAN; 
+
+  - platform: uartex
+    id: vt_temp7
+    name: "Skin Tank Flow"
+    device_class: "temperature"
+    unit_of_measurement: "°C"
+    accuracy_decimals: 1
+    state: "VT19"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4).c_str());
+      return n.has_value() ? n.value() : NAN; 
+
+  - platform: uartex
+    id: vt_temp8
+    name: "Skin Tank Return"
+    device_class: "temperature"
+    unit_of_measurement: "°C"
+    accuracy_decimals: 1
+    state: "VT20"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4).c_str());
+      return n.has_value() ? n.value() : NAN;
+
+  - platform: uartex
+    id: vt_temp9
+    name: "Gearbox"
+    device_class: "temperature"
+    unit_of_measurement: "°C"
+    accuracy_decimals: 1
+    state: "VT21"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4).c_str());
+      return n.has_value() ? n.value() : NAN;
+
+  - platform: uartex
+    id: vt_temp10
+    name: "Propshaft"
+    device_class: "temperature"
+    unit_of_measurement: "°C"
+    accuracy_decimals: 1
+    state: "VT22"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4).c_str());
+      return n.has_value() ? n.value() : NAN; 
+
+  - platform: uartex
+    id: vt_temp11
+    name: "Battery Temp"
+    device_class: "temperature"
+    unit_of_measurement: "°C"
+    accuracy_decimals: 1
+    state: "VT23"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4).c_str());
+      return n.has_value() ? n.value() : NAN;
+
+  - platform: uartex
+    id: vt_temp12
+    name: "Main Alternator"
+    device_class: "temperature"
+    unit_of_measurement: "°C"
+    accuracy_decimals: 1
+    state: "VT24"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4).c_str());
+      return n.has_value() ? n.value() : NAN;
+
+  - platform: uartex
+    id: vt_temp13
+    name: "Aux Alternator"
+    device_class: "temperature"
+    unit_of_measurement: "°C"
+    accuracy_decimals: 1
+    state: "VT25"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4).c_str());
+      return n.has_value() ? n.value() : NAN;
+
+#   - platform: uartex
+#     id: test_sensor_4
+#     name: "Test Sensor 4"
+#     unit_of_measurement: "units"
+#     accuracy_decimals: 3
+#     state: "V4"
+#     lambda: |-
+#       auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+2), len-2));
+#       return n.has_value() ? n.value() : NAN;
+
+#   - platform: uartex
+#     id: test_sensor_5
+#     name: "Test Sensor 5"
+#     unit_of_measurement: "units"
+#     accuracy_decimals: 3
+#     state: "V5"
+#     lambda: |-
+#       std::string str =  std::string(reinterpret_cast<const char*>(data+2), len-2); // Simply 
+#       auto n = parse_number<float>(str);
+#       return n.has_value() ? n.value() : NAN;
+
+text_sensor:
+  - platform: uartex
+    id: atmega_diagnostic
+    name: "ATMega Diag"
+    entity_category: "diagnostic"
+    state: "T1"
+    lambda: |-
+      return std::string(reinterpret_cast<const char*>(data+2), len-2); // Simply return the received string excluding first 2 chars
+  - platform: uartex
+    id: atmega_info
+    name: "ATMega Info"
+    entity_category: "diagnostic"
+    state: "T2"
+    lambda: |-
+      return std::string(reinterpret_cast<const char*>(data+2), len-2); // Simply return the received string excluding first 2 chars
+
+binary_sensor:
+  - platform: uartex
+    id: atmega_button
+    name: "ATMega Button"
+    state: "B1"
+    state_on:
+      offset: 2
+      data: [0x31] # ASCII '1'
+    state_off:
+      offset: 2
+      data: [0x30] # ASCII '0'
+
+  - platform: uartex
+    id: vc_multi_mains
+    name: "Multi Mains"
+    state: "VC01"
+    state_on:
+      offset: 4
+      data: [0x31] # ASCII '1'
+    state_off:
+      offset: 4 
+      data: [0x30] # ASCII '0'
+
+  - platform: uartex
+    id: vc_multi_absorb
+    name: "Multi Absorb"
+    state: "VC02"
+    state_on:
+      offset: 4
+      data: [0x31] # ASCII '1'
+    state_off:
+      offset: 4 
+      data: [0x30] # ASCII '0'
+
+  - platform: uartex
+    id: vc_multi_bulk
+    name: "Multi Bulk"
+    state: "VC03"
+    state_on:
+      offset: 4
+      data: [0x31] # ASCII '1'
+    state_off:
+      offset: 4 
+      data: [0x30] # ASCII '0'
+
+  - platform: uartex
+    id: vc_multi_float
+    name: "Multi Float"
+    state: "VC04"
+    state_on:
+      offset: 4
+      data: [0x31] # ASCII '1'
+    state_off:
+      offset: 4 
+      data: [0x30] # ASCII '0'
+
+  - platform: uartex
+    id: vc_multi_inverter
+    name: "Multi Inverter"
+    state: "VC05"
+    state_on:
+      offset: 4
+      data: [0x31] # ASCII '1'
+    state_off:
+      offset: 4 
+      data: [0x30] # ASCII '0'
+
+  - platform: uartex
+    id: vc_multi_overload
+    name: "Multi Overload"
+    state: "VC06"
+    state_on:
+      offset: 4
+      data: [0x31] # ASCII '1'
+    state_off:
+      offset: 4 
+      data: [0x30] # ASCII '0'
+
+  - platform: uartex
+    id: vc_multi_lowbatt
+    name: "Multi Low Battery"
+    state: "VC07"
+    state_on:
+      offset: 4
+      data: [0x31] # ASCII '1'
+    state_off:
+      offset: 4 
+      data: [0x30] # ASCII '0'
+
+  - platform: uartex
+    id: vc_multi_temp
+    name: "Multi Temperature"
+    state: "VC08"
+    state_on:
+      offset: 4
+      data: [0x31] # ASCII '1'
+    state_off:
+      offset: 4 
+      data: [0x30] # ASCII '0'
+
