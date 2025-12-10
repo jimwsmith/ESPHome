@@ -577,27 +577,6 @@ sensor:
       auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4).c_str());
       return n.has_value() ? n.value() : NAN;
 
-#   - platform: uartex
-#     id: test_sensor_4
-#     name: "Test Sensor 4"
-#     unit_of_measurement: "units"
-#     accuracy_decimals: 3
-#     state: "V4"
-#     lambda: |-
-#       auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+2), len-2));
-#       return n.has_value() ? n.value() : NAN;
-
-#   - platform: uartex
-#     id: test_sensor_5
-#     name: "Test Sensor 5"
-#     unit_of_measurement: "units"
-#     accuracy_decimals: 3
-#     state: "V5"
-#     lambda: |-
-#       std::string str =  std::string(reinterpret_cast<const char*>(data+2), len-2); // Simply 
-#       auto n = parse_number<float>(str);
-#       return n.has_value() ? n.value() : NAN;
-
 text_sensor:
   - platform: uartex
     id: atmega_diagnostic
