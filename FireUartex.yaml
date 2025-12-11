@@ -604,6 +604,13 @@ binary_sensor:
     state_off:
       offset: 2
       data: [0x30] # ASCII '0'
+    on_state:
+      then:
+        - lvgl.label.update:
+            id: lbl_app_name #lbl_button_state
+            text:
+              format: "Button State:\n%s"
+              args: [ 'id(atmega_button).state ? "Pressed" : "Released"' ]
 
   - platform: uartex
     id: vc_multi_mains

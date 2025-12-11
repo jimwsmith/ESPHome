@@ -9,7 +9,7 @@ esp32:
   flash_size: 16MB # Need to manually override defaults so M5STACK FIRE memory is correct
 
 psram: #Need to include this so logs will display PSRAM detected, note only 4MB detected even though 8MB exists (probably because himem not implemented)
-  mode: octal
+  mode: octal #JWS quad in latest esphome
   speed: 80MHz
 
 # Define I/O: UART, I²C and SPI
@@ -108,10 +108,10 @@ light:
     name: "${friendly_name} Display Backlight"
     id: back_light
     restore_mode: RESTORE_DEFAULT_ON
-    on_state:
-      - lvgl.slider.update:
-          id: dimmer_slider #lvgl item that will adjust to reflect global backlight change LVGL slider needs value 0-255
-          value: !lambda 'return (int(id(back_light).remote_values.get_brightness() * 255));' 
+    # on_state:
+    #   - lvgl.slider.update:
+    #       id: dimmer_slider #lvgl item that will adjust to reflect global backlight change LVGL slider needs value 0-255
+    #       value: !lambda 'return (int(id(back_light).remote_values.get_brightness() * 255));' 
 
   - platform: esp32_rmt_led_strip
     rgb_order: GRB

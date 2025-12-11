@@ -220,12 +220,11 @@ lvgl:
             styles: header_footer
           rows:
             - buttons:
-              - id: focus_next
-                text: "next focus"
+              - id: page_prev
+                text: "Prev page"
                 on_press:
                   then:
-                    lvgl.widget.focus:
-                      action: next
+                    lvgl.page.previous:
               - id: page_home
                 text: "\uF015"
                 on_press:
@@ -336,7 +335,7 @@ lvgl:
             styles: header_footer
             widgets:
               - label:
-                  text: "A second page"
+                  text: "Button State"
                   align: CENTER
                   text_align: CENTER
                   text_color: 0xFFFFFF
@@ -357,25 +356,10 @@ lvgl:
                   align: center
                   text: "Backlight Dim"
 
-        - slider:
-            x: 50
-            y: 100
-            width: 200
-            id: dimmer_slider
-            value: 75
-            min_value: 0
-            max_value: 255 #brightness in HA goes from 0 to 255 so match slider range to that
-            on_release: #Only use on release to avoid flood of changes for each micro step of slider.  With encoder it means new slider position only recognised when enter is pressed
-              then:
-                - light.control:
-                    id: back_light
-                    brightness: !lambda return x/255; //Brightness needs float 0 to 1.0
-                # - logger.log:
-                #     format: "Slider state: %f, %f"
-                #     args: [ x, x/255 ]
         
 #==========================================================================================================================
     - id: ota_page
+      bg_color: PURPLE
       widgets:
         - obj:
             align: TOP_MID
@@ -386,23 +370,6 @@ lvgl:
                   align: CENTER
                   text_align: CENTER
                   text_color: 0xFFFFFF
-        # - button:
-        #     x: 10
-        #     y: 40
-        #     width: 70
-        #     height: 30
-        #     id: btn_id
-        #     checkable: true
-        #     on_value:
-        #       then:
-        #         - logger.log:
-        #             format: "Button checked state: %d"
-        #             args: [ x ]
-        #     widgets:
-        #       - label:
-        #           align: center
-        #           text: "Backlight Dim"
-
         - bar:
             x: 50
             y: 100
