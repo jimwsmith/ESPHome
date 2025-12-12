@@ -1,28 +1,42 @@
 substitutions:
-  friendly_name: "Fire7" #Banbury Shed
+  friendly_name: "Fire7" #Fireboat2 duplicate
   esphome_name: "fire7"
   sensor_update: 60s
+  float_length : "8"
+
+  tx_pin: GPIO26 #TXD2 M5Stack Fire
+  rx_pin: GPIO36 #GPIO36 #RXD2 on M5Stack Fire
+  led_strbuf_size: "16"
 
 esphome:
   name: ${esphome_name}
   friendly_name: ${friendly_name}
   on_boot:
+    - priority: 600 #Uart should be configured before this runs
+      then:
+        - uart.write: "\r\n" #clear out any partial data sent as Uart started so that LED setup string will be interpreted OK
     - priority: -100 #Ensure this runs after lvgl is initialised
       then:
         - delay: 8s
         - lvgl.widget.hide: boot_screen
-        - delay: 10s
-        - switch.turn_on: calibration_switch # Run a calibration on bootup for MCS6814
+        - uart.write: "\r\n" #clear out any partial data sent as Uart started
+        - uart.write: "Info\r\n" #Requesting version info from AT Mega on boot"
 
 packages:
   m5stackfire: !include M5StackFire.yaml
   wifi: !include wifi.yaml
-  mqtt: !include mqtt.yaml
-  lvgl: !include lvgl.yaml
-  bme68x: !include BME68x.yaml
-  pmsa003i: !include pmsa003i.yaml
-  mics6814: !include MICS6814.yaml
-  scd30: !include scd30.yaml
+  mqtt: !include mqttboat.yaml
+  lvgl: !include lvglboat.yaml
+  uart: !include FireUartex.yaml
+
+uart:
+  baud_rate: 9600
+  data_bits: 8
+  parity: NONE
+  stop_bits: 1
+  tx_pin: $tx_pin
+  rx_pin: $rx_pin
+  rx_buffer_size: 512
 
 external_components:
   - source:
@@ -34,7 +48,27 @@ logger:
   logs:
     component: DEBUG #Supress excessive warnings about display writing
   
-captive_portal:
+# captive_portal:
+
+number:
+  - platform: template
+    id: wifi_error_count
+    name: "WiFi Error Count"
+    unit_of_measurement: "errors"
+    entity_category: "diagnostic"
+    max_value: 1000000
+    min_value: 0  
+    step: 1
+    optimistic: true  
+  - platform: template
+    id: mqtt_error_count
+    name: "MQTT Error Count"
+    entity_category: "diagnostic"
+    unit_of_measurement: "errors"
+    max_value: 1000000
+    min_value: 0  
+    step: 1
+    optimistic: true  
 
 time:
   - platform: sntp 
@@ -66,3 +100,119 @@ script:
             format: "%s"
             args: [ 'id(sntp_time).now().strftime("%R").c_str()' ]
 
+debug:
+  update_interval: 5s
+
+text_sensor:
+  - platform: debug
+    device:
+      name: "Device Info"
+    reset_reason:
+      name: "Reset Reason"
+
+sensor:
+  - platform: debug
+    free:
+      name: "Heap Free"
+    loop_time:
+      name: "Loop Time"
+    psram:
+      name: "Free PSRAM"
+
+light:
+  - platform: rgb #Individual control of RGB elemenst of LED strip driven from AT Mega via this unit
+    name: "ATMega RGB Light"
+    id: ainsley_rgb_light
+    red: output_red
+    green: output_green
+    blue: output_blue
+    default_transition_length: 0s #instant change of colour as we cannot cope with transitions
+    restore_mode: RESTORE_DEFAULT_OFF
+
+output:
+# Consider adding \r\n at start of each command if issues arise with LED control
+  - platform: template
+    id: output_red
+    type: float
+    write_action:
+      - logger.log:
+          format: "Setting RED output to %.2f"
+          args: [ 'state' ]
+      - uart.write: !lambda  |-
+          char buf[$led_strbuf_size];
+          snprintf(buf, $led_strbuf_size, "LR%02X\r\n", (int)(255*state)); //Send colour value to AT Mega
+          std::string s = buf;
+          return std::vector<unsigned char>( s.begin(), s.end() );
+  - platform: template
+    id: output_green
+    type: float
+    write_action:
+      - uart.write: !lambda  |-
+          char buf[$led_strbuf_size];
+          snprintf(buf, $led_strbuf_size, "LG%02X\r\n", (int)(255*state)); //Send colour value to AT Mega
+          std::string s = buf;
+          return std::vector<unsigned char>( s.begin(), s.end() );
+  - platform: template
+    id: output_blue
+    type: float
+    write_action:
+      - uart.write: !lambda  |-
+          char buf[$led_strbuf_size];
+          snprintf(buf, $led_strbuf_size, "LB%02X\r\n", (int)(255*state)); //Send colour value to AT Mega
+          std::string s = buf;
+          return std::vector<unsigned char>( s.begin(), s.end() );
+
+switch: 
+  - platform: template
+    id: relay_1
+    name: "ATMega Relay 1"
+    turn_on_action:
+      - uart.write: [0x52, 0x31, 0x31, 0x0A, 0x0D] #Send Relay state to AT Mega R21\r\n
+    turn_off_action:
+      - uart.write: [0x52, 0x31, 0x30, 0x0A, 0x0D] #Send Relay state to AT Mega R20\r\n
+    optimistic: true #Required so that state change gets registered even though there is no actual comms back to ack the relay change
+
+  - platform: template
+    id: relay_2
+    name: "ATMega Relay 2"
+    turn_on_action:
+      - uart.write: [0x52, 0x32, 0x31, 0x0A, 0x0D] #Send Relay state to AT Mega R21\r\n
+    turn_off_action:
+      - uart.write: [0x52, 0x32, 0x30, 0x0A, 0x0D] #Send Relay state to AT Mega R20\r\n
+    optimistic: true #Required so that state change gets registered even though there is no actual comms back to ack the relay change
+
+  - platform: template
+    id: relay_3
+    name: "ATMega Relay 3"
+    turn_on_action:
+      - uart.write: [0x52, 0x33, 0x31, 0x0A, 0x0D] #Send Relay state to AT Mega R21\r\n
+    turn_off_action:
+      - uart.write: [0x52, 0x33, 0x30, 0x0A, 0x0D] #Send Relay state to AT Mega R20\r\n
+    optimistic: true #Required so that state change gets registered even though there is no actual comms back to ack the relay change
+
+  - platform: template
+    id: relay_4
+    name: "ATMega Relay 4"
+    turn_on_action:
+      - uart.write: [0x52, 0x34, 0x31, 0x0A, 0x0D] #Send Relay state to AT Mega R21\r\n
+    turn_off_action:
+      - uart.write: [0x52, 0x34, 0x30, 0x0A, 0x0D] #Send Relay state to AT Mega R20\r\n
+    optimistic: true #Required so that state change gets registered even though there is no actual comms back to ack the relay change
+
+  - platform: template
+    id: relay_5
+    name: "ATMega Relay 5"
+    turn_on_action:
+      - uart.write: [0x52, 0x35, 0x31, 0x0A, 0x0D] #Send Relay state to AT Mega R21\r\n
+    turn_off_action:
+      - uart.write: [0x52, 0x35, 0x30, 0x0A, 0x0D] #Send Relay state to AT Mega R20\r\n
+    optimistic: true #Required so that state change gets registered even though there is no actual comms back to ack the relay change
+
+  - platform: template
+    id: relay_6
+    name: "ATMega Relay 6"
+    turn_on_action:
+      - uart.write: [0x52, 0x36, 0x31, 0x0A, 0x0D] #Send Relay state to AT Mega R21\r\n
+    turn_off_action:
+      - uart.write: [0x52, 0x36, 0x30, 0x0A, 0x0D] #Send Relay state to AT Mega R20\r\n
+    optimistic: true #Required so that state change gets registered even though there is no actual comms back to ack the relay change

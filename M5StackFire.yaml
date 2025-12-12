@@ -9,8 +9,8 @@ esp32:
   flash_size: 16MB # Need to manually override defaults so M5STACK FIRE memory is correct
 
 psram: #Need to include this so logs will display PSRAM detected, note only 4MB detected even though 8MB exists (probably because himem not implemented)
-  mode: octal #JWS quad in latest esphome
-  speed: 80MHz
+  mode: quad #JWS quad in latest esphome
+  speed: 40MHz
 
 # Define I/O: UART, I²C and SPI
 i2c:

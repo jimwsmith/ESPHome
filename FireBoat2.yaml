@@ -13,17 +13,18 @@ esphome:
   on_boot:
     - priority: -100 #Ensure this runs after lvgl is initialised
       then:
-        - uart.write: "\r\n" #clear out any partial data sent as Uart started
-        - uart.write: "Info\r\n" #Requesting version info from AT Mega on boot"
         - delay: 8s
         - lvgl.widget.hide: boot_screen
+        - uart.write: "\r\n" #clear out any partial data sent as Uart started
+        - uart.write: "Info\r\n" #Requesting version info from AT Mega on boot"
     - priority: 600 #Uart should be configured before this runs
       then:
         - uart.write: "\r\n" #clear out any partial data sent as Uart started so that LED setup string will be interpreted OK
 
 packages:
   m5stackfire: !include M5StackFire.yaml
-  wifi: !include wifiboat.yaml
+  # wifi: !include wifiboat.yaml
+  wifi: !include wifi.yaml
   lvgl: !include lvglboat.yaml
   uart: !include FireUartex.yaml
 
@@ -172,3 +173,57 @@ output:
           std::string s = buf;
           return std::vector<unsigned char>( s.begin(), s.end() );
 
+switch: 
+  - platform: template
+    id: relay_1
+    name: "ATMega Relay 1"
+    turn_on_action:
+      - uart.write: [0x52, 0x31, 0x31, 0x0A, 0x0D] #Send Relay state to AT Mega R21\r\n
+    turn_off_action:
+      - uart.write: [0x52, 0x31, 0x30, 0x0A, 0x0D] #Send Relay state to AT Mega R20\r\n
+    optimistic: true #Required so that state change gets registered even though there is no actual comms back to ack the relay change
+
+  - platform: template
+    id: relay_2
+    name: "ATMega Relay 2"
+    turn_on_action:
+      - uart.write: [0x52, 0x32, 0x31, 0x0A, 0x0D] #Send Relay state to AT Mega R21\r\n
+    turn_off_action:
+      - uart.write: [0x52, 0x32, 0x30, 0x0A, 0x0D] #Send Relay state to AT Mega R20\r\n
+    optimistic: true #Required so that state change gets registered even though there is no actual comms back to ack the relay change
+
+  - platform: template
+    id: relay_3
+    name: "ATMega Relay 3"
+    turn_on_action:
+      - uart.write: [0x52, 0x33, 0x31, 0x0A, 0x0D] #Send Relay state to AT Mega R21\r\n
+    turn_off_action:
+      - uart.write: [0x52, 0x33, 0x30, 0x0A, 0x0D] #Send Relay state to AT Mega R20\r\n
+    optimistic: true #Required so that state change gets registered even though there is no actual comms back to ack the relay change
+
+  - platform: template
+    id: relay_4
+    name: "ATMega Relay 4"
+    turn_on_action:
+      - uart.write: [0x52, 0x34, 0x31, 0x0A, 0x0D] #Send Relay state to AT Mega R21\r\n
+    turn_off_action:
+      - uart.write: [0x52, 0x34, 0x30, 0x0A, 0x0D] #Send Relay state to AT Mega R20\r\n
+    optimistic: true #Required so that state change gets registered even though there is no actual comms back to ack the relay change
+
+  - platform: template
+    id: relay_5
+    name: "ATMega Relay 5"
+    turn_on_action:
+      - uart.write: [0x52, 0x35, 0x31, 0x0A, 0x0D] #Send Relay state to AT Mega R21\r\n
+    turn_off_action:
+      - uart.write: [0x52, 0x35, 0x30, 0x0A, 0x0D] #Send Relay state to AT Mega R20\r\n
+    optimistic: true #Required so that state change gets registered even though there is no actual comms back to ack the relay change
+
+  - platform: template
+    id: relay_6
+    name: "ATMega Relay 6"
+    turn_on_action:
+      - uart.write: [0x52, 0x36, 0x31, 0x0A, 0x0D] #Send Relay state to AT Mega R21\r\n
+    turn_off_action:
+      - uart.write: [0x52, 0x36, 0x30, 0x0A, 0x0D] #Send Relay state to AT Mega R20\r\n
+    optimistic: true #Required so that state change gets registered even though there is no actual comms back to ack the relay change
