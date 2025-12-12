@@ -396,6 +396,16 @@ sensor:
       offset: 4
       length: $float_length 
       decode: "ascii"
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: lbl_lounge_temp
+            text:
+              format: "Lounge: %.1f°C"
+              args: [ 'id(vt_dht1_temp).state' ]
+        - lvgl.bar.update:
+            id: bar_lounge_temp
+            value: !lambda 'return (id(vt_dht1_temp).state) * $temp_bar_scale;'
 
   - platform: uartex
     id: vt_dht1_humidity
@@ -408,6 +418,16 @@ sensor:
       offset: 4
       length: $float_length 
       decode: "ascii"
+    on_value: 
+      then:
+        - lvgl.label.update:
+            id: lbl_lounge_humidity
+            text:
+              format: "%.0f%%"
+              args: [ 'id(vt_dht1_humidity).state' ]
+        - lvgl.bar.update:  
+            id: bar_lounge_humidity
+            value: !lambda 'return id(vt_dht1_humidity).state;'
 
   - platform: uartex
     id: vt_dht2_temp
@@ -420,6 +440,16 @@ sensor:
       offset: 4
       length: $float_length 
       decode: "ascii"
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: lbl_dining_temp
+            text:
+              format: "Dining: %.1f°C"
+              args: [ 'id(vt_dht2_temp).state' ]
+        - lvgl.bar.update:
+            id: bar_dining_temp
+            value: !lambda 'return (id(vt_dht2_temp).state) * $temp_bar_scale;'
 
   - platform: uartex
     id: vt_dht2_humidity
@@ -432,6 +462,16 @@ sensor:
       offset: 4
       length: $float_length 
       decode: "ascii"
+    on_value: 
+      then:
+        - lvgl.label.update:
+            id: lbl_dining_humidity
+            text:
+              format: "%.0f%%"
+              args: [ 'id(vt_dht2_humidity).state' ]
+        - lvgl.bar.update:  
+            id: bar_dining_humidity
+            value: !lambda 'return id(vt_dht2_humidity).state;'
 
   - platform: uartex
     id: vt_dht3_temp
@@ -444,6 +484,16 @@ sensor:
       offset: 4
       length: $float_length 
       decode: "ascii"
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: lbl_bedroom_temp
+            text:
+              format: "Bedroom: %.1f°C"
+              args: [ 'id(vt_dht3_temp).state' ]
+        - lvgl.bar.update:
+            id: bar_bedroom_temp
+            value: !lambda 'return (id(vt_dht3_temp).state) * $temp_bar_scale;'
 
   - platform: uartex
     id: vt_dht3_humidity
@@ -456,6 +506,16 @@ sensor:
       offset: 4
       length: $float_length 
       decode: "ascii"
+    on_value: 
+      then:
+        - lvgl.label.update:
+            id: lbl_bedroom_humidity
+            text:
+              format: "%.0f%%"
+              args: [ 'id(vt_dht3_humidity).state' ]
+        - lvgl.bar.update:  
+            id: bar_bedroom_humidity
+            value: !lambda 'return id(vt_dht3_humidity).state;'
 
   - platform: uartex
     id: vt_dht4_temp
@@ -468,6 +528,16 @@ sensor:
       offset: 4
       length: $float_length 
       decode: "ascii"
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: lbl_cupboard_temp
+            text:
+              format: "Cupboard: %.1f°C"
+              args: [ 'id(vt_dht4_temp).state' ]
+        - lvgl.bar.update:
+            id: bar_cupboard_temp
+            value: !lambda 'return (id(vt_dht4_temp).state) * $temp_bar_scale;'
 
   - platform: uartex
     id: vt_dht4_humidity
@@ -480,6 +550,16 @@ sensor:
       offset: 4
       length: $float_length 
       decode: "ascii"
+    on_value: 
+      then:
+        - lvgl.label.update:
+            id: lbl_cupboard_humidity
+            text:
+              format: "%.0f%%"
+              args: [ 'id(vt_dht4_humidity).state' ]
+        - lvgl.bar.update:  
+            id: bar_cupboard_humidity
+            value: !lambda 'return id(vt_dht4_humidity).state;'
 
   - platform: uartex
     id: vt_dht5_temp
@@ -492,6 +572,16 @@ sensor:
       offset: 4
       length: $float_length 
       decode: "ascii"
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: lbl_bathroom_temp
+            text:
+              format: "Bathroom: %.1f°C"
+              args: [ 'id(vt_dht5_temp).state' ]
+        - lvgl.bar.update:
+            id: bar_bathroom_temp
+            value: !lambda 'return (id(vt_dht5_temp).state) * $temp_bar_scale;'
 
   - platform: uartex
     id: vt_dht5_humidity
@@ -504,6 +594,16 @@ sensor:
       offset: 4
       length: $float_length 
       decode: "ascii"
+    on_value: 
+      then:
+        - lvgl.label.update:
+            id: lbl_bathroom_humidity
+            text:
+              format: "%.0f%%"
+              args: [ 'id(vt_dht5_humidity).state' ]
+        - lvgl.bar.update:  
+            id: bar_bathroom_humidity
+            value: !lambda 'return id(vt_dht5_humidity).state;'
 
   - platform: uartex
     id: vt_temp1

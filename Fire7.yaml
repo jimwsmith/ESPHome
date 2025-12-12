@@ -3,6 +3,7 @@ substitutions:
   esphome_name: "fire7"
   sensor_update: 60s
   float_length : "8"
+  temp_bar_scale: "3.0" #Scale factor to convert room temperature to 0-100 range for lvgl bar display
 
   tx_pin: GPIO26 #TXD2 M5Stack Fire
   rx_pin: GPIO36 #GPIO36 #RXD2 on M5Stack Fire
