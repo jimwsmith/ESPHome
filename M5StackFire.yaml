@@ -119,7 +119,7 @@ light:
       number: GPIO15
       ignore_strapping_warning: true #This is correct pin for M5STACK FIRE Internal LED strips
     num_leds: 10
-    rmt_channel: 1
+    rmt_channel: 1  #ESPHome 2025.8.0 invalid
     chipset: SK6812
     name: "${friendly_name} Side Light"
     restore_mode: RESTORE_AND_OFF # Attempt to restore state but initialize the light as OFF

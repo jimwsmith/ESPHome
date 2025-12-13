@@ -46,6 +46,9 @@ wifi:
       password: !secret wifi_bshed_password
   on_connect:
     - lvgl.widget.show: lbl_hastatus
+    - lvgl.label.update:
+        id: lbl_boot
+        text: "WiFi connected"
     - uart.write: "\r\nFire WiFi connected\r\n"
   on_disconnect:
     - lvgl.widget.hide: lbl_hastatus

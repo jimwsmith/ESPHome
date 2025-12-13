@@ -9,7 +9,7 @@ uartex:
   tx_delay: 50ms
   tx_timeout: 500ms
   tx_retry_cnt: 3
-  rx_priority: loop #Lower priority for Rx than main loop tasks
+  # rx_priority: loop #Lower priority for Rx than main loop tasks
   # rx_header: [0x02, 0x01]
   rx_footer: [0x0D, 0x0A]
   # tx_header: [0x02, 0x01]
@@ -88,17 +88,17 @@ sensor:
       length: $float_length 
       decode: "ascii"
 
-  - platform: uartex
-    id: vb_inverter_frequency
-    name: "Inverter Frequency"
-    device_class: "frequency"
-    unit_of_measurement: "Hz"
-    accuracy_decimals: 1
-    state: "VB04"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
+  # - platform: uartex
+  #   id: vb_inverter_frequency
+  #   name: "Inverter Frequency"
+  #   device_class: "frequency"
+  #   unit_of_measurement: "Hz"
+  #   accuracy_decimals: 1
+  #   state: "VB04"
+  #   state_number:
+  #     offset: 4
+  #     length: $float_length 
+  #     decode: "ascii"
 
   - platform: uartex
     id: vb_dc_power
@@ -172,17 +172,17 @@ sensor:
       length: $float_length 
       decode: "ascii"
 
-  - platform: uartex
-    id: vb_mains_frequency
-    name: "Mains Frequency"
-    device_class: "frequency"
-    unit_of_measurement: "Hz"
-    accuracy_decimals: 1
-    state: "VB11"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
+  # - platform: uartex
+  #   id: vb_mains_frequency
+  #   name: "Mains Frequency"
+  #   device_class: "frequency"
+  #   unit_of_measurement: "Hz"
+  #   accuracy_decimals: 1
+  #   state: "VB11"
+  #   state_number:
+  #     offset: 4
+  #     length: $float_length 
+  #     decode: "ascii"
 
   - platform: uartex
     id: vb_ac_inverter_power
@@ -239,7 +239,7 @@ sensor:
     device_class: "battery"
     unit_of_measurement: "%"
     accuracy_decimals: 1
-    state: "VE09"
+    state: "VE01"
     state_number:
       offset: 4
       length: $float_length 
@@ -258,7 +258,7 @@ sensor:
     device_class: "voltage"
     unit_of_measurement: "V"
     accuracy_decimals: 2
-    state: "VE10"
+    state: "VE02"
     state_number:
       offset: 4
       length: $float_length 
@@ -277,7 +277,7 @@ sensor:
     device_class: "voltage"
     unit_of_measurement: "V"
     accuracy_decimals: 2
-    state: "VE12"
+    state: "VE03"
     state_number:
       offset: 4
       length: $float_length 
@@ -346,16 +346,16 @@ sensor:
               format: "Alarm: %.0f"
               args: [ 'id(ve_bmv_alarm).state' ]
 
-  - platform: uartex
-    id: ve_bmv_relay
-    name: "Battery Relay"
-    unit_of_measurement: "units"
-    accuracy_decimals: 0
-    state: "VE07"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
+  # - platform: uartex
+  #   id: ve_bmv_relay
+  #   name: "Battery Relay"
+  #   unit_of_measurement: "units"
+  #   accuracy_decimals: 0
+  #   state: "VE07"
+  #   state_number:
+  #     offset: 4
+  #     length: $float_length 
+  #     decode: "ascii"
 
   - platform: uartex
     id: ve_mppt_voltage

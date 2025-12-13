@@ -32,6 +32,7 @@ image:
     resize: 200x200
     type: RGB565
     use_transparency: true
+    # transparency: opaque #Changed syntax ESPHome 2025.8.0
 #==========================================================================================================================
 # Scripts to update bar displays so that either new thresholds or new values trigger the same code
 
@@ -312,6 +313,11 @@ lvgl:
                 indicator:
                   arc_color: 0x18bcf2
                   arc_width: 8
+            - label: 
+                align: CENTER
+                y: 60
+                id: lbl_boot
+                text: "Booting"
           on_press:
             - lvgl.widget.hide: boot_screen
 #==========================================================================================================================

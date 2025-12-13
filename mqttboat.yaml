@@ -11,9 +11,10 @@ mqtt:
   discover_ip: true # enable device discovery
   discovery_retain: true #retain discovery messages
   discovery_unique_id_generator: mac #Use Mac address to generate unique entity Ids
-#   on_connect:
-#     - lvgl.widget.show: lbl_hastatus
-#   on_disconnect:
+  on_connect:
+    - lvgl.label.update:
+        id: lbl_boot
+        text: "MQTT connected"
 #     - lvgl.widget.hide: lbl_hastatus
 
   on_message: 
