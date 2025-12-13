@@ -244,6 +244,13 @@ sensor:
       offset: 4
       length: $float_length 
       decode: "ascii"
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: lbl_bmv_soc
+            text:
+              format: "SOC: %.1f%%"
+              args: [ 'id(ve_bmv_soc).state' ]
 
   - platform: uartex
     id: ve_bmv_voltage
@@ -256,6 +263,13 @@ sensor:
       offset: 4
       length: $float_length 
       decode: "ascii"
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: lbl_bmv_voltage
+            text:
+              format: "Main Volt: %.2fV"
+              args: [ 'id(ve_bmv_voltage).state' ]
 
   - platform: uartex
     id: ve_bmv_startv
@@ -268,18 +282,32 @@ sensor:
       offset: 4
       length: $float_length 
       decode: "ascii"
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: lbl_bmv_startv
+            text:
+              format: "Start Volt: %.2fV"
+              args: [ 'id(ve_bmv_startv).state' ]
 
   - platform: uartex
     id: ve_bmv_power
     name: "Battery Power"
     device_class: "power"
     unit_of_measurement: "W"
-    accuracy_decimals: 1
+    accuracy_decimals: 0
     state: "VE04"
     state_number:
       offset: 4
       length: $float_length 
       decode: "ascii"
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: lbl_bmv_power
+            text:
+              format: "Power: %.1fW"
+              args: [ 'id(ve_bmv_power).state' ]
 
   - platform: uartex
     id: ve_bmv_current
@@ -292,6 +320,13 @@ sensor:
       offset: 4
       length: $float_length 
       decode: "ascii"
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: lbl_bmv_current
+            text:
+              format: "Current: %.2fA"
+              args: [ 'id(ve_bmv_current).state' ]
 
   - platform: uartex
     id: ve_bmv_alarm
@@ -303,6 +338,13 @@ sensor:
       offset: 4
       length: $float_length 
       decode: "ascii"
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: lbl_bmv_alarm
+            text:
+              format: "Alarm: %.0f"
+              args: [ 'id(ve_bmv_alarm).state' ]
 
   - platform: uartex
     id: ve_bmv_relay
@@ -316,8 +358,8 @@ sensor:
       decode: "ascii"
 
   - platform: uartex
-    id: ve_mptt_voltage
-    name: "MPTT Voltage"
+    id: ve_mppt_voltage
+    name: "MPPT V"
     device_class: "voltage"
     unit_of_measurement: "V"
     accuracy_decimals: 2
@@ -326,10 +368,17 @@ sensor:
       offset: 4
       length: $float_length 
       decode: "ascii"
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: lbl_mppt_voltage
+            text:
+              format: "MPPT V: %.2fV"
+              args: [ 'id(ve_mppt_voltage).state' ]
 
   - platform: uartex
-    id: ve_mptt_panel_voltage
-    name: "Solar Voltage"
+    id: ve_mppt_panel_voltage
+    name: "Solar V"
     device_class: "voltage"
     unit_of_measurement: "V"
     accuracy_decimals: 2
@@ -338,21 +387,35 @@ sensor:
       offset: 4
       length: $float_length 
       decode: "ascii"
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: lbl_mppt_panel_voltage
+            text:
+              format: "Solar V: %.2fV"
+              args: [ 'id(ve_mppt_panel_voltage).state' ]
 
   - platform: uartex
     id: ve_mppt_power
     name: "Solar Power"
     device_class: "power"
     unit_of_measurement: "W"
-    accuracy_decimals: 1
+    accuracy_decimals: 0
     state: "VE10"
     state_number:
       offset: 4
       length: $float_length 
       decode: "ascii"
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: lbl_mppt_power
+            text:
+              format: "MPPT Pwr: %.1fW"
+              args: [ 'id(ve_mppt_power).state' ]
 
   - platform: uartex
-    id: ve_mptt_current
+    id: ve_mppt_current
     name: "Solar Current"
     device_class: "current"
     unit_of_measurement: "A"
@@ -362,6 +425,41 @@ sensor:
       offset: 4
       length: $float_length 
       decode: "ascii"
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: lbl_mppt_current
+            text:
+              format: "MPPT I: %.2fA"
+              args: [ 'id(ve_mppt_current).state' ]
+
+  - platform: uartex
+    id: ve_mppt_state
+    name: "MPTT State"
+    accuracy_decimals: 0
+    state: "VE13"
+    state_number:
+      offset: 4
+      length: $float_length 
+      decode: "ascii"
+    on_value:
+      then:
+        # Use template sensors to decode status locally and reduce number of uartex sensors reqd 
+        - binary_sensor.template.publish:
+            id: ve_mppt_fault
+            state: !lambda 'return ((int)id(ve_mppt_state).state  == 2) ? true : false;' 
+        - binary_sensor.template.publish:
+            id: ve_mppt_bulk
+            state: !lambda 'return ((int)id(ve_mppt_state).state  == 3) ? true : false;' 
+        - binary_sensor.template.publish:
+            id: ve_mppt_absorption
+            state: !lambda 'return ((int)id(ve_mppt_state).state  == 4) ? true : false;' 
+        - binary_sensor.template.publish:
+            id: ve_mppt_float
+            state: !lambda 'return ((int)id(ve_mppt_state).state  == 5) ? true : false;' 
+        - binary_sensor.template.publish:
+            id: ve_mppt_starting
+            state: !lambda 'return ((int)id(ve_mppt_state).state  == 245) ? true : false;' 
 
   - platform: uartex
     id: vt_light_lux
@@ -373,6 +471,13 @@ sensor:
       offset: 4
       length: $float_length 
       decode: "ascii"
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: lbl_light_lux
+            text:
+              format: "Light: %.0flx"
+              args: [ 'id(vt_light_lux).state' ]
 
   - platform: uartex
     id: vt_engine_rpm
@@ -829,4 +934,24 @@ binary_sensor:
   - platform: template
     id: vc_multi_temp
     name: "Multi Temperature"
+
+  - platform: template
+    id: ve_mppt_fault
+    name: "MPPT Fault"
+
+  - platform: template
+    id: ve_mppt_bulk
+    name: "MPPT Bulk"
+
+  - platform: template
+    id: ve_mppt_absorption
+    name: "MPPT Absorp"
+
+  - platform: template
+    id: ve_mppt_float
+    name: "MPPT Float"
+
+  - platform: template
+    id: ve_mppt_starting
+    name: "MPPT Start"
 
