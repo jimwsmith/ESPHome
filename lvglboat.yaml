@@ -221,12 +221,12 @@ lvgl:
       bg_opa: TRANSP #COVER
     - id: indicator_temperature
       bg_grad: blue_red_bar
-      bg_opa: 50%
+      bg_opa: 70%
     - id: bar_humidity
       bg_opa: TRANSP #COVER
     - id: indicator_humidity
       bg_grad: green_blue_bar
-      bg_opa: 50%
+      bg_opa: 70%
     - id: lbl_temperature_humidity
       text_align: RIGHT
 
@@ -237,8 +237,8 @@ lvgl:
           id: lbl_battery
 #          hidden: true
           align: top_right
-          x: -24
-          y: 7
+          x: -26
+          y: 6
           text_align: right
           text_color: 0xFFFFFF
       - label:
@@ -247,7 +247,7 @@ lvgl:
           hidden: true
           align: top_right
           x: -2
-          y: 7
+          y: 6
           text_align: right
           text_color: 0xFFFFFF
       - label:
@@ -255,7 +255,7 @@ lvgl:
           id: lbl_time
           align: top_left
           x: 2
-          y: 7
+          y: 6
           text_align: left
           text_color: 0xFFFFFF
       - buttonmatrix:
@@ -481,6 +481,112 @@ lvgl:
                   grid_cell_x_align: STRETCH
                   grid_cell_y_align: STRETCH
                   id: lbl_mppt_state
+                  bg_opa: COVER
+                  bg_color: BLACK #Only until a status is received
+                  text: "Status" #Only until a status is received
+                  align: CENTER
+
+#--------------------------------------------------------------------------
+    - id: multiplus_page
+      bg_color: 0x000000 #black
+      widgets:
+        - obj:
+            align: TOP_MID
+            styles: header_footer
+            widgets:
+              - label:
+                  text: "Multiplus"
+                  align: CENTER
+                  text_align: CENTER
+                  text_color: 0xFFFFFF #white
+        - obj: # a properly placed coontainer object for all these controls
+            text_color: white
+            align: CENTER
+            width: 320
+            height: 180 #240-(2*30) #Display area less header & footer
+            pad_all: 0
+            bg_opa: TRANSP #COVER
+            border_opa: TRANSP
+            # outline_width: 1 #debug top check we fill available space
+            layout: # enable the GRID layout for the children widgets
+              type: GRID # split the rows and the columns proportionally
+              grid_columns: [FR(1), FR(1)] # equal
+              grid_rows: [FR(1), FR(1), FR(1), FR(1), FR(1), FR(1)] # like percents
+              pad_row: 4
+              pad_column: 8
+            widgets:
+              - label:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 0 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_vb_dc_battery_voltage
+              - label:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 1 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_vb_dc_inverter_current
+              # - label:
+              #     grid_cell_column_pos: 0 # place the widget in
+              #     grid_cell_row_pos: 2 # the corresponding cell
+              #     grid_cell_x_align: STRETCH
+              #     grid_cell_y_align: STRETCH
+              #     id: lbl_vb_dc_charger_current
+              - label:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 3 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_vb_dc_power
+              # - label:
+              #     grid_cell_column_pos: 0 # place the widget in
+              #     grid_cell_row_pos: 4 # the corresponding cell
+              #     grid_cell_x_align: STRETCH
+              #     grid_cell_y_align: STRETCH
+              #     id: lbl_vb_mains_frequency
+              # - label:
+              #     grid_cell_column_pos: 0 # place the widget in
+              #     grid_cell_row_pos: 5 # the corresponding cell
+              #     grid_cell_x_align: STRETCH
+              #     grid_cell_y_align: STRETCH
+              #     id: lbl_vb_inverter_frequency
+              - label:
+                  grid_cell_column_pos: 1 # place the widget in
+                  grid_cell_row_pos: 0 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_vb_ac_mains_voltage
+              - label:
+                  grid_cell_column_pos: 1 # place the widget in
+                  grid_cell_row_pos: 1 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_vb_ac_mains_current
+              - label:
+                  grid_cell_column_pos: 1 # place the widget in
+                  grid_cell_row_pos: 2 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_vb_ac_power
+              - label:
+                  grid_cell_column_pos: 1 # place the widget in
+                  grid_cell_row_pos: 3 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_vb_ac_inverter_voltage
+              - label:
+                  grid_cell_column_pos: 1 # place the widget in
+                  grid_cell_row_pos: 4 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_vb_ac_inverter_current
+              - label:
+                  grid_cell_column_pos: 1 # place the widget in
+                  grid_cell_row_pos: 5 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_vb_ac_inverter_power
 
 #--------------------------------------------------------------------------
     - id: heating_page
@@ -693,6 +799,270 @@ lvgl:
                   styles: lbl_temperature_humidity
        
 #--------------------------------------------------------------------------
+    - id: temperature_page
+      bg_color: 0x000000 #black
+      widgets:
+        - obj:
+            align: TOP_MID
+            styles: header_footer
+            widgets:
+              - label:
+                  text: "Temperature"
+                  align: CENTER
+                  text_align: CENTER
+                  text_color: 0xFFFFFF #white
+        - obj: # a properly placed coontainer object for all these controls
+            text_color: white
+            align: CENTER
+            width: 320
+            height: 180 #240-(2*30) #Display area less header & footer
+            pad_all: 0
+            bg_opa: TRANSP #COVER
+            border_opa: TRANSP
+            # outline_width: 1 #debug top check we fill available space
+            layout: # enable the GRID layout for the children widgets
+              type: GRID # split the rows and the columns proportionally
+              grid_columns: [FR(1), FR(1)] # equal
+              grid_rows: [FR(1), FR(1), FR(1), FR(1), FR(1), FR(1), FR(1)] # like percents
+              pad_row: 4
+              pad_column: 8
+            widgets:
+              - bar:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 0 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: bar_temp1
+                  value: 100
+                  styles: bar_temperature
+                  indicator: 
+                    styles: indicator_temperature
+              - label:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 0 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_temp1
+                  text: "Wtr Cyl Top"
+                  styles: lbl_temperature_humidity
+              - bar:
+                  grid_cell_column_pos: 1 # place the widget in
+                  grid_cell_row_pos: 0 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: bar_temp2
+                  value: 100
+                  styles: bar_temperature
+                  indicator: 
+                    styles: indicator_temperature
+              - label:
+                  grid_cell_column_pos: 1 # place the widget in
+                  grid_cell_row_pos: 0 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_temp2
+                  text: "Wtr Cyl Bot"
+                  styles: lbl_temperature_humidity
+              - bar:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 1 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: bar_temp3
+                  value: 100
+                  styles: bar_temperature
+                  indicator: 
+                    styles: indicator_temperature
+              - label:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 1 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_temp3
+                  text: "Htr Flow"
+                  styles: lbl_temperature_humidity
+              - bar:
+                  grid_cell_column_pos: 1 # place the widget in
+                  grid_cell_row_pos: 1 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: bar_temp4
+                  value: 100
+                  styles: bar_temperature
+                  indicator: 
+                    styles: indicator_temperature
+              - label:
+                  grid_cell_column_pos: 1 # place the widget in
+                  grid_cell_row_pos: 1 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_temp4
+                  text: "Htr Retn"
+                  styles: lbl_temperature_humidity
+              - bar:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 2 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: bar_temp5
+                  value: 100
+                  styles: bar_temperature
+                  indicator: 
+                    styles: indicator_temperature
+              - label:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 2 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_temp5
+                  text: "Eng Flow"
+                  styles: lbl_temperature_humidity
+              - bar:
+                  grid_cell_column_pos: 1 # place the widget in
+                  grid_cell_row_pos: 2 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: bar_temp6
+                  value: 100
+                  styles: bar_temperature
+                  indicator: 
+                    styles: indicator_temperature
+              - label:
+                  grid_cell_column_pos: 1 # place the widget in
+                  grid_cell_row_pos: 2 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_temp6
+                  text: "Eng Retn"
+                  styles: lbl_temperature_humidity
+              - bar:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 3 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: bar_temp7
+                  value: 100
+                  styles: bar_temperature
+                  indicator: 
+                    styles: indicator_temperature
+              - label:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 3 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_temp7
+                  text: "Skin Flow"
+                  styles: lbl_temperature_humidity
+              - bar:
+                  grid_cell_column_pos: 1 # place the widget in
+                  grid_cell_row_pos: 3 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: bar_temp8
+                  value: 100
+                  styles: bar_temperature
+                  indicator: 
+                    styles: indicator_temperature
+              - label:
+                  grid_cell_column_pos: 1 # place the widget in
+                  grid_cell_row_pos: 3 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_temp8
+                  text: "Skin Retn"
+                  styles: lbl_temperature_humidity
+              - bar:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 4 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: bar_temp9
+                  value: 100
+                  styles: bar_temperature
+                  indicator: 
+                    styles: indicator_temperature
+              - label:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 4 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_temp9
+                  text: "Gearbox"
+                  styles: lbl_temperature_humidity
+              - bar:
+                  grid_cell_column_pos: 1 # place the widget in
+                  grid_cell_row_pos: 4 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: bar_temp10
+                  value: 100
+                  styles: bar_temperature
+                  indicator: 
+                    styles: indicator_temperature
+              - label:
+                  grid_cell_column_pos: 1 # place the widget in
+                  grid_cell_row_pos: 4 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_temp10
+                  text: "Propshaft"
+                  styles: lbl_temperature_humidity
+              - bar:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 5 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: bar_temp11
+                  value: 100
+                  styles: bar_temperature
+                  indicator: 
+                    styles: indicator_temperature
+              - label:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 5 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_temp11
+                  text: "Battery"
+                  styles: lbl_temperature_humidity
+              - bar:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 6 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: bar_temp12
+                  value: 100
+                  styles: bar_temperature
+                  indicator: 
+                    styles: indicator_temperature
+              - label:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 6 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_temp12
+                  text: "Main Alt"
+                  styles: lbl_temperature_humidity
+              - bar:
+                  grid_cell_column_pos: 1 # place the widget in
+                  grid_cell_row_pos: 6 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: bar_temp13
+                  value: 100
+                  styles: bar_temperature
+                  indicator: 
+                    styles: indicator_temperature
+              - label:
+                  grid_cell_column_pos: 1 # place the widget in
+                  grid_cell_row_pos: 6 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_temp13
+                  text: "Aux Alt"
+                  styles: lbl_temperature_humidity
+       
+#--------------------------------------------------------------------------
     - id: relay_page
       bg_color: 0x000000 #black
       widgets:
@@ -850,8 +1220,8 @@ lvgl:
       
 #==========================================================================================================================
     - id: ota_page
-      bg_color: PURPLE
-      hidden: true #start hidden unless an ota is triggered
+      bg_color: 0XFF9EF9
+      skip: true #start hidden unless an ota is triggered
       widgets:
         - obj:
             align: TOP_MID

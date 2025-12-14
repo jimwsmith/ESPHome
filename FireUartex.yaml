@@ -1,4 +1,8 @@
 
+substitutions:
+  float_length : "10" 
+  temp_bar_scale: "3.0" #Scale factor to convert room temperature to 0-100 range for lvgl bar display
+  hot_temp_bar_scale: "1.5" #Scale factor to convert coolant & heater temperature to 0-100 range for lvgl bar display
 external_components:
   - source: github://eigger/espcomponents@latest
     components: [ uartex ]
@@ -57,12 +61,19 @@ sensor:
     name: "DC Battery Voltage"
     device_class: "voltage"
     unit_of_measurement: "V"
-    accuracy_decimals: 1
+    accuracy_decimals: 2
     state: "VB01"
     state_number:
       offset: 4
       length: $float_length 
       decode: "ascii"
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: lbl_vb_dc_battery_voltage
+            text:
+              format: "Batt Volt: %.1fV"
+              args: [ 'id(vb_dc_battery_voltage).state' ]
 
   - platform: uartex
     id: vb_dc_inverter_current
@@ -75,18 +86,32 @@ sensor:
       offset: 4
       length: $float_length 
       decode: "ascii"
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: lbl_vb_dc_inverter_current
+            text:
+              format: "DC Inv I: %.1fA"
+              args: [ 'id(vb_dc_inverter_current).state' ]
 
-  - platform: uartex
-    id: vb_dc_charger_current
-    name: "DC Charger Current"
-    device_class: "current"
-    unit_of_measurement: "A"
-    accuracy_decimals: 1
-    state: "VB03"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
+  # - platform: uartex
+  #   id: vb_dc_charger_current
+  #   name: "DC Charger Current"
+  #   device_class: "current"
+  #   unit_of_measurement: "A"
+  #   accuracy_decimals: 1
+  #   state: "VB03"
+  #   state_number:
+  #     offset: 4
+  #     length: $float_length 
+  #     decode: "ascii"
+  #   on_value:
+  #     then:
+  #       - lvgl.label.update:
+  #           id: lbl_vb_dc_charger_current
+  #           text:
+  #             format: "DC Chg I: %.1fA"
+  #             args: [ 'id(vb_dc_charger_current).state' ]
 
   # - platform: uartex
   #   id: vb_inverter_frequency
@@ -99,30 +124,60 @@ sensor:
   #     offset: 4
   #     length: $float_length 
   #     decode: "ascii"
+  #   on_value:
+  #     then:
+  #       - lvgl.label.update:
+  #           id: lbl_vb_inverter_frequency
+  #           text:
+  #             format: "Inv Freq: %.0fHz"
+  #             args: [ 'id(vb_inverter_frequency).state' ]
 
-  - platform: uartex
+#replaced by template calc
+  # - platform: uartex
+  #   id: vb_dc_power
+  #   name: "DC Power"
+  #   device_class: "power"
+  #   unit_of_measurement: "W"
+  #   accuracy_decimals: 1
+  #   state: "VB05"
+  #   state_number:
+  #     offset: 4
+  #     length: $float_length 
+  #     decode: "ascii"
+  - platform: template
     id: vb_dc_power
     name: "DC Power"
     device_class: "power"
     unit_of_measurement: "W"
-    accuracy_decimals: 1
-    state: "VB05"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
+    accuracy_decimals: 0
+    lambda: |-
+      return (id(vb_dc_battery_voltage).state * (id(vb_dc_inverter_current).state));
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: lbl_vb_dc_power
+            text:
+              format: "DC Pwr: %.0fW"
+              args: [ 'id(vb_dc_power).state' ]
 
   - platform: uartex
     id: vb_ac_mains_voltage
     name: "AC Mains Voltage"
     device_class: "voltage"
     unit_of_measurement: "V"
-    accuracy_decimals: 1
+    accuracy_decimals: 0
     state: "VB06"
     state_number:
       offset: 4
       length: $float_length 
       decode: "ascii"
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: lbl_vb_ac_mains_voltage
+            text:
+              format: "AC Mains: %.0fV"
+              args: [ 'id(vb_ac_mains_voltage).state' ]
 
   - platform: uartex
     id: vb_ac_mains_current
@@ -135,30 +190,60 @@ sensor:
       offset: 4
       length: $float_length 
       decode: "ascii"
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: lbl_vb_ac_mains_current
+            text:
+              format: "AC Curr: %.0fA"
+              args: [ 'id(vb_ac_mains_current).state' ]
 
-  - platform: uartex
+#replaced by template calc
+  # - platform: uartex
+  #   id: vb_ac_power
+  #   name: "AC Mains Power"
+  #   device_class: "power"
+  #   unit_of_measurement: "W"
+  #   accuracy_decimals: 0
+  #   state: "VB08"
+  #   state_number:
+  #     offset: 4
+  #     length: $float_length 
+  #     decode: "ascii"
+  - platform: template
     id: vb_ac_power
     name: "AC Mains Power"
     device_class: "power"
     unit_of_measurement: "W"
-    accuracy_decimals: 1
-    state: "VB08"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
+    accuracy_decimals: 0
+    lambda: |-
+      return (id(vb_ac_mains_voltage).state * (id(vb_ac_mains_current).state));
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: lbl_vb_ac_power
+            text:
+              format: "AC Pwr: %.0fW"
+              args: [ 'id(vb_ac_power).state' ]
 
   - platform: uartex
     id: vb_ac_inverter_voltage
     name: "AC Inverter Voltage"
     device_class: "voltage"
     unit_of_measurement: "V"
-    accuracy_decimals: 1
+    accuracy_decimals: 0
     state: "VB09"
     state_number:
       offset: 4
       length: $float_length 
       decode: "ascii"
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: lbl_vb_ac_inverter_voltage
+            text:
+              format: "AC Inv: %.0fV"
+              args: [ 'id(vb_ac_inverter_voltage).state' ]
 
   - platform: uartex
     id: vb_ac_inverter_current
@@ -171,6 +256,13 @@ sensor:
       offset: 4
       length: $float_length 
       decode: "ascii"
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: lbl_vb_ac_inverter_current
+            text:
+              format: "AC Inv: %.0fA"
+              args: [ 'id(vb_ac_inverter_current).state' ]
 
   # - platform: uartex
   #   id: vb_mains_frequency
@@ -183,18 +275,41 @@ sensor:
   #     offset: 4
   #     length: $float_length 
   #     decode: "ascii"
+  #   on_value:
+  #     then:
+  #       - lvgl.label.update:
+  #           id: lbl_vb_mains_frequency
+  #           text:
+  #             format: "Inv Freq: %.0fHz"
+  #             args: [ 'id(vb_mains_frequency).state' ]
 
-  - platform: uartex
+#replaced by template calc
+  # - platform: uartex
+  #   id: vb_ac_inverter_power
+  #   name: "AC Inverter Power"
+  #   device_class: "power"
+  #   unit_of_measurement: "W"
+  #   accuracy_decimals: 0
+  #   state: "VB12"
+  #   state_number:
+  #     offset: 4
+  #     length: $float_length 
+  #     decode: "ascii"
+  - platform: template
     id: vb_ac_inverter_power
     name: "AC Inverter Power"
     device_class: "power"
     unit_of_measurement: "W"
-    accuracy_decimals: 1
-    state: "VB12"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
+    accuracy_decimals: 0
+    lambda: |-
+      return (id(vb_ac_inverter_voltage).state * (id(vb_ac_inverter_current).state));
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: lbl_vb_ac_inverter_power
+            text:
+              format: "Inv Pwr: %.0fW"
+              args: [ 'id(vb_ac_inverter_power).state' ]
 
   - platform: uartex
     id: vb_inverter_state
@@ -268,7 +383,7 @@ sensor:
         - lvgl.label.update:
             id: lbl_bmv_voltage
             text:
-              format: "Main Volt: %.2fV"
+              format: "Batt Volt: %.2fV"
               args: [ 'id(ve_bmv_voltage).state' ]
 
   - platform: uartex
@@ -287,7 +402,7 @@ sensor:
         - lvgl.label.update:
             id: lbl_bmv_startv
             text:
-              format: "Start Volt: %.2fV"
+              format: "St Batt V: %.2fV"
               args: [ 'id(ve_bmv_startv).state' ]
 
   - platform: uartex
@@ -306,7 +421,7 @@ sensor:
         - lvgl.label.update:
             id: lbl_bmv_power
             text:
-              format: "Power: %.1fW"
+              format: "Batt Pwr: %.1fW"
               args: [ 'id(ve_bmv_power).state' ]
 
   - platform: uartex
@@ -325,7 +440,7 @@ sensor:
         - lvgl.label.update:
             id: lbl_bmv_current
             text:
-              format: "Current: %.2fA"
+              format: "Batt Curr: %.2fA"
               args: [ 'id(ve_bmv_current).state' ]
 
   - platform: uartex
@@ -411,7 +526,7 @@ sensor:
         - lvgl.label.update:
             id: lbl_mppt_power
             text:
-              format: "MPPT Pwr: %.1fW"
+              format: "MPPT Pwr: %.0fW"
               args: [ 'id(ve_mppt_power).state' ]
 
   - platform: uartex
@@ -445,6 +560,7 @@ sensor:
     on_value:
       then:
         # Use template sensors to decode status locally and reduce number of uartex sensors reqd 
+        # Note that the lvgl lable updates are done by the template sensors
         - binary_sensor.template.publish:
             id: ve_mppt_fault
             state: !lambda 'return ((int)id(ve_mppt_state).state  == 2) ? true : false;' 
@@ -721,6 +837,16 @@ sensor:
       offset: 4
       length: $float_length 
       decode: "ascii"
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: lbl_temp1
+            text:
+              format: "Wtr Cyl Top: %.1f°C"
+              args: [ 'id(vt_temp1).state' ]
+        - lvgl.bar.update:
+            id: bar_temp1
+            value: !lambda 'return (id(vt_temp1).state) * $hot_temp_bar_scale;'
   
   - platform: uartex
     id: vt_temp2
@@ -733,7 +859,17 @@ sensor:
       offset: 4
       length: $float_length 
       decode: "ascii"
-  
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: lbl_temp2
+            text:
+              format: "Wtr Cyl Bot: %.1f°C"
+              args: [ 'id(vt_temp2).state' ]
+        - lvgl.bar.update:
+            id: bar_temp2
+            value: !lambda 'return (id(vt_temp2).state) * $hot_temp_bar_scale;'
+
   - platform: uartex
     id: vt_temp3
     name: "Eberspacher Flow"
@@ -745,6 +881,16 @@ sensor:
       offset: 4
       length: $float_length 
       decode: "ascii"
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: lbl_temp3
+            text:
+              format: "Htr Flow: %.1f°C"
+              args: [ 'id(vt_temp3).state' ]
+        - lvgl.bar.update:
+            id: bar_temp3
+            value: !lambda 'return (id(vt_temp3).state) * $hot_temp_bar_scale;'
 
   - platform: uartex
     id: vt_temp4
@@ -757,6 +903,16 @@ sensor:
       offset: 4
       length: $float_length 
       decode: "ascii"
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: lbl_temp4
+            text:
+              format: "Htr Retn: %.1f°C"
+              args: [ 'id(vt_temp4).state' ]
+        - lvgl.bar.update:
+            id: bar_temp4
+            value: !lambda 'return (id(vt_temp4).state) * $hot_temp_bar_scale;'
 
   - platform: uartex
     id: vt_temp5
@@ -769,6 +925,16 @@ sensor:
       offset: 4
       length: $float_length 
       decode: "ascii"
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: lbl_temp5
+            text:
+              format: "Eng Flow: %.1f°C"
+              args: [ 'id(vt_temp5).state' ]
+        - lvgl.bar.update:
+            id: bar_temp5
+            value: !lambda 'return (id(vt_temp5).state) * $hot_temp_bar_scale;'
 
   - platform: uartex
     id: vt_temp6
@@ -781,6 +947,16 @@ sensor:
       offset: 4
       length: $float_length 
       decode: "ascii"
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: lbl_temp6
+            text:
+              format: "Eng Retn: %.1f°C"
+              args: [ 'id(vt_temp6).state' ]
+        - lvgl.bar.update:
+            id: bar_temp6
+            value: !lambda 'return (id(vt_temp6).state) * $hot_temp_bar_scale;'
 
   - platform: uartex
     id: vt_temp7
@@ -793,6 +969,16 @@ sensor:
       offset: 4
       length: $float_length 
       decode: "ascii"
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: lbl_temp7
+            text:
+              format: "Skin Flow: %.1f°C"
+              args: [ 'id(vt_temp7).state' ]
+        - lvgl.bar.update:
+            id: bar_temp7
+            value: !lambda 'return (id(vt_temp7).state) * $hot_temp_bar_scale;'
 
   - platform: uartex
     id: vt_temp8
@@ -805,6 +991,16 @@ sensor:
       offset: 4
       length: $float_length 
       decode: "ascii"
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: lbl_temp8
+            text:
+              format: "Skin Retn: %.1f°C"
+              args: [ 'id(vt_temp8).state' ]
+        - lvgl.bar.update:
+            id: bar_temp8
+            value: !lambda 'return (id(vt_temp8).state) * $hot_temp_bar_scale;'
 
   - platform: uartex
     id: vt_temp9
@@ -817,6 +1013,16 @@ sensor:
       offset: 4
       length: $float_length 
       decode: "ascii"
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: lbl_temp9
+            text:
+              format: "Gearbox: %.1f°C"
+              args: [ 'id(vt_temp9).state' ]
+        - lvgl.bar.update:
+            id: bar_temp9
+            value: !lambda 'return (id(vt_temp9).state) * $hot_temp_bar_scale;'
 
   - platform: uartex
     id: vt_temp10
@@ -829,6 +1035,16 @@ sensor:
       offset: 4
       length: $float_length 
       decode: "ascii"
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: lbl_temp10
+            text:
+              format: "Propshaft: %.1f°C"
+              args: [ 'id(vt_temp10).state' ]
+        - lvgl.bar.update:
+            id: bar_temp10
+            value: !lambda 'return (id(vt_temp10).state) * $hot_temp_bar_scale;'
 
   - platform: uartex
     id: vt_temp11
@@ -841,6 +1057,16 @@ sensor:
       offset: 4
       length: $float_length 
       decode: "ascii"
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: lbl_temp11
+            text:
+              format: "Battery: %.1f°C"
+              args: [ 'id(vt_temp11).state' ]
+        - lvgl.bar.update:
+            id: bar_temp11
+            value: !lambda 'return (id(vt_temp11).state) * $hot_temp_bar_scale;'
 
   - platform: uartex
     id: vt_temp12
@@ -853,6 +1079,16 @@ sensor:
       offset: 4
       length: $float_length 
       decode: "ascii"
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: lbl_temp12
+            text:
+              format: "Main Alt: %.1f°C"
+              args: [ 'id(vt_temp12).state' ]
+        - lvgl.bar.update:
+            id: bar_temp12
+            value: !lambda 'return (id(vt_temp12).state) * $hot_temp_bar_scale;'
 
   - platform: uartex
     id: vt_temp13
@@ -865,6 +1101,16 @@ sensor:
       offset: 4
       length: $float_length 
       decode: "ascii"
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: lbl_temp13
+            text:
+              format: "Aux Alt: %.1f°C"
+              args: [ 'id(vt_temp13).state' ]
+        - lvgl.bar.update:
+            id: bar_temp13
+            value: !lambda 'return (id(vt_temp13).state) * $hot_temp_bar_scale;'
 
 
 text_sensor:
@@ -908,6 +1154,10 @@ binary_sensor:
     name: "Multi Mains"
 
   - platform: template
+    id: vc_multi_inverter
+    name: "Multi Inverter"
+
+  - platform: template
     id: vc_multi_absorb
     name: "Multi Absorb"
 
@@ -918,10 +1168,6 @@ binary_sensor:
   - platform: template
     id: vc_multi_float
     name: "Multi Float"
-
-  - platform: template
-    id: vc_multi_inverter
-    name: "Multi Inverter"
 
   - platform: template
     id: vc_multi_overload
@@ -938,20 +1184,50 @@ binary_sensor:
   - platform: template
     id: ve_mppt_fault
     name: "MPPT Fault"
+    on_press:
+      then:
+        - lvgl.label.update:
+            id: lbl_mppt_state
+            text: "Fault"
+            bg_color: 0xC30000 #Dark Red
 
   - platform: template
     id: ve_mppt_bulk
     name: "MPPT Bulk"
+    on_press:
+      then:
+        - lvgl.label.update:
+            id: lbl_mppt_state
+            text: "Bulk"
+            bg_color: 0x0010C3 #Dark Blue
 
   - platform: template
     id: ve_mppt_absorption
     name: "MPPT Absorp"
+    on_press:
+      then:
+        - lvgl.label.update:
+            id: lbl_mppt_state
+            text: "Absorption" 
+            bg_color: 0xC37600 #Dark Orange
 
   - platform: template
     id: ve_mppt_float
     name: "MPPT Float"
+    on_press:
+      then:
+        - lvgl.label.update:
+            id: lbl_mppt_state
+            text: "Float"
+            bg_color: 0x06840B #Dark Green
 
   - platform: template
     id: ve_mppt_starting
     name: "MPPT Start"
+    on_press:
+      then:
+        - lvgl.label.update:
+            id: lbl_mppt_state
+            text: "Starting"
+            bg_color: 0X9D0093 #Dark Purple
 
