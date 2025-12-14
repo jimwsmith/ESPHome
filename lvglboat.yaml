@@ -34,10 +34,6 @@ image:
     use_transparency: true
     # transparency: opaque #Changed syntax ESPHome 2025.8.0
 #==========================================================================================================================
-# Scripts to update bar displays so that either new thresholds or new values trigger the same code
-
-
-#==========================================================================================================================
 lvgl:
   displays:
     - m5stack_display
@@ -48,6 +44,7 @@ lvgl:
       right_button: M5_BtnC
   resume_on_input: true #resume from pause on button press (encoder rotate)
   id: lv_id #Only reqd so that ota can force updates to lvgl display even when main loop not running
+  # buffer_size: 25% #try to free RAM (makes no difference as PSRAM fitted)
 #==========================================================================================================================
   gradients:
     - id: color_bar
@@ -240,7 +237,7 @@ lvgl:
           id: lbl_battery
 #          hidden: true
           align: top_right
-          x: -22
+          x: -24
           y: 7
           text_align: right
           text_color: 0xFFFFFF
@@ -334,7 +331,7 @@ lvgl:
             styles: header_footer
             widgets:
               - label:
-                  text: "ESPHome LVGL Display"
+                  text: "$friendly_name Monitor"
                   align: CENTER
                   text_align: CENTER
                   text_color: 0xFFFFFF
@@ -349,7 +346,7 @@ lvgl:
             outline_width: 1 #debug
             layout: # enable the GRID layout for the children widgets
               type: GRID # split the rows and the columns proportionally
-              grid_columns: [FR(1), FR(1), FR(1)] # equal
+              grid_columns: [FR(1)] # equal
               grid_rows: [FR(1), FR(1), FR(1), FR(1)] # like percents
               pad_row: 6
               pad_column: 8
@@ -357,7 +354,7 @@ lvgl:
               - label:
                   grid_cell_column_pos: 0 # place the widget in
                   grid_cell_row_pos: 0 # the corresponding cell
-                  grid_cell_column_span: 2 #Span 2 columns as firmware version is a long string
+                  # grid_cell_column_span: 2 #Span 2 columns as firmware version is a long string
                   grid_cell_x_align: STRETCH
                   grid_cell_y_align: STRETCH
                   id: lbl_app_name
