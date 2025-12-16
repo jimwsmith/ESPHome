@@ -1,10 +1,12 @@
 substitutions:
   devicename: m5cores3
-  upper_devicename: M5Stack CoreS3
+  esphome_name: M5CoreS3
+  sensor_update: 60s
+  temp_bar_scale: "3.0"
 
 esphome:
   name: ${devicename}
-  friendly_name: ${upper_devicename}
+  friendly_name: ${esphome_name}
 
 esp32:
   board: esp32-s3-devkitc-1
@@ -26,26 +28,30 @@ psram:
   mode: quad
   speed: 80MHz
 
+packages:
+  wifi: !include wifi.yaml
+  lvgl: !include lvglCore3.yaml
+
 logger:
   level: DEBUG
 
-wifi:
-  networks:
-    - ssid: !secret wifi_comp_ssid
-      password: !secret wifi_comp_password
-    - ssid: !secret wifi_home_ssid
-      password: !secret wifi_home_password
-    - ssid: !secret wifi_phone_ssid
-      password: !secret wifi_phone_password
-    - ssid: !secret wifi_bshed_ssid
-      password: !secret wifi_bshed_password
-
-captive_portal:
-
+# Enable Home Assistant API
 api:
-
-ota:
-  - platform: esphome
+  reboot_timeout: 0s #disable reboots whilst we recode everything to use mqtt
+  encryption:
+    key: !secret api_encryption
+  on_client_connected:
+    - if:
+        condition:
+          lambda: 'return (0 == client_info.find("Home Assistant "));'
+        then:
+          - lvgl.widget.hide: boot_screen
+  on_client_disconnected:
+    - if:
+        condition:
+          lambda: 'return (0 == client_info.find("Home Assistant "));'
+        then:
+          - lvgl.widget.show: boot_screen
 
 external_components:
   - source: github://m5stack/esphome-yaml/components
@@ -113,11 +119,13 @@ display:
     reset_pin:
       aw9523b: aw9523b_hub
       number: 9
-    cs_pin: GPIO3
+    cs_pin: 
+      number: GPIO3
+      ignore_strapping_warning: true
     data_rate: 40MHz
     invert_colors: true
     id: m5cores3_lcd
-    show_test_card: true
+    # show_test_card: true
 
 light:
   - platform: monochromatic
@@ -128,3 +136,255 @@ light:
     output: lcd_backlight_output
     restore_mode: RESTORE_DEFAULT_ON
     default_transition_length: 250ms
+
+#=========================================================================================================
+binary_sensor:
+  - platform: homeassistant
+    id: heating_pump
+    entity_id: switch.heating_pump_switch_1
+    trigger_on_initial_state: true
+    on_state:
+      then:
+        lvgl.widget.update:
+          id: btn_heating_pump
+          state:
+            checked: !lambda return x;
+
+# some aw9523b inputs (handle interrupts)
+# and other binary sensors
+  # - platform: gpio
+  #   name: "ES_INT P0_3"
+  #   pin:
+  #     aw9523b: aw9523b_hub
+  #     number: 3
+  #   on_press:
+  #     then:
+  #       - logger.log: "ES7210 interrupt triggered"
+  #   internal: true
+
+  # - platform: gpio
+  #   name: "TF_SW P0_4"
+  #   pin:
+  #     aw9523b: aw9523b_hub
+  #     number: 4 
+  #   on_press:
+  #     then:
+  #       - logger.log: "TF_SW interrupt triggered"
+  #   internal: true
+  
+  # - platform: gpio
+  #   name: "TOUCH_INT P1_2"
+  #   pin:
+  #     aw9523b: aw9523b_hub
+  #     number: 10
+  #   on_press:
+  #     then:
+  #       - logger.log: "TOUCH interrupt triggered"
+  #   internal: true
+
+  # - platform: gpio
+  #   name: "AW_INT P1_3"
+  #   pin:
+  #     aw9523b: aw9523b_hub
+  #     number: 11
+  #   on_press:
+  #     then:
+  #       - logger.log: "AW88298 interrupt triggered"
+  #   internal: true
+
+#=========================================================================================================
+sensor:
+# PMU
+  - platform: axp2101
+    id: axp2101_sensor
+    battery_level:
+      name: "Battery Level"
+    battery_voltage:
+      name: "Battery Voltage"
+    axp_temperature:
+      name: "AXP2101 Temperature"
+    battery_charging:
+      name: "Battery Charging"
+
+  - platform: homeassistant
+    id: t_h_jim_study_temperature
+    entity_id: sensor.t_h_jim_study_temperature
+    on_value: 
+      then:
+        - lvgl.label.update:
+            id: lbl_jim_study_temp
+            text:
+              format: "Jim Study: %.1f°C"
+              args: [ 'id(t_h_jim_study_temperature).state' ]
+        - lvgl.bar.update:
+            id: bar_jim_study_temp
+            value: !lambda 'return (id(t_h_jim_study_temperature).state) * $temp_bar_scale;'
+  - platform: homeassistant
+    id: t_h_sue_study_temperature
+    entity_id: sensor.t_h_sue_study_temperature
+    on_value: 
+      then:
+        - lvgl.label.update:
+            id: lbl_sue_study_temp
+            text:
+              format: "Sue Study: %.1f°C"
+              args: [ 'id(t_h_sue_study_temperature).state' ]
+        - lvgl.bar.update:
+            id: bar_sue_study_temp
+            value: !lambda 'return (id(t_h_sue_study_temperature).state) * $temp_bar_scale;'
+  - platform: homeassistant
+    id: t_h_kitchen_temperature
+    entity_id: sensor.t_h_kitchen_temperature
+    on_value: 
+      then:
+        - lvgl.label.update:
+            id: lbl_kitchen_temp
+            text:
+              format: "Kitchen: %.1f°C"
+              args: [ 'id(t_h_kitchen_temperature).state' ]
+        - lvgl.bar.update:
+            id: bar_kitchen_temp
+            value: !lambda 'return (id(t_h_kitchen_temperature).state) * $temp_bar_scale;'
+  - platform: homeassistant
+    id: t_h_lounge_temperature
+    entity_id: sensor.t_h_lounge_temperature
+    on_value: 
+      then:
+        - lvgl.label.update:
+            id: lbl_lounge_temp
+            text:
+              format: "Lounge: %.1f°C"
+              args: [ 'id(t_h_lounge_temperature).state' ]
+        - lvgl.bar.update:
+            id: bar_lounge_temp
+            value: !lambda 'return (id(t_h_lounge_temperature).state) * $temp_bar_scale;'
+  - platform: homeassistant
+    id: t_h_hall_temperature
+    entity_id: sensor.t_h_hall_temperature
+    on_value: 
+      then:
+        - lvgl.label.update:
+            id: lbl_hall_temp
+            text:
+              format: "Hall: %.1f°C"
+              args: [ 'id(t_h_hall_temperature).state' ]
+        - lvgl.bar.update:
+            id: bar_hall_temp
+            value: !lambda 'return (id(t_h_hall_temperature).state) * $temp_bar_scale;'
+  - platform: homeassistant
+    id: t_h_spare_room_temperature
+    entity_id: sensor.t_h_spare_room_temperature
+    on_value: 
+      then:
+        - lvgl.label.update:
+            id: lbl_spare_rm_temp
+            text:
+              format: "Spare Rm: %.1f°C"
+              args: [ 'id(t_h_spare_room_temperature).state' ]
+        - lvgl.bar.update:
+            id: bar_spare_rm_temp
+            value: !lambda 'return (id(t_h_spare_room_temperature).state) * $temp_bar_scale;'
+  - platform: homeassistant
+    id: t_h_main_bed_rm_temperature
+    entity_id: sensor.temperature_humidity_sensor_8_temperature
+    on_value: 
+      then:
+        - lvgl.label.update:
+            id: lbl_main_bed_rm_temp
+            text:
+              format: "Main BedRm: %.1f°C"
+              args: [ 'id(t_h_main_bed_rm_temperature).state' ]
+        - lvgl.bar.update:
+            id: bar_main_bed_rm_temp
+            value: !lambda 'return (id(t_h_main_bed_rm_temperature).state) * $temp_bar_scale;'
+  - platform: homeassistant
+    id: t_h_jim_study_humidity
+    entity_id: sensor.t_h_jim_study_humidity
+    on_value: 
+      then:
+        - lvgl.label.update:
+            id: lbl_jim_study_humidity
+            text:
+              format: "%.0f%%"
+              args: [ 'id(t_h_jim_study_humidity).state' ]  
+        - lvgl.bar.update:
+            id: bar_jim_study_humidity
+            value: !lambda 'return id(t_h_jim_study_humidity).state;'
+  - platform: homeassistant
+    id: t_h_sue_study_humidity
+    entity_id: sensor.t_h_sue_study_humidity
+    on_value: 
+      then:
+        - lvgl.label.update:
+            id: lbl_sue_study_humidity
+            text:
+              format: "%.0f%%"
+              args: [ 'id(t_h_sue_study_humidity).state' ]
+        - lvgl.bar.update:  
+            id: bar_sue_study_humidity
+            value: !lambda 'return id(t_h_sue_study_humidity).state;'
+  - platform: homeassistant
+    id: t_h_kitchen_humidity
+    entity_id: sensor.t_h_kitchen_humidity
+    on_value: 
+      then:
+        - lvgl.label.update:
+            id: lbl_kitchen_humidity
+            text:
+              format: "%.0f%%"
+              args: [ 'id(t_h_kitchen_humidity).state' ]
+        - lvgl.bar.update:  
+            id: bar_kitchen_humidity
+            value: !lambda 'return id(t_h_kitchen_humidity).state;'
+  - platform: homeassistant
+    id: t_h_lounge_humidity
+    entity_id: sensor.t_h_lounge_humidity
+    on_value: 
+      then:
+        - lvgl.label.update:
+            id: lbl_lounge_humidity
+            text:
+              format: "%.0f%%"
+              args: [ 'id(t_h_lounge_humidity).state' ]
+        - lvgl.bar.update:
+            id: bar_lounge_humidity
+            value: !lambda 'return id(t_h_lounge_humidity).state;'
+  - platform: homeassistant
+    id: t_h_hall_humidity
+    entity_id: sensor.t_h_hall_humidity
+    on_value: 
+      then:
+        - lvgl.label.update:
+            id: lbl_hall_humidity
+            text:
+              format: "%.0f%%"
+              args: [ 'id(t_h_hall_humidity).state' ]
+        - lvgl.bar.update:
+            id: bar_hall_humidity
+            value: !lambda 'return id(t_h_hall_humidity).state;'
+  - platform: homeassistant
+    id: t_h_spare_room_humidity
+    entity_id: sensor.t_h_spare_room_humidity
+    on_value: 
+      then:
+        - lvgl.label.update:
+            id: lbl_spare_rm_humidity
+            text:
+              format: "%.0f%%"
+              args: [ 'id(t_h_spare_room_humidity).state' ]
+        - lvgl.bar.update:
+            id: bar_spare_rm_humidity
+            value: !lambda 'return id(t_h_spare_room_humidity).state;'
+  - platform: homeassistant
+    id: t_h_main_bed_rm_humidity
+    entity_id: sensor.temperature_humidity_sensor_8_humidity
+    on_value: 
+      then:
+        - lvgl.label.update:
+            id: lbl_main_bed_rm_humidity
+            text:
+              format: "%.0f%%"
+              args: [ 'id(t_h_main_bed_rm_humidity).state' ]
+        - lvgl.bar.update:    
+            id: bar_main_bed_rm_humidity
+            value: !lambda 'return id(t_h_main_bed_rm_humidity).state;'

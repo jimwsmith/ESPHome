@@ -63,23 +63,6 @@ sensor:
     update_interval: ${sensor_update}
     entity_category: "diagnostic"
                 
-  - platform: copy # Reports the WiFi signal strength in %
-    icon: mdi:wifi
-    id: wifi_signal_db_percent
-    source_id: wifi_signal_db
-    name: "WiFi Signal Percent"
-    filters:
-      - lambda: return min(max(2 * (x + 100.0), 0.0), 100.0);
-    unit_of_measurement: "%"
-    entity_category: "diagnostic"
-    device_class: ""
-    on_value:
-        then:
-          - lvgl.label.update:
-              id: lbl_wifi_strength
-              text:
-                format: "Wi-Fi:\n%.0fdB"
-                args: [ 'id(wifi_signal_db).state' ]  
   - platform: uptime
     name: ${esphome_name} Uptime
 

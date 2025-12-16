@@ -247,7 +247,6 @@ lvgl:
       bg_color: BLACK
       bg_opa: COVER
   
-
   top_layer:
     widgets:
       - label:

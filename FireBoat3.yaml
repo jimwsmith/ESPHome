@@ -1,0 +1,9 @@
+substitutions:
+  friendly_name: "Boat3"
+  esphome_name: "fireboat3"
+
+esphome:
+  name: ${esphome_name}
+
+packages:
+  boat: !include Boat.yaml
