@@ -1,10 +1,9 @@
-# All common code for the Home Assistant Boat Monitor goes in here
-# This file in turn is included in a very empty stub file that just defines the device names
-# Unit designed to have a serial input on rx_pin from teh ATMega 2560 unit that is doing the sensor monitoring and sending back simple update sto this unit
-# for WiFi /MQTT communication back to Home Assistant server
-#
 substitutions:
-  sensor_update: 60s #How often do we potentially send info back to Home Assistant via MQTT
+  friendly_name: "Fire7" #Fireboat2 duplicate
+  esphome_name: "fire7"
+  sensor_update: 60s
+  float_length : "10"
+  temp_bar_scale: "3.0" #Scale factor to convert room temperature to 0-100 range for lvgl bar display
 
   tx_pin: GPIO26 #TXD2 M5Stack Fire
   rx_pin: GPIO36 #GPIO36 #RXD2 on M5Stack Fire
@@ -91,7 +90,7 @@ time:
       - minutes: '*'
         seconds: 0
         then:
-          - script.execute: time_update #Updates time in top_level lvgl display once a minute
+          - script.execute: time_update #Updates time in top_level lvgl display
     on_time_sync:
       - script.execute: time_update
 

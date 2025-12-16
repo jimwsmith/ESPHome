@@ -1,0 +1,130 @@
+substitutions:
+  devicename: m5cores3
+  upper_devicename: M5Stack CoreS3
+
+esphome:
+  name: ${devicename}
+  friendly_name: ${upper_devicename}
+
+esp32:
+  board: esp32-s3-devkitc-1
+  flash_size: 16MB
+  framework:
+    type: esp-idf
+    ## Note: Disable these configurations if you face the boot loop issue.
+    sdkconfig_options:
+        CONFIG_ESP32S3_DATA_CACHE_64KB: "y"
+        CONFIG_ESP32S3_DATA_CACHE_LINE_64B: "y"
+        CONFIG_ESP32S3_INSTRUCTION_CACHE_32KB: "y"
+        # Moves instructions and read only data from flash into PSRAM on boot.
+        # Both enabled allows instructions to execute while a flash operation is in progress without needing to be placed in IRAM.
+        # Considerably speeds up mWW at the cost of using more PSRAM.
+        CONFIG_SPIRAM_RODATA: "y"
+        CONFIG_SPIRAM_FETCH_INSTRUCTIONS: "y"
+
+psram:
+  mode: quad
+  speed: 80MHz
+
+logger:
+  level: DEBUG
+
+wifi:
+  networks:
+    - ssid: !secret wifi_comp_ssid
+      password: !secret wifi_comp_password
+    - ssid: !secret wifi_home_ssid
+      password: !secret wifi_home_password
+    - ssid: !secret wifi_phone_ssid
+      password: !secret wifi_phone_password
+    - ssid: !secret wifi_bshed_ssid
+      password: !secret wifi_bshed_password
+
+captive_portal:
+
+api:
+
+ota:
+  - platform: esphome
+
+external_components:
+  - source: github://m5stack/esphome-yaml/components
+    components: [axp2101, aw88298, aw9523b ]
+
+i2c:
+  - id: bus_internal
+    sda: GPIO12
+    scl: GPIO11
+
+spi:
+  - id: spi_bus
+    clk_pin: GPIO36
+    mosi_pin: GPIO37
+
+axp2101:
+  id: axp2101_pmu
+  i2c_id: bus_internal
+
+# IO Expander
+aw9523b:
+  - id: aw9523b_hub
+    i2c_id: bus_internal
+
+output:
+  - platform: axp2101
+    type: range
+    channel: DLDO1
+    id: lcd_backlight_output
+    min_voltage: 2600
+    max_voltage: 3300
+
+  - platform: axp2101
+    channel: ALDO1
+    voltage: 1800
+
+  - platform: axp2101
+    channel: ALDO2
+    voltage: 3300
+
+  - platform: axp2101
+    channel: BLDO1
+    voltage: 2800
+
+  - platform: axp2101
+    channel: BLDO2
+    voltage: 1500
+
+touchscreen:
+  - platform: ft63x6
+    id: touch
+    reset_pin:
+      aw9523b: aw9523b_hub
+      number: 0
+    calibration:
+      x_min: 0
+      x_max: 320
+      y_min: 0
+      y_max: 240
+
+display:
+  - platform: mipi_spi
+    model: M5CORE
+    dc_pin: GPIO35
+    reset_pin:
+      aw9523b: aw9523b_hub
+      number: 9
+    cs_pin: GPIO3
+    data_rate: 40MHz
+    invert_colors: true
+    id: m5cores3_lcd
+    show_test_card: true
+
+light:
+  - platform: monochromatic
+    id: lcd_backlight
+    name: "LCD Backlight"
+    icon: "mdi:television"
+    entity_category: config
+    output: lcd_backlight_output
+    restore_mode: RESTORE_DEFAULT_ON
+    default_transition_length: 250ms

@@ -43,8 +43,8 @@ api:
 
 
 esp32:
-#  board: esp32-s3-devkitc-1 
-  board: m5stack-cores3
+  board: esp32-s3-devkitc-1 
+  # board: m5stack-cores3
   framework:
 #    type: arduino 
     type: esp-idf
@@ -56,6 +56,9 @@ psram:
 
 
 external_components:
+  # - source: github://m5stack/esphome-yaml/components
+  #   components: [axp2101, aw88298 ]
+
   # - source: github://stefanthoss/esphome-axp2101
   #   components: [ axp2101 ]
 
@@ -65,6 +68,7 @@ external_components:
       # type: local
       # path: /Users/siekmann/Privat/Projects/espHome/M5Stack_Core_S3/esphome/components
     components: [ esp32_m5stack_core_s3, aw9523 ]
+
 
   # - source:
   #     #type: git
@@ -80,6 +84,7 @@ logger:
   level: DEBUG
 
 spi:
+  id: spi_bus
   clk_pin: GPIO36
   mosi_pin: GPIO37
   # miso_pin: GPIO35 #This is correct for M5Stack Core S3 but conflicts with definition of DCpin for display
@@ -95,6 +100,11 @@ esp32_m5stack_core_s3:
 aw9523:
   id: aw9523_1
   address: 0x58
+
+# IO Expander
+# aw9523b:
+#   - id: aw9523b_hub
+#     i2c_id: bus_a
 
 # binary_sensor:
 
@@ -197,6 +207,27 @@ script:
             args: [ 'id(sntp_time).now().strftime("%R").c_str()' ]
       - pcf8563.write_time:
 
+# axp2101:
+#   id: axp2101_pmu
+#   i2c_id: bus_a
+
+# output:
+#   - platform: axp2101
+#     type: range
+#     channel: DLDO1
+#     id: lcd_backlight_output
+#     min_voltage: 2600
+#     max_voltage: 3300
+
+# light:
+#   - platform: monochromatic
+#     id: lcd_backlight
+#     name: "LCD Backlight"
+#     icon: "mdi:television"
+#     entity_category: config
+#     output: lcd_backlight_output
+#     restore_mode: RESTORE_DEFAULT_ON
+#     default_transition_length: 250ms
 
 # switch:
 # - platform: template
