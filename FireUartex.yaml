@@ -113,24 +113,24 @@ sensor:
   #             format: "DC Chg I: %.1fA"
   #             args: [ 'id(vb_dc_charger_current).state' ]
 
-  # - platform: uartex
-  #   id: vb_inverter_frequency
-  #   name: "Inverter Frequency"
-  #   device_class: "frequency"
-  #   unit_of_measurement: "Hz"
-  #   accuracy_decimals: 1
-  #   state: "VB04"
-  #   state_number:
-  #     offset: 4
-  #     length: $float_length 
-  #     decode: "ascii"
-  #   on_value:
-  #     then:
-  #       - lvgl.label.update:
-  #           id: lbl_vb_inverter_frequency
-  #           text:
-  #             format: "Inv Freq: %.0fHz"
-  #             args: [ 'id(vb_inverter_frequency).state' ]
+  - platform: uartex
+    id: vb_inverter_frequency
+    name: "Inverter Frequency"
+    device_class: "frequency"
+    unit_of_measurement: "Hz"
+    accuracy_decimals: 1
+    state: "VB04"
+    state_number:
+      offset: 4
+      length: $float_length 
+      decode: "ascii"
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: lbl_vb_inverter_frequency
+            text:
+              format: "Inv Freq: %.1fHz"
+              args: [ 'id(vb_inverter_frequency).state' ]
 
 #replaced by template calc
   # - platform: uartex
@@ -264,24 +264,24 @@ sensor:
               format: "AC Inv: %.0fA"
               args: [ 'id(vb_ac_inverter_current).state' ]
 
-  # - platform: uartex
-  #   id: vb_mains_frequency
-  #   name: "Mains Frequency"
-  #   device_class: "frequency"
-  #   unit_of_measurement: "Hz"
-  #   accuracy_decimals: 1
-  #   state: "VB11"
-  #   state_number:
-  #     offset: 4
-  #     length: $float_length 
-  #     decode: "ascii"
-  #   on_value:
-  #     then:
-  #       - lvgl.label.update:
-  #           id: lbl_vb_mains_frequency
-  #           text:
-  #             format: "Inv Freq: %.0fHz"
-  #             args: [ 'id(vb_mains_frequency).state' ]
+  - platform: uartex
+    id: vb_mains_frequency
+    name: "Mains Frequency"
+    device_class: "frequency"
+    unit_of_measurement: "Hz"
+    accuracy_decimals: 1
+    state: "VB11"
+    state_number:
+      offset: 4
+      length: $float_length 
+      decode: "ascii"
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: lbl_vb_mains_frequency
+            text:
+              format: "Mains Freq: %.1fHz"
+              args: [ 'id(vb_mains_frequency).state' ]
 
 #replaced by template calc
   # - platform: uartex

@@ -556,18 +556,18 @@ lvgl:
                   grid_cell_x_align: STRETCH
                   grid_cell_y_align: STRETCH
                   id: lbl_vb_dc_power
-              # - label:
-              #     grid_cell_column_pos: 0 # place the widget in
-              #     grid_cell_row_pos: 4 # the corresponding cell
-              #     grid_cell_x_align: STRETCH
-              #     grid_cell_y_align: STRETCH
-              #     id: lbl_vb_mains_frequency
-              # - label:
-              #     grid_cell_column_pos: 0 # place the widget in
-              #     grid_cell_row_pos: 5 # the corresponding cell
-              #     grid_cell_x_align: STRETCH
-              #     grid_cell_y_align: STRETCH
-              #     id: lbl_vb_inverter_frequency
+              - label:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 4 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_vb_mains_frequency
+              - label:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 5 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_vb_inverter_frequency
               - label:
                   grid_cell_column_pos: 1 # place the widget in
                   grid_cell_row_pos: 0 # the corresponding cell
