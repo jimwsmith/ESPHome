@@ -87,6 +87,8 @@ text_sensor:
       icon: mdi:wifi
       id: wifi_ip
       name: WiFi IP Address
+      update_interval: ${sensor_update}
+      entity_category: "diagnostic"
       on_value:
           then:
             - lvgl.label.update:

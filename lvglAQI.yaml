@@ -95,59 +95,59 @@ script:
 
   - id : update_bar_no2
     then:
-      - lvgl.label.update:
-        # Update displayed text value
-          id: lbl_bar_no2
-          text: 
-            format: "NO2: %.0f"
-            args: [ 'id(no2).state' ]
-      - lvgl.label.update:
-        # Update displayed max value
-          id: lbl_bar_no2_max
-          text:
-            format: "%.0f" #Float but display only integer part
-            args: [ 'id(no2_max).state' ]
-      - lvgl.bar.update:
-        # Update bar value itself
-          id: bar_no2
-          value: !lambda |- 
-            return (static_cast<int>(round((id(no2).state)/(id(no2_max).state)*100))); // scale value to 0-100 from 0-max
-        # Update displayed bar colour
-          indicator:
-            bg_color: !lambda |-
-              if (isnan(id(no2).state)) return lv_color_hex(0x808080); //Grey
-              if ((id(no2).state)<(id(no2_warn).state)) return lv_color_hex(0x00FF00); //Green
-              if ((id(no2).state)<(id(no2_alarm).state)) return lv_color_hex(0xFF8000); //Orange
-              return lv_color_hex(0xFF0000); //Red
-      - script.execute: update_alarm_LED
+  #     - lvgl.label.update:
+  #       # Update displayed text value
+  #         id: lbl_bar_no2
+  #         text: 
+  #           format: "NO2: %.0f"
+  #           args: [ 'id(no2).state' ]
+  #     - lvgl.label.update:
+  #       # Update displayed max value
+  #         id: lbl_bar_no2_max
+  #         text:
+  #           format: "%.0f" #Float but display only integer part
+  #           args: [ 'id(no2_max).state' ]
+  #     - lvgl.bar.update:
+  #       # Update bar value itself
+  #         id: bar_no2
+  #         value: !lambda |- 
+  #           return (static_cast<int>(round((id(no2).state)/(id(no2_max).state)*100))); // scale value to 0-100 from 0-max
+  #       # Update displayed bar colour
+  #         indicator:
+  #           bg_color: !lambda |-
+  #             if (isnan(id(no2).state)) return lv_color_hex(0x808080); //Grey
+  #             if ((id(no2).state)<(id(no2_warn).state)) return lv_color_hex(0x00FF00); //Green
+  #             if ((id(no2).state)<(id(no2_alarm).state)) return lv_color_hex(0xFF8000); //Orange
+  #             return lv_color_hex(0xFF0000); //Red
+  #     - script.execute: update_alarm_LED
 
   - id : update_bar_co
     then:
-      - lvgl.label.update:
-        # Update displayed text value
-          id: lbl_bar_co
-          text: 
-            format: "CO: %.0f"
-            args: [ 'id(co).state' ]
-      - lvgl.label.update:
-        # Update displayed max value
-          id: lbl_bar_co_max
-          text:
-            format: "%.0f" #Float but display only integer part
-            args: [ 'id(co_max).state' ]
-      - lvgl.bar.update:
-        # Update bar value itself
-          id: bar_co
-          value: !lambda |- 
-            return (static_cast<int>(round((id(co).state)/(id(co_max).state)*100))); // scale value to 0-100 from 0-max
-        # Update displayed bar colour
-          indicator:
-            bg_color: !lambda |-
-              if (isnan(id(co).state)) return lv_color_hex(0x808080); //Grey
-              if ((id(co).state)<(id(co_warn).state)) return lv_color_hex(0x00FF00); //Green
-              if ((id(co).state)<(id(co_alarm).state)) return lv_color_hex(0xFF8000); //Orange
-              return lv_color_hex(0xFF0000); //Red
-      - script.execute: update_alarm_LED
+  #     - lvgl.label.update:
+  #       # Update displayed text value
+  #         id: lbl_bar_co
+  #         text: 
+  #           format: "CO: %.0f"
+  #           args: [ 'id(co).state' ]
+  #     - lvgl.label.update:
+  #       # Update displayed max value
+  #         id: lbl_bar_co_max
+  #         text:
+  #           format: "%.0f" #Float but display only integer part
+  #           args: [ 'id(co_max).state' ]
+  #     - lvgl.bar.update:
+  #       # Update bar value itself
+  #         id: bar_co
+  #         value: !lambda |- 
+  #           return (static_cast<int>(round((id(co).state)/(id(co_max).state)*100))); // scale value to 0-100 from 0-max
+  #       # Update displayed bar colour
+  #         indicator:
+  #           bg_color: !lambda |-
+  #             if (isnan(id(co).state)) return lv_color_hex(0x808080); //Grey
+  #             if ((id(co).state)<(id(co_warn).state)) return lv_color_hex(0x00FF00); //Green
+  #             if ((id(co).state)<(id(co_alarm).state)) return lv_color_hex(0xFF8000); //Orange
+  #             return lv_color_hex(0xFF0000); //Red
+  #     - script.execute: update_alarm_LED
 
   - id : update_bar_co2
     then:
@@ -240,8 +240,8 @@ script:
             or:
               - lambda: 'return (id(pm2_5).state) > (id(pm2_5_alarm).state);'
               - lambda: 'return (id(pm10).state) > (id(pm10_alarm).state);'
-              - lambda: 'return (id(no2).state) > (id(no2_alarm).state);'
-              - lambda: 'return (id(co).state) > (id(co_alarm).state);'
+              # - lambda: 'return (id(no2).state) > (id(no2_alarm).state);'
+              # - lambda: 'return (id(co).state) > (id(co_alarm).state);'
               - lambda: 'return (id(co2).state) > (id(co2_alarm).state);'
               - lambda: 'return (id(bme68x_co2equivalent).state) > (id(co2_alarm).state);'
 #              - lambda: 'return (id(nh3).state) > (id(nh3_alarm).state);'
@@ -258,8 +258,8 @@ script:
                   or:
                     - lambda: 'return (id(pm2_5).state) > (id(pm2_5_warn).state);'
                     - lambda: 'return (id(pm10).state) > (id(pm10_warn).state);'
-                    - lambda: 'return (id(no2).state) > (id(no2_warn).state);'
-                    - lambda: 'return (id(co).state) > (id(co_warn).state);'
+                    # - lambda: 'return (id(no2).state) > (id(no2_warn).state);'
+                    # - lambda: 'return (id(co).state) > (id(co_warn).state);'
                     - lambda: 'return (id(co2).state) > (id(co2_warn).state);'
                     - lambda: 'return (id(bme68x_co2equivalent).state) > (id(co2_warn).state);'
 #                    - lambda: 'return (id(nh3).state) > (id(nh3_warn).state);'
@@ -588,57 +588,57 @@ lvgl:
                   text: "?" #scale lable bar end
                   text_color: 0x808080 #Grey for bar dimension labels
             #-----------------------------------------------------
-              - label:
-                  grid_cell_column_pos: 0 # place the widget in
-                  grid_cell_row_pos: 2 # the corresponding cell
-                  grid_cell_y_align: CENTER
-                  id: lbl_bar_no2
-                  text: NO2
-              - label:
-                  grid_cell_column_pos: 1 # place the widget in
-                  grid_cell_row_pos: 2 # the corresponding cell
-                  grid_cell_y_align: CENTER
-                  text: 0 #scale label bar start
-                  text_color: 0x808080 #Grey for bar dimension labels
-              - bar: 
-                  grid_cell_column_pos: 2 # place the widget in
-                  grid_cell_row_pos: 2 # the corresponding cell
-                  grid_cell_x_align: STRETCH #Have to use STRETCH so that bar size is adjusted to cell size
-                  grid_cell_y_align: STRETCH
-                  id: bar_no2
-              - label:
-                  grid_cell_column_pos: 3 # place the widget in
-                  grid_cell_row_pos: 2 # the corresponding cell
-                  grid_cell_y_align: CENTER
-                  id: lbl_bar_no2_max
-                  text: "?" #scale lable bar end
-                  text_color: 0x808080 #Grey for bar dimension labels
-            #-----------------------------------------------------
-              - label:
-                  grid_cell_column_pos: 0 # place the widget in
-                  grid_cell_row_pos: 3 # the corresponding cell
-                  grid_cell_y_align: CENTER
-                  id: lbl_bar_co
-                  text: CO
-              - label:
-                  grid_cell_column_pos: 1 # place the widget in
-                  grid_cell_row_pos: 3 # the corresponding cell
-                  grid_cell_y_align: CENTER
-                  text: 0 #scale label bar start
-                  text_color: 0x808080 #Grey for bar dimension labels
-              - bar: 
-                    grid_cell_column_pos: 2 # place the widget in
-                    grid_cell_row_pos: 3 # the corresponding cell
-                    grid_cell_x_align: STRETCH #Have to use STRETCH so that bar size is adjusted to cell size
-                    grid_cell_y_align: STRETCH
-                    id: bar_co
-              - label:
-                  grid_cell_column_pos: 3 # place the widget in
-                  grid_cell_row_pos: 3 # the corresponding cell
-                  grid_cell_y_align: CENTER
-                  text_color: 0x808080 #Grey for bar dimension labels
-                  id: lbl_bar_co_max
-                  text: "?" #scale lable bar end
+            #   - label:
+            #       grid_cell_column_pos: 0 # place the widget in
+            #       grid_cell_row_pos: 2 # the corresponding cell
+            #       grid_cell_y_align: CENTER
+            #       id: lbl_bar_no2
+            #       text: NO2
+            #   - label:
+            #       grid_cell_column_pos: 1 # place the widget in
+            #       grid_cell_row_pos: 2 # the corresponding cell
+            #       grid_cell_y_align: CENTER
+            #       text: 0 #scale label bar start
+            #       text_color: 0x808080 #Grey for bar dimension labels
+            #   - bar: 
+            #       grid_cell_column_pos: 2 # place the widget in
+            #       grid_cell_row_pos: 2 # the corresponding cell
+            #       grid_cell_x_align: STRETCH #Have to use STRETCH so that bar size is adjusted to cell size
+            #       grid_cell_y_align: STRETCH
+            #       id: bar_no2
+            #   - label:
+            #       grid_cell_column_pos: 3 # place the widget in
+            #       grid_cell_row_pos: 2 # the corresponding cell
+            #       grid_cell_y_align: CENTER
+            #       id: lbl_bar_no2_max
+            #       text: "?" #scale lable bar end
+            #       text_color: 0x808080 #Grey for bar dimension labels
+            # #-----------------------------------------------------
+            #   - label:
+            #       grid_cell_column_pos: 0 # place the widget in
+            #       grid_cell_row_pos: 3 # the corresponding cell
+            #       grid_cell_y_align: CENTER
+            #       id: lbl_bar_co
+            #       text: CO
+            #   - label:
+            #       grid_cell_column_pos: 1 # place the widget in
+            #       grid_cell_row_pos: 3 # the corresponding cell
+            #       grid_cell_y_align: CENTER
+            #       text: 0 #scale label bar start
+            #       text_color: 0x808080 #Grey for bar dimension labels
+            #   - bar: 
+            #         grid_cell_column_pos: 2 # place the widget in
+            #         grid_cell_row_pos: 3 # the corresponding cell
+            #         grid_cell_x_align: STRETCH #Have to use STRETCH so that bar size is adjusted to cell size
+            #         grid_cell_y_align: STRETCH
+            #         id: bar_co
+            #   - label:
+            #       grid_cell_column_pos: 3 # place the widget in
+            #       grid_cell_row_pos: 3 # the corresponding cell
+            #       grid_cell_y_align: CENTER
+            #       text_color: 0x808080 #Grey for bar dimension labels
+            #       id: lbl_bar_co_max
+            #       text: "?" #scale lable bar end
             #-----------------------------------------------------
               - label:
                   grid_cell_column_pos: 0 # place the widget in
@@ -718,6 +718,8 @@ lvgl:
               #     id: lbl_bar_nh3_max
               #     text: "?" #scale lable bar end
 #--------------------------------------------------------------------------
+
+#--------------------------------------------------------------------------
     - id: main_page
       on_load:
         - lvgl.widget.focus: top_layer # focus_next
@@ -778,51 +780,6 @@ lvgl:
                   id: lbl_wifi_ip
                   text: ip addr
 #==========================================================================================================================
-    - id: second_page
-      widgets:
-        - obj:
-            align: TOP_MID
-            styles: header_footer
-            widgets:
-              - label:
-                  text: "A second page"
-                  align: CENTER
-                  text_align: CENTER
-                  text_color: 0xFFFFFF
-        - button:
-            x: 10
-            y: 40
-            width: 70
-            height: 30
-            id: btn_id
-            checkable: true
-            on_value:
-              then:
-                - logger.log:
-                    format: "Button checked state: %d"
-                    args: [ x ]
-            widgets:
-              - label:
-                  align: center
-                  text: "Backlight Dim"
-
-        - slider:
-            x: 50
-            y: 100
-            width: 200
-            id: dimmer_slider
-            value: 75
-            min_value: 0
-            max_value: 255 #brightness in HA goes from 0 to 255 so match slider range to that
-            on_release: #Only use on release to avoid flood of changes for each micro step of slider.  With encoder it means new slider position only recognised when enter is pressed
-              then:
-                - light.control:
-                    id: back_light
-                    brightness: !lambda return x/255; //Brightness needs float 0 to 1.0
-                # - logger.log:
-                #     format: "Slider state: %f, %f"
-                #     args: [ x, x/255 ]
-        
 #==========================================================================================================================
     - id: ota_page
       widgets:
@@ -835,23 +792,6 @@ lvgl:
                   align: CENTER
                   text_align: CENTER
                   text_color: 0xFFFFFF
-        # - button:
-        #     x: 10
-        #     y: 40
-        #     width: 70
-        #     height: 30
-        #     id: btn_id
-        #     checkable: true
-        #     on_value:
-        #       then:
-        #         - logger.log:
-        #             format: "Button checked state: %d"
-        #             args: [ x ]
-        #     widgets:
-        #       - label:
-        #           align: center
-        #           text: "Backlight Dim"
-
         - bar:
             x: 50
             y: 100
@@ -867,6 +807,7 @@ lvgl:
             id: lbl_ota_source
             text: "OTA"
         
+#==========================================================================================================================
 #==========================================================================================================================
     - id: climate_clock_page
       bg_color: 0x000000

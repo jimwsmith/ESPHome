@@ -1,9 +1,11 @@
+# Stub file that simply defines specific unit name for a AQI Sensor system on a M5Stack Fire Unit
+
 substitutions:
-  friendly_name: "Fire7" #Fireboat2 duplicate
+  friendly_name: "Fire7" #Banbury Shed
   esphome_name: "fire7"
 
 esphome:
   name: ${esphome_name}
 
 packages:
-  boat: !include Boat.yaml
+  fireaqi: !include FireAQI.yaml

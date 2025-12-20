@@ -1,3 +1,5 @@
+# Stub file that simply defines specific unit name for a Boat Sensor Monitor system on a M5Stack Fire Unit
+
 substitutions:
   friendly_name: "Boat" #Fireboat duplicate
   esphome_name: "fireboat"

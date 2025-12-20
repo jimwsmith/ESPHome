@@ -4,7 +4,7 @@ esphome:
     - mics6814.h
   libraries:
     - "Wire"
-    - https://github.com/ZodiusInfuser/IOExpander_Library
+    - IOExpander_Library=https://github.com/ZodiusInfuser/IOExpander_Library
 
 sensor:
   - platform: custom

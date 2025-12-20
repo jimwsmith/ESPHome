@@ -1,67 +1,11 @@
+# Stub file that simply defines specific unit name for a AQI Sensor system on a M5Stack Fire Unit
+
 substitutions:
-  friendly_name: "Fire8"
+  friendly_name: "Fire8" #AINSLEY Boat
   esphome_name: "fire8"
-  sensor_update: 60s
 
 esphome:
   name: ${esphome_name}
-  friendly_name: ${friendly_name}
-  on_boot:
-    - priority: -100 #Ensure this runs after lvgl is initialised
-      then:
-        - delay: 8s
-        - lvgl.widget.hide: boot_screen
-        - delay: 10s
-        - switch.turn_on: calibration_switch # Run a calibration on bootup for MCS6814
 
 packages:
-  m5stackfire: !include M5StackFire.yaml
-  wifi: !include wifi.yaml
-  mqtt: !include mqtt.yaml
-  lvgl: !include lvgl.yaml
-  bme68x: !include BME68x.yaml
-  pmsa003i: !include pmsa003i.yaml
-  mics6814: !include MICS6814.yaml
-  scd30: !include scd30.yaml
-
-external_components:
-  - source:
-      type: git
-      url: https://github.com/ssieb/custom_components
-
-# Enable logging
-logger:
-  logs:
-    component: DEBUG #Supress excessive warnings about display writing
-  
-captive_portal:
-
-time:
-  - platform: sntp 
-    id: sntp_time
-    on_time: #Automation to enable display screen saver
-      # - hours: 2,3,4,5
-      #   minutes: 5
-      #   seconds: 0
-      #   then:
-      #     - switch.turn_on: switch_antiburn
-      # - hours: 2,3,4,5
-      #   minutes: 35
-      #   seconds: 0
-      #   then:
-      #     - switch.turn_off: switch_antiburn
-      - minutes: '*'
-        seconds: 0
-        then:
-          - script.execute: time_update #Updates time in top_level lvgl display
-    on_time_sync:
-      - script.execute: time_update
-
-script:
-  - id: time_update
-    then:
-      - lvgl.label.update:
-          id: lbl_time
-          text: 
-            format: "%s"
-            args: [ 'id(sntp_time).now().strftime("%R").c_str()' ]
+  fireaqi: !include FireAQI.yaml

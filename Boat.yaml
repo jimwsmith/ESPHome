@@ -27,7 +27,7 @@ esphome:
 packages:
   m5stackfire: !include M5StackFire.yaml
   wifi: !include wifi.yaml
-  mqtt: !include mqttboat.yaml
+  mqtt: !include mqtt.yaml
   lvgl: !include lvglboat.yaml
   uart: !include FireUartex.yaml
 
