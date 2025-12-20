@@ -52,5 +52,12 @@
 			"label": "GitHb: Generate and Upload OTA files",
 			"command": "(Get-FileHash -Path .\\.esphome\\build\\${fileBasenameNoExtension}\\.pioenvs\\${fileBasenameNoExtension}\\firmware.ota.bin -Algorithm md5).Hash.ToLower() | Out-File -FilePath .\\.esphome\\build\\${fileBasenameNoExtension}\\.pioenvs\\${fileBasenameNoExtension}\\firmware.md5 -Encoding ASCII; gh release upload '${fileBasenameNoExtension}_ota'.ToLower() .\\.esphome\\build\\${fileBasenameNoExtension}\\.pioenvs\\${fileBasenameNoExtension}\\firmware.ota.bin .\\.esphome\\build\\${fileBasenameNoExtension}\\.pioenvs\\${fileBasenameNoExtension}\\firmware.md5 --repo jimwsmith/ESPHome --clobber"
 		}
+,
+		{
+			"type": "shell",
+			"problemMatcher": [],
+			"label": "GitHb: V2 Generate and Upload OTA files",
+			"command": "(Get-FileHash -Path C:\\EsphomeTemp\\${fileBasenameNoExtension}\\.pioenvs\\${fileBasenameNoExtension}\\firmware.ota.bin -Algorithm md5).Hash.ToLower() | Out-File -FilePath C:\\EsphomeTemp\\${fileBasenameNoExtension}\\.pioenvs\\${fileBasenameNoExtension}\\firmware.md5 -Encoding ASCII; gh release upload '${fileBasenameNoExtension}_ota'.ToLower() C:\\EsphomeTemp\\${fileBasenameNoExtension}\\.pioenvs\\${fileBasenameNoExtension}\\firmware.ota.bin C:\\EsphomeTemp\\${fileBasenameNoExtension}\\.pioenvs\\${fileBasenameNoExtension}\\firmware.md5 --repo jimwsmith/ESPHome --clobber"
+		}
 	]
 }

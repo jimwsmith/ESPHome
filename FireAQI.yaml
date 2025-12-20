@@ -9,6 +9,7 @@ substitutions:
 esphome:
   name: ${esphome_name}
   friendly_name: ${friendly_name}
+  build_path: C:/EsphomeTemp/${esphome_name}
   on_boot:
     - priority: -100 #Ensure this runs after lvgl is initialised
       then:

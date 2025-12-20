@@ -87,7 +87,7 @@ text_sensor:
       icon: mdi:wifi
       id: wifi_ip
       name: WiFi IP Address
-      update_interval: ${sensor_update}
+      # update_interval: ${sensor_update} # stopped working in 2025.12.1
       entity_category: "diagnostic"
       on_value:
           then:
