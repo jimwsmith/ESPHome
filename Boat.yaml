@@ -25,6 +25,9 @@ esphome:
         - uart.write: "\r\n" #clear out any partial data sent as Uart started
         - uart.write: "Info\r\n" #Requesting version info from AT Mega on boot"
 
+esp32:
+  board: m5stack-fire
+
 packages:
   m5stackfire: !include M5StackFire.yaml
   wifi: !include wifi.yaml

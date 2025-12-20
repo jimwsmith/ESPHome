@@ -91,7 +91,7 @@ sensor:
         - lvgl.label.update:
             id: lbl_vb_dc_inverter_current
             text:
-              format: "DC Inv I: %.1fA"
+              format: "DC Inv: %.1fA"
               args: [ 'id(vb_dc_inverter_current).state' ]
 
   # - platform: uartex
@@ -129,7 +129,7 @@ sensor:
         - lvgl.label.update:
             id: lbl_vb_inverter_frequency
             text:
-              format: "Inv Freq: %.1fHz"
+              format: "Inv: %.1fHz"
               args: [ 'id(vb_inverter_frequency).state' ]
 
 #replaced by template calc
@@ -280,7 +280,7 @@ sensor:
         - lvgl.label.update:
             id: lbl_vb_mains_frequency
             text:
-              format: "Mains Freq: %.1fHz"
+              format: "Mains: %.1fHz"
               args: [ 'id(vb_mains_frequency).state' ]
 
 #replaced by template calc
@@ -383,7 +383,7 @@ sensor:
         - lvgl.label.update:
             id: lbl_bmv_voltage
             text:
-              format: "Batt Volt: %.2fV"
+              format: "Batt Volt: %.1fV"
               args: [ 'id(ve_bmv_voltage).state' ]
 
   - platform: uartex
@@ -402,7 +402,7 @@ sensor:
         - lvgl.label.update:
             id: lbl_bmv_startv
             text:
-              format: "St Batt V: %.2fV"
+              format: "St Batt V: %.1fV"
               args: [ 'id(ve_bmv_startv).state' ]
 
   - platform: uartex
@@ -421,7 +421,7 @@ sensor:
         - lvgl.label.update:
             id: lbl_bmv_power
             text:
-              format: "Batt Pwr: %.1fW"
+              format: "Bat Pwr: %.0fW"
               args: [ 'id(ve_bmv_power).state' ]
 
   - platform: uartex
@@ -440,7 +440,7 @@ sensor:
         - lvgl.label.update:
             id: lbl_bmv_current
             text:
-              format: "Batt Curr: %.2fA"
+              format: "Bat Curr: %.1fA"
               args: [ 'id(ve_bmv_current).state' ]
 
   - platform: uartex
@@ -488,7 +488,7 @@ sensor:
         - lvgl.label.update:
             id: lbl_mppt_voltage
             text:
-              format: "MPPT V: %.2fV"
+              format: "MPPT V: %.1fV"
               args: [ 'id(ve_mppt_voltage).state' ]
 
   - platform: uartex
@@ -507,7 +507,7 @@ sensor:
         - lvgl.label.update:
             id: lbl_mppt_panel_voltage
             text:
-              format: "Solar V: %.2fV"
+              format: "Solar V: %.1fV"
               args: [ 'id(ve_mppt_panel_voltage).state' ]
 
   - platform: uartex
@@ -545,7 +545,7 @@ sensor:
         - lvgl.label.update:
             id: lbl_mppt_current
             text:
-              format: "MPPT I: %.2fA"
+              format: "MPPT I: %.1fA"
               args: [ 'id(ve_mppt_current).state' ]
 
   - platform: uartex
@@ -754,7 +754,7 @@ sensor:
         - lvgl.label.update:
             id: lbl_cupboard_temp
             text:
-              format: "Cupboard: %.1f°C"
+              format: "Cabinet: %.1f°C"
               args: [ 'id(vt_dht4_temp).state' ]
         - lvgl.bar.update:
             id: bar_cupboard_temp
@@ -842,7 +842,7 @@ sensor:
         - lvgl.label.update:
             id: lbl_temp1
             text:
-              format: "Wtr Cyl Top: %.1f°C"
+              format: "W Cyl Top: %.1f°C"
               args: [ 'id(vt_temp1).state' ]
         - lvgl.bar.update:
             id: bar_temp1
@@ -864,7 +864,7 @@ sensor:
         - lvgl.label.update:
             id: lbl_temp2
             text:
-              format: "Wtr Cyl Bot: %.1f°C"
+              format: "Cyl Bot: %.1f°C"
               args: [ 'id(vt_temp2).state' ]
         - lvgl.bar.update:
             id: bar_temp2
@@ -908,7 +908,7 @@ sensor:
         - lvgl.label.update:
             id: lbl_temp4
             text:
-              format: "Htr Retn: %.1f°C"
+              format: "Htr Rtrn: %.1f°C"
               args: [ 'id(vt_temp4).state' ]
         - lvgl.bar.update:
             id: bar_temp4
@@ -952,7 +952,7 @@ sensor:
         - lvgl.label.update:
             id: lbl_temp6
             text:
-              format: "Eng Retn: %.1f°C"
+              format: "Eng Rtrn: %.1f°C"
               args: [ 'id(vt_temp6).state' ]
         - lvgl.bar.update:
             id: bar_temp6
@@ -996,7 +996,7 @@ sensor:
         - lvgl.label.update:
             id: lbl_temp8
             text:
-              format: "Skin Retn: %.1f°C"
+              format: "Skin Rtrn: %.1f°C"
               args: [ 'id(vt_temp8).state' ]
         - lvgl.bar.update:
             id: bar_temp8

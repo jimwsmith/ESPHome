@@ -106,7 +106,7 @@ light:
   - platform: monochromatic
     output: gpio_32_backlight_pwm
     name: "${friendly_name} Display Backlight"
-    id: back_light
+    id: display_backlight #back_light
     restore_mode: RESTORE_DEFAULT_ON
     # on_state:
     #   - lvgl.slider.update:
@@ -163,3 +163,4 @@ display:
     rotation: 0
     invert_colors: true
     auto_clear_enabled: false
+
