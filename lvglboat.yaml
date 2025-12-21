@@ -32,12 +32,14 @@ font:
       fonts/Roboto-Medium.ttf
     id: font_roboto_medium22
     size: 22
-    glyphs: '!"%()+,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz/³µŋ'
+    glyphs: [
+      '!"%()+,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz/³µŋ',
+      ]
     glyphsets:
       - GF_Latin_Core
       - GF_Latin_Plus
       - GF_Greek_Core
-      - GF_Cyrillic_Core
+#      - GF_Cyrillic_Core
 #==========================================================================================================================
 image:
   - file: https://esphome.io/favicon-512x512.png #relocated to remove _static location ref in url
@@ -1153,7 +1155,7 @@ lvgl:
                   widgets:
                     - label:
                         align: center
-                        text: "Relay 1"
+                        text: "Engine -> Radiators"
                   on_change:
                     then:
                       - switch.toggle:
@@ -1174,7 +1176,7 @@ lvgl:
                   widgets:
                     - label:
                         align: center
-                        text: "Relay 2"
+                        text: "Heater"
                   on_change:
                     then:
                       - switch.toggle:
@@ -1195,7 +1197,7 @@ lvgl:
                   widgets:
                     - label:
                         align: center
-                        text: "Relay 3"
+                        text: "250W Immersion"
                   on_change:
                     then:
                       - switch.toggle:

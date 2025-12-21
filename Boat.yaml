@@ -2,6 +2,12 @@
 # This file in turn is included in a very empty stub file that just defines the device names
 # Unit designed to have a serial input on rx_pin from teh ATMega 2560 unit that is doing the sensor monitoring and sending back simple update sto this unit
 # for WiFi /MQTT communication back to Home Assistant server
+# Relay 1 = Radiators taking heat from calorifier
+# Relay 2 = Eberspacher Heat ON
+# Relay 3 = Solar Dump 300W immersion heater
+# Relay 4 = 
+# Relay 5 = 
+# Relay 6 = 
 #
 substitutions:
   sensor_update: 60s #How often do we potentially send info back to Home Assistant via MQTT
@@ -273,3 +279,20 @@ switch:
           state:
             checked: False
     optimistic: true #Required so that state change gets registered even though there is no actual comms back to ack the relay change
+
+climate:
+  - platform: bang_bang
+    id: climate_radiator
+    name: "Engine -> Radiator Controller"
+    sensor: vt_temp1 #Water Cylinder Top Temperature
+    default_target_temperature_low: 50 °C
+    default_target_temperature_high: 55 °C
+    cool_action:
+      - switch.turn_on: relay_1
+    idle_action:
+      - switch.turn_off: relay_1
+    visual:
+      min_temperature: 30
+      max_temperature: 80
+      temperature_step: 1
+    
