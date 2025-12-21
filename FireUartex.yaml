@@ -366,6 +366,24 @@ sensor:
             text:
               format: "SOC: %.1f%%"
               args: [ 'id(ve_bmv_soc).state' ]
+    on_value_range:
+      - above: 90
+        then:
+          - light.turn_off:
+              id: side_light
+      - above: 80
+        below: 90
+        then:
+          - light.turn_on:
+              brightness: 100%
+              id: side_light
+              effect: "Warn Pulse"
+      - below: 80
+        then:
+          - light.turn_on:
+              brightness: 100%
+              id: side_light
+              effect: "Alarm Pulse"
 
   - platform: uartex
     id: ve_bmv_voltage
