@@ -1267,10 +1267,10 @@ lvgl:
                     - label:
                         align: center
                         text: "Relay 6"
-                  on_change:
-                    then:
-                      - switch.toggle:
-                          id: relay_6
+                  # on_change:
+                  #   then:
+                  #     - switch.toggle:
+                  #         id: relay_6
       
 #==========================================================================================================================
     - id: rpm_page

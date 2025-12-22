@@ -1,9 +1,10 @@
 substitutions:
   friendly_name: "Boat2"
   esphome_name: "fireboat2"
+  esphome_source: "fireboat" #esphome_name of source sensor data that we will mirror on this device
 
 esphome:
   name: ${esphome_name}
 
 packages:
-  boat: !include Boat.yaml
+  boat: !include Boat copy.yaml
