@@ -594,6 +594,16 @@ sensor:
         - binary_sensor.template.publish:
             id: ve_mppt_starting
             state: !lambda 'return ((int)id(ve_mppt_state).state  == 245) ? true : false;' 
+        - if:
+            condition:
+              # Should return either true or false
+              lambda: |-
+                return ((int)id(ve_mppt_state).state  == 0);
+            then:
+              - lvgl.label.update:
+                  id: lbl_mppt_state
+                  text: "Off"
+                  bg_color: BLACK
 
   - platform: uartex
     id: vt_light_lux
@@ -816,7 +826,7 @@ sensor:
         - lvgl.label.update:
             id: lbl_bathroom_temp
             text:
-              format: "Bathroom: %.1f°C"
+              format: "Bthroom: %.1f°C"
               args: [ 'id(vt_dht5_temp).state' ]
         - lvgl.bar.update:
             id: bar_bathroom_temp
@@ -860,7 +870,7 @@ sensor:
         - lvgl.label.update:
             id: lbl_temp1
             text:
-              format: "W Cyl Top: %.1f°C"
+              format: "Cyl Top: %.1f°C"
               args: [ 'id(vt_temp1).state' ]
         - lvgl.bar.update:
             id: bar_temp1
@@ -1247,5 +1257,5 @@ binary_sensor:
         - lvgl.label.update:
             id: lbl_mppt_state
             text: "Starting"
-            bg_color: 0X9D0093 #Dark Purple
+            bg_color: 0x9D0093 #Dark Purple
 

@@ -60,6 +60,10 @@ lvgl:
   resume_on_input: true #resume from pause on button press (encoder rotate)
   id: lv_id #Only reqd so that ota can force updates to lvgl display even when main loop not running
 
+  # on_load:
+  #   - lvgl.page.show: main_page
+  #   - lvgl.widget.focus: page_next #same as buttB double click
+
   on_idle:
     timeout: !lambda "return (id(display_timeout).state * 1000);" # display_timeout is a number control to allow user adjustment
     then:
@@ -369,8 +373,10 @@ lvgl:
 #==========================================================================================================================
 #--------------------------------------------------------------------------
     - id: main_page
-      on_load:
-        - lvgl.widget.focus: top_layer # focus_next
+      # on_load:
+      #   - lvgl.widget.focus: page_next #same as buttB double click
+
+        # - lvgl.widget.focus: top_layer # focus_next
       bg_color: 0x000000
       widgets:
         - obj: # Title block
