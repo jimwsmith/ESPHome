@@ -3,6 +3,7 @@ substitutions:
   float_length : "10" 
   temp_bar_scale: "3.0" #Scale factor to convert room temperature to 0-100 range for lvgl bar display
   hot_temp_bar_scale: "1.5" #Scale factor to convert coolant & heater temperature to 0-100 range for lvgl bar display
+
 external_components:
   - source: github://eigger/espcomponents@latest
     components: [ uartex ]
@@ -30,43 +31,52 @@ uartex:
     disabled: True #False
 
 sensor: 
-  - platform: uartex
+  # - platform: uartex
+  #   state: "H1"
+  #   state_number:
+  #     offset: 2
+  #     length: 16 #If value received is shorter than this, decoding seems OK
+  #     precision: 0
+  #     decode: "ascii"
+  - platform: mqtt_subscribe
+    disabled_by_default: True #Hide device in Home Assistant
+    topic: ${esphome_source}/sensor/atmega_uptime/state #Monitor state of another device
     id: atmega_uptime
     name: "ATMega Uptime"
     entity_category: "diagnostic"
     unit_of_measurement: "m"
-    state: "H1"
-    state_number:
-      offset: 2
-      length: 16 #If value received is shorter than this, decoding seems OK
-      precision: 0
-      decode: "ascii"
     accuracy_decimals: 0
     # device_class: "duration"
 
-  - platform: uartex
+  # - platform: uartex
+  #   state: "B2"
+  #   state_number:
+  #     offset: 2
+  #     length: 16 #If value received is shorter than this, decoding seems OK
+  #     precision: 0
+  #     decode: "ascii"
+  - platform: mqtt_subscribe
+    disabled_by_default: True #Hide device in Home Assistant
+    topic: ${esphome_source}/sensor/atmega_button_counter/state #Monitor state of another device
     id: atmega_button_counter
     name: "ATMega Button Counter"
     unit_of_measurement: "units"
-    state: "B2"
-    state_number:
-      offset: 2
-      length: 16 #If value received is shorter than this, decoding seems OK
-      precision: 0
-      decode: "ascii"
     accuracy_decimals: 0
 
-  - platform: uartex
+  # - platform: uartex
+  #   state: "VB01"
+  #   state_number:
+  #     offset: 4
+  #     length: $float_length 
+  #     decode: "ascii"
+  - platform: mqtt_subscribe
+    disabled_by_default: True #Hide device in Home Assistant
+    topic: ${esphome_source}/sensor/dc_battery_voltage/state #Monitor state of another device
     id: vb_dc_battery_voltage
     name: "DC Battery Voltage"
     device_class: "voltage"
     unit_of_measurement: "V"
     accuracy_decimals: 2
-    state: "VB01"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
     on_value:
       then:
         - lvgl.label.update:
@@ -75,17 +85,20 @@ sensor:
               format: "Batt Volt: %.1fV"
               args: [ 'id(vb_dc_battery_voltage).state' ]
 
-  - platform: uartex
+  # - platform: uartex
+  #   state: "VB02"
+  #   state_number:
+  #     offset: 4
+  #     length: $float_length 
+  #     decode: "ascii"
+  - platform: mqtt_subscribe
+    disabled_by_default: True #Hide device in Home Assistant
+    topic: ${esphome_source}/sensor/dc_inverter_current/state #Monitor state of another device
     id: vb_dc_inverter_current
     name: "DC Inverter Current"    
     device_class: "current"
     unit_of_measurement: "A"
     accuracy_decimals: 1
-    state: "VB02"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
     on_value:
       then:
         - lvgl.label.update:
@@ -113,17 +126,20 @@ sensor:
   #             format: "DC Chg I: %.1fA"
   #             args: [ 'id(vb_dc_charger_current).state' ]
 
-  - platform: uartex
+  # - platform: uartex
+  #   state: "VB04"
+  #   state_number:
+  #     offset: 4
+  #     length: $float_length 
+  #     decode: "ascii"
+  - platform: mqtt_subscribe
+    disabled_by_default: True #Hide device in Home Assistant
+    topic: ${esphome_source}/sensor/inverter_frequency/state #Monitor state of another device
     id: vb_inverter_frequency
     name: "Inverter Frequency"
     device_class: "frequency"
     unit_of_measurement: "Hz"
     accuracy_decimals: 1
-    state: "VB04"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
     on_value:
       then:
         - lvgl.label.update:
@@ -144,6 +160,7 @@ sensor:
   #     offset: 4
   #     length: $float_length 
   #     decode: "ascii"
+
   - platform: template
     id: vb_dc_power
     name: "DC Power"
@@ -160,17 +177,20 @@ sensor:
               format: "DC Pwr: %.0fW"
               args: [ 'id(vb_dc_power).state' ]
 
-  - platform: uartex
+  # - platform: uartex
+  #   state: "VB06"
+  #   state_number:
+  #     offset: 4
+  #     length: $float_length 
+  #     decode: "ascii"
+  - platform: mqtt_subscribe
+    disabled_by_default: True #Hide device in Home Assistant
+    topic: ${esphome_source}/sensor/ac_mains_voltage/state #Monitor state of another device
     id: vb_ac_mains_voltage
     name: "AC Mains Voltage"
     device_class: "voltage"
     unit_of_measurement: "V"
     accuracy_decimals: 0
-    state: "VB06"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
     on_value:
       then:
         - lvgl.label.update:
@@ -179,17 +199,20 @@ sensor:
               format: "AC Mains: %.0fV"
               args: [ 'id(vb_ac_mains_voltage).state' ]
 
-  - platform: uartex
+  # - platform: uartex
+  #   state: "VB07"
+  #   state_number:
+  #     offset: 4
+  #     length: $float_length 
+  #     decode: "ascii"
+  - platform: mqtt_subscribe
+    disabled_by_default: True #Hide device in Home Assistant
+    topic: ${esphome_source}/sensor/ac_mains_current/state #Monitor state of another device
     id: vb_ac_mains_current
     name: "AC Mains Current"    
     device_class: "current"
     unit_of_measurement: "A"
     accuracy_decimals: 1
-    state: "VB07"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
     on_value:
       then:
         - lvgl.label.update:
@@ -210,6 +233,7 @@ sensor:
   #     offset: 4
   #     length: $float_length 
   #     decode: "ascii"
+
   - platform: template
     id: vb_ac_power
     name: "AC Mains Power"
@@ -226,17 +250,20 @@ sensor:
               format: "AC Pwr: %.0fW"
               args: [ 'id(vb_ac_power).state' ]
 
-  - platform: uartex
+  # - platform: uartex
+  #   state: "VB09"
+  #   state_number:
+  #     offset: 4
+  #     length: $float_length 
+  #     decode: "ascii"
+  - platform: mqtt_subscribe
+    disabled_by_default: True #Hide device in Home Assistant
+    topic: ${esphome_source}/sensor/ac_inverter_voltage/state #Monitor state of another device
     id: vb_ac_inverter_voltage
     name: "AC Inverter Voltage"
     device_class: "voltage"
     unit_of_measurement: "V"
     accuracy_decimals: 0
-    state: "VB09"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
     on_value:
       then:
         - lvgl.label.update:
@@ -245,17 +272,20 @@ sensor:
               format: "AC Inv: %.0fV"
               args: [ 'id(vb_ac_inverter_voltage).state' ]
 
-  - platform: uartex
+  # - platform: uartex
+  #   state: "VB10"
+  #   state_number:
+  #     offset: 4
+  #     length: $float_length 
+  #     decode: "ascii"
+  - platform: mqtt_subscribe
+    disabled_by_default: True #Hide device in Home Assistant
+    topic: ${esphome_source}/sensor/ac_inverter_current/state #Monitor state of another device
     id: vb_ac_inverter_current
     name: "AC Inverter Current"    
     device_class: "current"
     unit_of_measurement: "A"
     accuracy_decimals: 1
-    state: "VB10"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
     on_value:
       then:
         - lvgl.label.update:
@@ -264,17 +294,20 @@ sensor:
               format: "AC Inv: %.0fA"
               args: [ 'id(vb_ac_inverter_current).state' ]
 
-  - platform: uartex
+  # - platform: uartex
+  #   state: "VB11"
+  #   state_number:
+  #     offset: 4
+  #     length: $float_length 
+  #     decode: "ascii"
+  - platform: mqtt_subscribe
+    disabled_by_default: True #Hide device in Home Assistant
+    topic: ${esphome_source}/sensor/mains_frequency/state #Monitor state of another device
     id: vb_mains_frequency
     name: "Mains Frequency"
     device_class: "frequency"
     unit_of_measurement: "Hz"
     accuracy_decimals: 1
-    state: "VB11"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
     on_value:
       then:
         - lvgl.label.update:
@@ -295,6 +328,7 @@ sensor:
   #     offset: 4
   #     length: $float_length 
   #     decode: "ascii"
+
   - platform: template
     id: vb_ac_inverter_power
     name: "AC Inverter Power"
@@ -311,15 +345,18 @@ sensor:
               format: "Inv Pwr: %.0fW"
               args: [ 'id(vb_ac_inverter_power).state' ]
 
-  - platform: uartex
+  # - platform: uartex
+  #   state: "VB13"
+  #   state_number:
+  #     offset: 4
+  #     length: $float_length 
+  #     decode: "ascii"
+  - platform: mqtt_subscribe
+    disabled_by_default: True #Hide device in Home Assistant
+    topic: ${esphome_source}/sensor/inverter_state/state #Monitor state of another device
     id: vb_inverter_state
     name: "Inverter State"
     accuracy_decimals: 0
-    state: "VB13"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
     on_value:
       then:
         # Use template sensors to decode status locally and reduce number of uartex sensors reqd 
@@ -347,18 +384,21 @@ sensor:
         - binary_sensor.template.publish:
             id: vc_multi_temp
             state: !lambda 'return ((int)id(vb_inverter_state).state & 0x80) > 0 ? true : false;' 
-
-  - platform: uartex
+# Convert this to monitor boat status
+  # - platform: uartex
+    # state: "VE01"
+    # state_number:
+    #   offset: 4
+    #   length: $float_length 
+    #   decode: "ascii"
+  - platform: mqtt_subscribe
+    disabled_by_default: True #Hide device in Home Assistant
+    topic: ${esphome_source}/sensor/battery_soc/state #Monitor state of another device
     id: ve_bmv_soc
     name: "Battery SOC"
     device_class: "battery"
     unit_of_measurement: "%"
     accuracy_decimals: 1
-    state: "VE01"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
     on_value:
       then:
         - lvgl.label.update:
@@ -368,17 +408,20 @@ sensor:
               args: [ 'id(ve_bmv_soc).state' ]
         - script.execute: soc_check_alarm
 
-  - platform: uartex
+  # - platform: uartex
+  #   state: "VE02"
+  #   state_number:
+  #     offset: 4
+  #     length: $float_length 
+  #     decode: "ascii"
+  - platform: mqtt_subscribe
+    disabled_by_default: True #Hide device in Home Assistant
+    topic: ${esphome_source}/sensor/battery_voltage/state #Monitor state of another device
     id: ve_bmv_voltage
     name: "Battery Voltage"
     device_class: "voltage"
     unit_of_measurement: "V"
     accuracy_decimals: 2
-    state: "VE02"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
     on_value:
       then:
         - lvgl.label.update:
@@ -387,17 +430,20 @@ sensor:
               format: "Batt Volt: %.1fV"
               args: [ 'id(ve_bmv_voltage).state' ]
 
-  - platform: uartex
+  # - platform: uartex
+    # state: "VE03"
+    # state_number:
+    #   offset: 4
+    #   length: $float_length 
+    #   decode: "ascii"
+  - platform: mqtt_subscribe
+    disabled_by_default: True #Hide device in Home Assistant
+    topic: ${esphome_source}/sensor/starter_voltage/state #Monitor state of another device
     id: ve_bmv_startv
     name: "Starter Voltage"
     device_class: "voltage"
     unit_of_measurement: "V"
     accuracy_decimals: 2
-    state: "VE03"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
     on_value:
       then:
         - lvgl.label.update:
@@ -406,17 +452,20 @@ sensor:
               format: "St Batt V: %.1fV"
               args: [ 'id(ve_bmv_startv).state' ]
 
-  - platform: uartex
+  # - platform: uartex
+    # state: "VE04"
+  #   state_number:
+  #     offset: 4
+  #     length: $float_length 
+  #     decode: "ascii"
+  - platform: mqtt_subscribe
+    disabled_by_default: True #Hide device in Home Assistant
+    topic: ${esphome_source}/sensor/battery_power/state #Monitor state of another device
     id: ve_bmv_power
     name: "Battery Power"
     device_class: "power"
     unit_of_measurement: "W"
     accuracy_decimals: 0
-    state: "VE04"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
     on_value:
       then:
         - lvgl.label.update:
@@ -425,17 +474,20 @@ sensor:
               format: "Bat Pwr: %.0fW"
               args: [ 'id(ve_bmv_power).state' ]
 
-  - platform: uartex
+  # - platform: uartex
+  #   state: "VE05"
+  #   state_number:
+  #     offset: 4
+  #     length: $float_length 
+  #     decode: "ascii"
+  - platform: mqtt_subscribe
+    disabled_by_default: True #Hide device in Home Assistant
+    topic: ${esphome_source}/sensor/battery_current/state #Monitor state of another device
     id: ve_bmv_current
     name: "Battery Current"
     device_class: "current"
     unit_of_measurement: "A"
     accuracy_decimals: 2
-    state: "VE05"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
     on_value:
       then:
         - lvgl.label.update:
@@ -444,16 +496,19 @@ sensor:
               format: "Bat Curr: %.1fA"
               args: [ 'id(ve_bmv_current).state' ]
 
-  - platform: uartex
+  # - platform: uartex
+  #   state: "VE06"
+  #   state_number:
+  #     offset: 4
+  #     length: $float_length 
+  #     decode: "ascii"
+  - platform: mqtt_subscribe
+    disabled_by_default: True #Hide device in Home Assistant
+    topic: ${esphome_source}/sensor/battery_alarm/state #Monitor state of another device
     id: ve_bmv_alarm
     name: "Battery Alarm"
     unit_of_measurement: "units"
     accuracy_decimals: 0
-    state: "VE06"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
     on_value:
       then:
         - lvgl.label.update:
@@ -473,17 +528,20 @@ sensor:
   #     length: $float_length 
   #     decode: "ascii"
 
-  - platform: uartex
+  # - platform: uartex
+  #   state: "VE08"
+  #   state_number:
+  #     offset: 4
+  #     length: $float_length 
+  #     decode: "ascii"
+  - platform: mqtt_subscribe
+    disabled_by_default: True #Hide device in Home Assistant
+    topic: ${esphome_source}/sensor/mppt_v/state #Monitor state of another device
     id: ve_mppt_voltage
     name: "MPPT V"
     device_class: "voltage"
     unit_of_measurement: "V"
     accuracy_decimals: 2
-    state: "VE08"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
     on_value:
       then:
         - lvgl.label.update:
@@ -492,17 +550,20 @@ sensor:
               format: "MPPT V: %.1fV"
               args: [ 'id(ve_mppt_voltage).state' ]
 
-  - platform: uartex
+  # - platform: uartex
+  #   state: "VE09"
+  #   state_number:
+  #     offset: 4
+  #     length: $float_length 
+  #     decode: "ascii"
+  - platform: mqtt_subscribe
+    disabled_by_default: True #Hide device in Home Assistant
+    topic: ${esphome_source}/sensor/solar_v/state #Monitor state of another device
     id: ve_mppt_panel_voltage
     name: "Solar V"
     device_class: "voltage"
     unit_of_measurement: "V"
     accuracy_decimals: 2
-    state: "VE09"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
     on_value:
       then:
         - lvgl.label.update:
@@ -511,17 +572,20 @@ sensor:
               format: "Solar V: %.1fV"
               args: [ 'id(ve_mppt_panel_voltage).state' ]
 
-  - platform: uartex
+  # - platform: uartex
+  #   state: "VE10"
+  #   state_number:
+  #     offset: 4
+  #     length: $float_length 
+  #     decode: "ascii"
+  - platform: mqtt_subscribe
+    disabled_by_default: True #Hide device in Home Assistant
+    topic: ${esphome_source}/sensor/solar_v/state #Monitor state of another device
     id: ve_mppt_power
     name: "Solar Power"
     device_class: "power"
     unit_of_measurement: "W"
     accuracy_decimals: 0
-    state: "VE10"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
     on_value:
       then:
         - lvgl.label.update:
@@ -530,17 +594,20 @@ sensor:
               format: "MPPT Pwr: %.0fW"
               args: [ 'id(ve_mppt_power).state' ]
 
-  - platform: uartex
+  # - platform: uartex
+  #   state: "VE11"
+  #   state_number:
+  #     offset: 4
+  #     length: $float_length 
+  #     decode: "ascii"
+  - platform: mqtt_subscribe
+    disabled_by_default: True #Hide device in Home Assistant
+    topic: ${esphome_source}/sensor/solar_current/state #Monitor state of another device
     id: ve_mppt_current
     name: "Solar Current"
     device_class: "current"
     unit_of_measurement: "A"
     accuracy_decimals: 2
-    state: "VE11"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
     on_value:
       then:
         - lvgl.label.update:
@@ -549,15 +616,18 @@ sensor:
               format: "MPPT I: %.1fA"
               args: [ 'id(ve_mppt_current).state' ]
 
-  - platform: uartex
+  # - platform: uartex
+  #   state: "VE13"
+  #   state_number:
+  #     offset: 4
+  #     length: $float_length 
+  #     decode: "ascii"
+  - platform: mqtt_subscribe
+    disabled_by_default: True #Hide device in Home Assistant
+    topic: ${esphome_source}/sensor/mptt_state/state #Monitor state of another device
     id: ve_mppt_state
     name: "MPTT State"
     accuracy_decimals: 0
-    state: "VE13"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
     on_value:
       then:
         # Use template sensors to decode status locally and reduce number of uartex sensors reqd 
@@ -588,16 +658,19 @@ sensor:
                   text: "Off"
                   bg_color: BLACK
 
-  - platform: uartex
+  # - platform: uartex
+  #   state: "VT01"
+  #   state_number:
+  #     offset: 4
+  #     length: $float_length 
+  #     decode: "ascii"
+  - platform: mqtt_subscribe
+    disabled_by_default: True #Hide device in Home Assistant
+    topic: ${esphome_source}/sensor/light_lux/state #Monitor state of another device
     id: vt_light_lux
     name: "Light Lux"
     unit_of_measurement: "lx"
     accuracy_decimals: 0
-    state: "VT01"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
     on_value:
       then:
         - lvgl.label.update:
@@ -606,16 +679,19 @@ sensor:
               format: "Light: %.0flx"
               args: [ 'id(vt_light_lux).state' ]
 
-  - platform: uartex
+  # - platform: uartex
+  #   state: "VT02"
+  #   state_number:
+  #     offset: 4
+  #     length: $float_length 
+  #     decode: "ascii"
+  - platform: mqtt_subscribe
+    disabled_by_default: True #Hide device in Home Assistant
+    topic: ${esphome_source}/sensor/engine_rpm/state #Monitor state of another device
     id: vt_engine_rpm
     name: "Engine RPM"
     unit_of_measurement: "rpm"
     accuracy_decimals: 0
-    state: "VT02"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
     on_value:
       then:
         - lvgl.indicator.update:
@@ -627,17 +703,20 @@ sensor:
               format: "%.0frpm"
               args: [ 'id(vt_engine_rpm).state' ]
 
-  - platform: uartex
+  # - platform: uartex
+  #   state: "VT03"
+  #   state_number:
+  #     offset: 4
+  #     length: $float_length 
+  #     decode: "ascii"
+  - platform: mqtt_subscribe
+    disabled_by_default: True #Hide device in Home Assistant
+    topic: ${esphome_source}/sensor/lounge_temp/state #Monitor state of another device
     id: vt_dht1_temp
     name: "Lounge Temp"
     device_class: "temperature"
     unit_of_measurement: "°C"
     accuracy_decimals: 1
-    state: "VT03"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
     on_value:
       then:
         - lvgl.label.update:
@@ -649,17 +728,20 @@ sensor:
             id: bar_lounge_temp
             value: !lambda 'return (id(vt_dht1_temp).state) * $temp_bar_scale;'
 
-  - platform: uartex
+  # - platform: uartex
+  #   state: "VT04"
+  #   state_number:
+  #     offset: 4
+  #     length: $float_length 
+  #     decode: "ascii"
+  - platform: mqtt_subscribe
+    disabled_by_default: True #Hide device in Home Assistant
+    topic: ${esphome_source}/sensor/lounge_humidity/state #Monitor state of another device
     id: vt_dht1_humidity
     name: "Lounge Humidity"
     device_class: "humidity"
     unit_of_measurement: "%"
     accuracy_decimals: 1
-    state: "VT04"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
     on_value: 
       then:
         - lvgl.label.update:
@@ -671,17 +753,20 @@ sensor:
             id: bar_lounge_humidity
             value: !lambda 'return id(vt_dht1_humidity).state;'
 
-  - platform: uartex
+  # - platform: uartex
+  #   state: "VT05"
+  #   state_number:
+  #     offset: 4
+  #     length: $float_length 
+  #     decode: "ascii"
+  - platform: mqtt_subscribe
+    disabled_by_default: True #Hide device in Home Assistant
+    topic: ${esphome_source}/sensor/dining_temp/state #Monitor state of another device
     id: vt_dht2_temp
     name: "Dining Temp"
     device_class: "temperature"
     unit_of_measurement: "°C"
     accuracy_decimals: 1
-    state: "VT05"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
     on_value:
       then:
         - lvgl.label.update:
@@ -693,17 +778,20 @@ sensor:
             id: bar_dining_temp
             value: !lambda 'return (id(vt_dht2_temp).state) * $temp_bar_scale;'
 
-  - platform: uartex
+  # - platform: uartex
+  #   state: "VT06"
+  #   state_number:
+  #     offset: 4
+  #     length: $float_length 
+  #     decode: "ascii"
+  - platform: mqtt_subscribe
+    disabled_by_default: True #Hide device in Home Assistant
+    topic: ${esphome_source}/sensor/dining_humidity/state #Monitor state of another device
     id: vt_dht2_humidity
     name: "Dining Humidity"
     device_class: "humidity"
     unit_of_measurement: "%"
     accuracy_decimals: 1
-    state: "VT06"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
     on_value: 
       then:
         - lvgl.label.update:
@@ -715,17 +803,20 @@ sensor:
             id: bar_dining_humidity
             value: !lambda 'return id(vt_dht2_humidity).state;'
 
-  - platform: uartex
+  # - platform: uartex
+  #   state: "VT07"
+  #   state_number:
+  #     offset: 4
+  #     length: $float_length 
+  #     decode: "ascii"
+  - platform: mqtt_subscribe
+    disabled_by_default: True #Hide device in Home Assistant
+    topic: ${esphome_source}/sensor/bedroom_temp/state #Monitor state of another device
     id: vt_dht3_temp
     name: "Bedroom Temp"
     device_class: "temperature"
     unit_of_measurement: "°C"
     accuracy_decimals: 1
-    state: "VT07"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
     on_value:
       then:
         - lvgl.label.update:
@@ -737,17 +828,20 @@ sensor:
             id: bar_bedroom_temp
             value: !lambda 'return (id(vt_dht3_temp).state) * $temp_bar_scale;'
 
-  - platform: uartex
+  # - platform: uartex
+  #   state: "VT08"
+  #   state_number:
+  #     offset: 4
+  #     length: $float_length 
+  #     decode: "ascii"
+  - platform: mqtt_subscribe
+    disabled_by_default: True #Hide device in Home Assistant
+    topic: ${esphome_source}/sensor/bedroom_humidity/state #Monitor state of another device
     id: vt_dht3_humidity
     name: "Bedroom Humidity"
     device_class: "humidity"
     unit_of_measurement: "%"
     accuracy_decimals: 1
-    state: "VT08"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
     on_value: 
       then:
         - lvgl.label.update:
@@ -759,17 +853,20 @@ sensor:
             id: bar_bedroom_humidity
             value: !lambda 'return id(vt_dht3_humidity).state;'
 
-  - platform: uartex
+  # - platform: uartex
+  #   state: "VT09"
+  #   state_number:
+  #     offset: 4
+  #     length: $float_length 
+  #     decode: "ascii"
+  - platform: mqtt_subscribe
+    disabled_by_default: True #Hide device in Home Assistant
+    topic: ${esphome_source}/sensor/cupboard_temp/state #Monitor state of another device
     id: vt_dht4_temp
     name: "Cupboard Temp"
     device_class: "temperature"
     unit_of_measurement: "°C"
     accuracy_decimals: 1
-    state: "VT09"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
     on_value:
       then:
         - lvgl.label.update:
@@ -781,17 +878,20 @@ sensor:
             id: bar_cupboard_temp
             value: !lambda 'return (id(vt_dht4_temp).state) * $temp_bar_scale;'
 
-  - platform: uartex
+  # - platform: uartex
+  #   state: "VT10"
+  #   state_number:
+  #     offset: 4
+  #     length: $float_length 
+  #     decode: "ascii"
+  - platform: mqtt_subscribe
+    disabled_by_default: True #Hide device in Home Assistant
+    topic: ${esphome_source}/sensor/cupboard_humidity/state #Monitor state of another device
     id: vt_dht4_humidity
     name: "Cupboard Humidity"
     device_class: "humidity"
     unit_of_measurement: "%"
     accuracy_decimals: 1
-    state: "VT10"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
     on_value: 
       then:
         - lvgl.label.update:
@@ -803,17 +903,20 @@ sensor:
             id: bar_cupboard_humidity
             value: !lambda 'return id(vt_dht4_humidity).state;'
 
-  - platform: uartex
+  # - platform: uartex
+  #   state: "VT11"
+  #   state_number:
+  #     offset: 4
+  #     length: $float_length 
+  #     decode: "ascii"
+  - platform: mqtt_subscribe
+    disabled_by_default: True #Hide device in Home Assistant
+    topic: ${esphome_source}/sensor/bathroom_temp/state #Monitor state of another device
     id: vt_dht5_temp
     name: "Bathroom Temp"
     device_class: "temperature"
     unit_of_measurement: "°C"
     accuracy_decimals: 1
-    state: "VT11"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
     on_value:
       then:
         - lvgl.label.update:
@@ -825,17 +928,20 @@ sensor:
             id: bar_bathroom_temp
             value: !lambda 'return (id(vt_dht5_temp).state) * $temp_bar_scale;'
 
-  - platform: uartex
+  # - platform: uartex
+  #   state: "VT12"
+  #   state_number:
+  #     offset: 4
+  #     length: $float_length 
+  #     decode: "ascii"
+  - platform: mqtt_subscribe
+    disabled_by_default: True #Hide device in Home Assistant
+    topic: ${esphome_source}/sensor/bathroom_humidity/state #Monitor state of another device
     id: vt_dht5_humidity
     name: "Bathroom Humidity"
     device_class: "humidity"
     unit_of_measurement: "%"
     accuracy_decimals: 1
-    state: "VT12"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
     on_value: 
       then:
         - lvgl.label.update:
@@ -847,17 +953,20 @@ sensor:
             id: bar_bathroom_humidity
             value: !lambda 'return id(vt_dht5_humidity).state;'
 
-  - platform: uartex
+  # - platform: uartex
+  #   state: "VT13"
+  #   state_number:
+  #     offset: 4
+  #     length: $float_length 
+  #     decode: "ascii"
+  - platform: mqtt_subscribe
+    disabled_by_default: True #Hide device in Home Assistant
+    topic: ${esphome_source}/sensor/water_cyl_top/state #Monitor state of another device
     id: vt_temp1
     name: "Water Cyl Top"
     device_class: "temperature"
     unit_of_measurement: "°C"
     accuracy_decimals: 1
-    state: "VT13"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
     on_value:
       then:
         - lvgl.label.update:
@@ -869,17 +978,20 @@ sensor:
             id: bar_temp1
             value: !lambda 'return (id(vt_temp1).state) * $hot_temp_bar_scale;'
   
-  - platform: uartex
+  # - platform: uartex
+  #   state: "VT14"
+  #   state_number:
+  #     offset: 4
+  #     length: $float_length 
+  #     decode: "ascii"
+  - platform: mqtt_subscribe
+    disabled_by_default: True #Hide device in Home Assistant
+    topic: ${esphome_source}/sensor/water_cyl_bottom/state #Monitor state of another device
     id: vt_temp2
     name: "Water Cyl Bottom"
     device_class: "temperature"
     unit_of_measurement: "°C"
     accuracy_decimals: 1
-    state: "VT14"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
     on_value:
       then:
         - lvgl.label.update:
@@ -891,17 +1003,20 @@ sensor:
             id: bar_temp2
             value: !lambda 'return (id(vt_temp2).state) * $hot_temp_bar_scale;'
 
-  - platform: uartex
+  # - platform: uartex
+  #   state: "VT15"
+  #   state_number:
+  #     offset: 4
+  #     length: $float_length 
+  #     decode: "ascii"
+  - platform: mqtt_subscribe
+    disabled_by_default: True #Hide device in Home Assistant
+    topic: ${esphome_source}/sensor/eberspacher_flow/state #Monitor state of another device
     id: vt_temp3
     name: "Eberspacher Flow"
     device_class: "temperature"
     unit_of_measurement: "°C"
     accuracy_decimals: 1
-    state: "VT15"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
     on_value:
       then:
         - lvgl.label.update:
@@ -913,17 +1028,20 @@ sensor:
             id: bar_temp3
             value: !lambda 'return (id(vt_temp3).state) * $hot_temp_bar_scale;'
 
-  - platform: uartex
+  # - platform: uartex
+  #   state: "VT16"
+  #   state_number:
+  #     offset: 4
+  #     length: $float_length 
+  #     decode: "ascii"
+  - platform: mqtt_subscribe
+    disabled_by_default: True #Hide device in Home Assistant
+    topic: ${esphome_source}/sensor/eberspacher_return/state #Monitor state of another device
     id: vt_temp4
     name: "Eberspacher Return"
     device_class: "temperature"
     unit_of_measurement: "°C"
     accuracy_decimals: 1
-    state: "VT16"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
     on_value:
       then:
         - lvgl.label.update:
@@ -935,17 +1053,20 @@ sensor:
             id: bar_temp4
             value: !lambda 'return (id(vt_temp4).state) * $hot_temp_bar_scale;'
 
-  - platform: uartex
+  # - platform: uartex
+  #   state: "VT17"
+  #   state_number:
+  #     offset: 4
+  #     length: $float_length 
+  #     decode: "ascii"
+  - platform: mqtt_subscribe
+    disabled_by_default: True #Hide device in Home Assistant
+    topic: ${esphome_source}/sensor/engine_flow/state #Monitor state of another device
     id: vt_temp5
     name: "Engine Flow"
     device_class: "temperature"
     unit_of_measurement: "°C"
     accuracy_decimals: 1
-    state: "VT17"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
     on_value:
       then:
         - lvgl.label.update:
@@ -957,17 +1078,20 @@ sensor:
             id: bar_temp5
             value: !lambda 'return (id(vt_temp5).state) * $hot_temp_bar_scale;'
 
-  - platform: uartex
+  # - platform: uartex
+  #   state: "VT18"
+  #   state_number:
+  #     offset: 4
+  #     length: $float_length 
+  #     decode: "ascii"
+  - platform: mqtt_subscribe
+    disabled_by_default: True #Hide device in Home Assistant
+    topic: ${esphome_source}/sensor/engine_return/state #Monitor state of another device
     id: vt_temp6
     name: "Engine Return"
     device_class: "temperature"
     unit_of_measurement: "°C"
     accuracy_decimals: 1
-    state: "VT18"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
     on_value:
       then:
         - lvgl.label.update:
@@ -979,17 +1103,20 @@ sensor:
             id: bar_temp6
             value: !lambda 'return (id(vt_temp6).state) * $hot_temp_bar_scale;'
 
-  - platform: uartex
+  # - platform: uartex
+  #   state: "VT19"
+  #   state_number:
+  #     offset: 4
+  #     length: $float_length 
+  #     decode: "ascii"
+  - platform: mqtt_subscribe
+    disabled_by_default: True #Hide device in Home Assistant
+    topic: ${esphome_source}/sensor/skin_tank_flow/state #Monitor state of another device
     id: vt_temp7
     name: "Skin Tank Flow"
     device_class: "temperature"
     unit_of_measurement: "°C"
     accuracy_decimals: 1
-    state: "VT19"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
     on_value:
       then:
         - lvgl.label.update:
@@ -1001,17 +1128,20 @@ sensor:
             id: bar_temp7
             value: !lambda 'return (id(vt_temp7).state) * $hot_temp_bar_scale;'
 
-  - platform: uartex
+  # - platform: uartex
+  #   state: "VT20"
+  #   state_number:
+  #     offset: 4
+  #     length: $float_length 
+  #     decode: "ascii"
+  - platform: mqtt_subscribe
+    disabled_by_default: True #Hide device in Home Assistant
+    topic: ${esphome_source}/sensor/skin_tank_return/state #Monitor state of another device
     id: vt_temp8
     name: "Skin Tank Return"
     device_class: "temperature"
     unit_of_measurement: "°C"
     accuracy_decimals: 1
-    state: "VT20"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
     on_value:
       then:
         - lvgl.label.update:
@@ -1023,17 +1153,20 @@ sensor:
             id: bar_temp8
             value: !lambda 'return (id(vt_temp8).state) * $hot_temp_bar_scale;'
 
-  - platform: uartex
+  # - platform: uartex
+  #   state: "VT21"
+  #   state_number:
+  #     offset: 4
+  #     length: $float_length 
+  #     decode: "ascii"
+  - platform: mqtt_subscribe
+    disabled_by_default: True #Hide device in Home Assistant
+    topic: ${esphome_source}/sensor/gearbox/state #Monitor state of another device
     id: vt_temp9
     name: "Gearbox"
     device_class: "temperature"
     unit_of_measurement: "°C"
     accuracy_decimals: 1
-    state: "VT21"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
     on_value:
       then:
         - lvgl.label.update:
@@ -1045,17 +1178,20 @@ sensor:
             id: bar_temp9
             value: !lambda 'return (id(vt_temp9).state) * $hot_temp_bar_scale;'
 
-  - platform: uartex
+  # - platform: uartex
+  #   state: "VT22"
+  #   state_number:
+  #     offset: 4
+  #     length: $float_length 
+  #     decode: "ascii"
+  - platform: mqtt_subscribe
+    disabled_by_default: True #Hide device in Home Assistant
+    topic: ${esphome_source}/sensor/propshaft/state #Monitor state of another device
     id: vt_temp10
     name: "Propshaft"
     device_class: "temperature"
     unit_of_measurement: "°C"
     accuracy_decimals: 1
-    state: "VT22"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
     on_value:
       then:
         - lvgl.label.update:
@@ -1067,17 +1203,20 @@ sensor:
             id: bar_temp10
             value: !lambda 'return (id(vt_temp10).state) * $hot_temp_bar_scale;'
 
-  - platform: uartex
+  # - platform: uartex
+  #   state: "VT23"
+  #   state_number:
+  #     offset: 4
+  #     length: $float_length 
+  #     decode: "ascii"
+  - platform: mqtt_subscribe
+    disabled_by_default: True #Hide device in Home Assistant
+    topic: ${esphome_source}/sensor/battery_temp/state #Monitor state of another device
     id: vt_temp11
     name: "Battery Temp"
     device_class: "temperature"
     unit_of_measurement: "°C"
     accuracy_decimals: 1
-    state: "VT23"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
     on_value:
       then:
         - lvgl.label.update:
@@ -1089,17 +1228,20 @@ sensor:
             id: bar_temp11
             value: !lambda 'return (id(vt_temp11).state) * $hot_temp_bar_scale;'
 
-  - platform: uartex
+  # - platform: uartex
+  #   state: "VT24"
+  #   state_number:
+  #     offset: 4
+  #     length: $float_length 
+  #     decode: "ascii"
+  - platform: mqtt_subscribe
+    disabled_by_default: True #Hide device in Home Assistant
+    topic: ${esphome_source}/sensor/main_alternator/state #Monitor state of another device
     id: vt_temp12
     name: "Main Alternator"
     device_class: "temperature"
     unit_of_measurement: "°C"
     accuracy_decimals: 1
-    state: "VT24"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
     on_value:
       then:
         - lvgl.label.update:
@@ -1111,17 +1253,20 @@ sensor:
             id: bar_temp12
             value: !lambda 'return (id(vt_temp12).state) * $hot_temp_bar_scale;'
 
-  - platform: uartex
+  # - platform: uartex
+  #   state: "VT25"
+  #   state_number:
+  #     offset: 4
+  #     length: $float_length 
+  #     decode: "ascii"
+  - platform: mqtt_subscribe
+    disabled_by_default: True #Hide device in Home Assistant
+    topic: ${esphome_source}/sensor/aux_alternator/state #Monitor state of another device
     id: vt_temp13
     name: "Aux Alternator"
     device_class: "temperature"
     unit_of_measurement: "°C"
     accuracy_decimals: 1
-    state: "VT25"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
     on_value:
       then:
         - lvgl.label.update:
@@ -1135,39 +1280,47 @@ sensor:
 
 
 text_sensor:
-  - platform: uartex
+  # - platform: uartex
+  #   state: "T1"
+  #   lambda: |-
+  #     return std::string(reinterpret_cast<const char*>(data+2), len-2); // Simply return the received string excluding first 2 chars
+  - platform: mqtt_subscribe
+    disabled_by_default: True #Hide device in Home Assistant
+    topic: ${esphome_source}/sensor/atmega_diagnostic/state #Monitor state of another device
     id: atmega_diagnostic
     name: "ATMega Diag"
     entity_category: "diagnostic"
-    state: "T1"
-    lambda: |-
-      return std::string(reinterpret_cast<const char*>(data+2), len-2); // Simply return the received string excluding first 2 chars
-  - platform: uartex
+  # - platform: uartex
+  #   state: "T2"
+  #   lambda: |-
+  #     return std::string(reinterpret_cast<const char*>(data+2), len-2); // Simply return the received string excluding first 2 chars
+  - platform: mqtt_subscribe
+    disabled_by_default: True #Hide device in Home Assistant
+    topic: ${esphome_source}/sensor/atmega_info/state #Monitor state of another device
     id: atmega_info
     name: "ATMega Info"
     entity_category: "diagnostic"
-    state: "T2"
-    lambda: |-
-      return std::string(reinterpret_cast<const char*>(data+2), len-2); // Simply return the received string excluding first 2 chars
 
 binary_sensor:
-  - platform: uartex
-    id: atmega_button
-    name: "ATMega Button"
-    state: "B1"
-    state_on:
-      offset: 2
-      data: [0x31] # ASCII '1'
-    state_off:
-      offset: 2
-      data: [0x30] # ASCII '0'
-    on_state:
-      then:
-        - lvgl.label.update:
-            id: lbl_app_name #lbl_button_state
-            text:
-              format: "Button State:\n%s"
-              args: [ 'id(atmega_button).state ? "Pressed" : "Released"' ]
+
+# Still needs to monitor status but as issues with button press detection leave for now
+#   - platform: uartex
+#     id: atmega_button
+#     name: "ATMega Button"
+#     state: "B1"
+#     state_on:
+#       offset: 2
+#       data: [0x31] # ASCII '1'
+#     state_off:
+#       offset: 2
+#       data: [0x30] # ASCII '0'
+#     on_state:
+#       then:
+#         - lvgl.label.update:
+#             id: lbl_app_name #lbl_button_state
+#             text:
+#               format: "Button State:\n%s"
+#               args: [ 'id(atmega_button).state ? "Pressed" : "Released"' ]
 
 # A bunch of template sensors to decode status in this device and reduce the uartex sensors required
   - platform: template

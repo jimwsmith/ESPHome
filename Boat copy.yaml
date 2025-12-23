@@ -38,8 +38,8 @@ packages:
   m5stackfire: !include M5StackFire.yaml
   wifi: !include wifi.yaml
   mqtt: !include mqtt.yaml
-  lvgl: !include lvglboat copy.yaml
-  uart: !include FireUartex.yaml
+  lvgl: !include lvglboat.yaml
+  uart: !include FireUartex copy.yaml
 
 uart:
   baud_rate: 9600
@@ -83,6 +83,37 @@ number:
     min_value: 0  
     step: 1
     optimistic: true  
+  - platform: template
+    disabled_by_default: True #Hide device in Home Assistant
+    command_topic: ${esphome_source}/number/soc_warning_level/command #Monitor state of another device
+    # state_topic: ${esphome_name}//number/soc_alarm_warning/state #Needs to publish own state so that reboot doesn't corrupt the monitored device state
+    id: soc_warn_level
+    name: "SOC warning level"
+    max_value: 100
+    min_value: 0
+    step: 1
+    optimistic: true  
+    initial_value: 85
+    restore_value: true
+    on_value: 
+      then:
+        - script.execute: soc_check_alarm
+  - platform: template
+    disabled_by_default: True #Hide device in Home Assistant
+    command_topic: ${esphome_source}/number/soc_alarm_level/command #Monitor state of another device
+    # state_topic: ${esphome_name}/number/soc_alarm_level/state #Needs to publish own state so that reboot doesn't corrupt the monitored device state
+    id: soc_alarm_level
+    name: "SOC alarm level"
+    max_value: 100
+    min_value: 0
+    step: 1
+    optimistic: true  
+    initial_value: 70
+    restore_value: true
+    on_value: 
+      then:
+        - script.execute: soc_check_alarm
+
 
 time:
   - platform: sntp 
@@ -114,6 +145,39 @@ script:
             format: "%s"
             args: [ 'id(sntp_time).now().strftime("%R").c_str()' ]
 
+  - id: soc_check_alarm # Script to check alarm status - needs calling if thresholds or value changes
+    then:
+      - if:
+          condition:
+            lambda: 'return (id(ve_bmv_soc).state > id(soc_warn_level).state);'
+          then:
+            - light.turn_off:
+                  id: side_light
+      - if:
+          condition:
+            lambda: 'return ((id(ve_bmv_soc).state <= id(soc_warn_level).state) && (id(ve_bmv_soc).state > id(soc_alarm_level).state));'
+          then:
+            - light.turn_on:
+                brightness: 100%
+                id: side_light
+                effect: "Warn Pulse"
+                color_mode: RGB
+                red: 100%
+                green: 40%
+                blue: 0%
+      - if:
+          condition:
+            lambda: 'return ((id(ve_bmv_soc).state < id(soc_warn_level).state) && (id(ve_bmv_soc).state <= id(soc_alarm_level).state));'
+          then:
+            - light.turn_on:
+                brightness: 100%
+                id: side_light
+                effect: "Alarm Pulse"
+                color_mode: RGB
+                red: 100%
+                green: 0%
+                blue: 0%
+
 debug:
   update_interval: 60s
 
@@ -125,14 +189,14 @@ text_sensor:
       name: "Reset Reason"
 
 # Enable this sensor to track memory leak issues
-# sensor:
-#   - platform: debug
-#     free:
-#       name: "Heap Free"
-#     loop_time:
-#       name: "Loop Time"
-#     # psram:
-#     #   name: "Free PSRAM"
+sensor:
+  - platform: debug
+    free:
+      name: "Heap Free"
+    loop_time:
+      name: "Loop Time"
+    # psram:
+    #   name: "Free PSRAM"
 
 light:
   - platform: rgb #Individual control of RGB elemenst of LED strip driven from AT Mega via this unit
@@ -179,6 +243,9 @@ output:
 
 switch: 
   - platform: template
+    disabled_by_default: True #Hide device in Home Assistant
+    command_topic: ${esphome_source}/switch/atmega_relay_1/command #Monitor state of another device
+    state_topic: ${esphome_name}/switch/atmega_relay_1/state #Needs to publish own state so that reboot doesn't corrupt the monitored device state
     id: relay_1
     name: "ATMega Relay 1"
     turn_on_action:
@@ -196,6 +263,9 @@ switch:
     optimistic: true #Required so that state change gets registered even though there is no actual comms back to ack the relay change
 
   - platform: template
+    disabled_by_default: True #Hide device in Home Assistant
+    command_topic: ${esphome_source}/switch/atmega_relay_2/command #Monitor state of another device
+    state_topic: ${esphome_name}/switch/atmega_relay_2/state #Needs to publish own state so that reboot doesn't corrupt the monitored device state
     id: relay_2
     name: "ATMega Relay 2"
     turn_on_action:
@@ -213,6 +283,9 @@ switch:
     optimistic: true #Required so that state change gets registered even though there is no actual comms back to ack the relay change
 
   - platform: template
+    disabled_by_default: True #Hide device in Home Assistant
+    command_topic: ${esphome_source}/switch/atmega_relay_3/command #Monitor state of another device
+    state_topic: ${esphome_name}/switch/atmega_relay_3/state #Needs to publish own state so that reboot doesn't corrupt the monitored device state
     id: relay_3
     name: "ATMega Relay 3"
     turn_on_action:
@@ -230,6 +303,9 @@ switch:
     optimistic: true #Required so that state change gets registered even though there is no actual comms back to ack the relay change
 
   - platform: template
+    disabled_by_default: True #Hide device in Home Assistant
+    command_topic: ${esphome_source}/switch/atmega_relay_4/command #Monitor state of another device
+    state_topic: ${esphome_name}/switch/atmega_relay_4/state #Needs to publish own state so that reboot doesn't corrupt the monitored device state
     id: relay_4
     name: "ATMega Relay 4"
     turn_on_action:
@@ -247,6 +323,9 @@ switch:
     optimistic: true #Required so that state change gets registered even though there is no actual comms back to ack the relay change
 
   - platform: template
+    disabled_by_default: True #Hide device in Home Assistant
+    command_topic: ${esphome_source}/switch/atmega_relay_5/command #Monitor state of another device
+    state_topic: ${esphome_name}/switch/atmega_relay_5/state #Needs to publish own state so that reboot doesn't corrupt the monitored device state
     id: relay_5
     name: "ATMega Relay 5"
     turn_on_action:
@@ -263,39 +342,26 @@ switch:
             checked: False
     optimistic: true #Required so that state change gets registered even though there is no actual comms back to ack the relay change
 
-sensor:
-  - platform: mqtt_subscribe
-    topic: ${esphome_source}/relay_6/state
-    internal: True #Don't want this in Home Assistant since it came from there!
+  - platform: template
+    disabled_by_default: True #Hide device in Home Assistant
+    command_topic: ${esphome_source}/switch/atmega_relay_6/command #Monitor state of another device
+    state_topic: ${esphome_name}/switch/atmega_relay_6/state #Needs to publish own state so that reboot doesn't corrupt the monitored device state
+    # internal: True #Doesn't make any difference to MQTT devices
+    # restore_mode: RESTORE_DEFAULT_OFF #Restore doesn't work when monitoring another device
     id: relay_6
     name: "ATMega Relay 6"
-    on_value:
-      then:
-        - lvgl.widget.update:
-            id: btn_relay_6
-            state: 
-              checked: !lambda "return x;"
-    # turn_on_action:
-    #   # - uart.write: [0x52, 0x36, 0x31, 0x0A, 0x0D] #Send Relay state to AT Mega R21\r\n
-    #   - lvgl.widget.update:
-    #       id: btn_relay_6
-    #       state:
-    #         checked: True
-    # turn_off_action:
-    #   # - uart.write: [0x52, 0x36, 0x30, 0x0A, 0x0D] #Send Relay state to AT Mega R20\r\n
-    #   - lvgl.widget.update:
-    #       id: btn_relay_6
-    #       state:
-    #         checked: False
-
-  - platform: debug
-    free:
-      name: "Heap Free"
-    loop_time:
-      name: "Loop Time"
-    # psram:
-    #   name: "Free PSRAM"
-
+    turn_on_action:
+      # - uart.write: [0x52, 0x36, 0x31, 0x0A, 0x0D] #Send Relay state to AT Mega R21\r\n
+      - lvgl.widget.update:
+          id: btn_relay_6
+          state:
+            checked: True
+    turn_off_action:
+      # - uart.write: [0x52, 0x36, 0x30, 0x0A, 0x0D] #Send Relay state to AT Mega R20\r\n
+      - lvgl.widget.update:
+          id: btn_relay_6
+          state:
+            checked: False
 
 climate:
   - platform: bang_bang
@@ -313,3 +379,161 @@ climate:
       max_temperature: 80
       temperature_step: 1
     
+#--------------------------------------------------------------------------
+lvgl: 
+  pages:
+    - id: relay_page
+      bg_color: 0x000000 #black
+      widgets:
+        - obj:
+            align: TOP_MID
+            styles: header_footer
+            widgets:
+              - label:
+                  text: "Relay Control"
+                  align: CENTER
+                  text_align: CENTER
+                  text_color: 0xFFFFFF #white
+        - obj: # a properly placed coontainer object for all these controls
+            text_color: white
+            align: CENTER
+            width: 320
+            height: 180 #240-(2*30) #Display area less header & footer
+            pad_all: 0
+            bg_opa: TRANSP #COVER
+            border_opa: TRANSP
+            # outline_width: 1 #debug top check we fill available space
+            layout: # enable the GRID layout for the children widgets
+              type: GRID # split the rows and the columns proportionally
+              grid_columns: [FR(1), FR(1)] # equal
+              grid_rows: [FR(1), FR(1), FR(1), FR(1), FR(1), FR(1)] # like percents
+              pad_row: 4
+              pad_column: 8
+            widgets:
+              - button:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 0 # the corresponding cell
+                  grid_cell_column_span: 2 #Span 2 columns
+                  grid_cell_row_span: 1 #Span 2 rows
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: btn_relay_1
+                  checkable: true
+                  checked:
+                    bg_color: red
+                    text_color: black
+                    bg_grad_dir: NONE
+                  widgets:
+                    - label:
+                        align: center
+                        text: "Engine -> Radiators"
+                  on_change:
+                    then:
+                      - switch.toggle:
+                          id: relay_1
+              - button:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 1 # the corresponding cell
+                  grid_cell_column_span: 2 #Span 2 columns
+                  grid_cell_row_span: 1 #Span 2 rows
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: btn_relay_2
+                  checkable: true
+                  checked:
+                    bg_color: red
+                    text_color: black
+                    bg_grad_dir: NONE
+                  widgets:
+                    - label:
+                        align: center
+                        text: "Heater"
+                  on_change:
+                    then:
+                      - switch.toggle:
+                          id: relay_2
+              - button:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 2 # the corresponding cell
+                  grid_cell_column_span: 2 #Span 2 columns
+                  grid_cell_row_span: 1 #Span 2 rows
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: btn_relay_3
+                  checkable: true
+                  checked:
+                    bg_color: red
+                    text_color: black
+                    bg_grad_dir: NONE
+                  widgets:
+                    - label:
+                        align: center
+                        text: "250W Immersion"
+                  on_change:
+                    then:
+                      - switch.toggle:
+                          id: relay_3
+              - button:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 3 # the corresponding cell
+                  grid_cell_column_span: 2 #Span 2 columns
+                  grid_cell_row_span: 1 #Span 2 rows
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: btn_relay_4
+                  checkable: true
+                  checked:
+                    bg_color: red
+                    text_color: black
+                    bg_grad_dir: NONE
+                  widgets:
+                    - label:
+                        align: center
+                        text: "Relay 4"
+                  on_change:
+                    then:
+                      - switch.toggle:
+                          id: relay_4
+              - button:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 4 # the corresponding cell
+                  grid_cell_column_span: 2 #Span 2 columns
+                  grid_cell_row_span: 1 #Span 2 rows
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: btn_relay_5
+                  checkable: true
+                  checked:
+                    bg_color: red
+                    text_color: black
+                    bg_grad_dir: NONE
+                  widgets:
+                    - label:
+                        align: center
+                        text: "Relay 5"
+                  on_change:
+                    then:
+                      - switch.toggle:
+                          id: relay_5
+              - button:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 5 # the corresponding cell
+                  grid_cell_column_span: 2 #Span 2 columns
+                  grid_cell_row_span: 1 #Span 2 rows
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: btn_relay_6
+                  checkable: true
+                  checked:
+                    bg_color: red
+                    text_color: black
+                    bg_grad_dir: NONE
+                  widgets:
+                    - label:
+                        align: center
+                        text: "Relay 6"
+                  on_change:
+                    then:
+                      - switch.toggle:
+                          id: relay_6
+      
