@@ -1184,6 +1184,162 @@ lvgl:
                     end_value: 4000
                     r_mod: -6
                     width: 2
+#--------------------------------------------------------------------------
+    - id: relay_page
+      bg_color: 0x000000 #black
+      widgets:
+        - obj:
+            align: TOP_MID
+            styles: header_footer
+            widgets:
+              - label:
+                  text: "Relay Control"
+                  align: CENTER
+                  text_align: CENTER
+                  text_color: 0xFFFFFF #white
+        - obj: # a properly placed coontainer object for all these controls
+            text_color: white
+            align: CENTER
+            width: 320
+            height: 180 #240-(2*30) #Display area less header & footer
+            pad_all: 0
+            bg_opa: TRANSP #COVER
+            border_opa: TRANSP
+            # outline_width: 1 #debug top check we fill available space
+            layout: # enable the GRID layout for the children widgets
+              type: GRID # split the rows and the columns proportionally
+              grid_columns: [FR(1), FR(1)] # equal
+              grid_rows: [FR(1), FR(1), FR(1), FR(1), FR(1), FR(1)] # like percents
+              pad_row: 4
+              pad_column: 8
+            widgets:
+              - button:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 0 # the corresponding cell
+                  grid_cell_column_span: 2 #Span 2 columns
+                  grid_cell_row_span: 1 #Span 2 rows
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: btn_relay_1
+                  checkable: true
+                  checked:
+                    bg_color: red
+                    text_color: black
+                    bg_grad_dir: NONE
+                  widgets:
+                    - label:
+                        align: center
+                        text: "Engine -> Radiators"
+                  on_change:
+                    then:
+                      - switch.toggle:
+                          id: relay_1
+              - button:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 1 # the corresponding cell
+                  grid_cell_column_span: 2 #Span 2 columns
+                  grid_cell_row_span: 1 #Span 2 rows
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: btn_relay_2
+                  checkable: true
+                  checked:
+                    bg_color: red
+                    text_color: black
+                    bg_grad_dir: NONE
+                  widgets:
+                    - label:
+                        align: center
+                        text: "Heater"
+                  on_change:
+                    then:
+                      - switch.toggle:
+                          id: relay_2
+              - button:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 2 # the corresponding cell
+                  grid_cell_column_span: 2 #Span 2 columns
+                  grid_cell_row_span: 1 #Span 2 rows
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: btn_relay_3
+                  checkable: true
+                  checked:
+                    bg_color: red
+                    text_color: black
+                    bg_grad_dir: NONE
+                  widgets:
+                    - label:
+                        align: center
+                        text: "250W Immersion"
+                  on_change:
+                    then:
+                      - switch.toggle:
+                          id: relay_3
+              - button:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 3 # the corresponding cell
+                  grid_cell_column_span: 2 #Span 2 columns
+                  grid_cell_row_span: 1 #Span 2 rows
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: btn_relay_4
+                  checkable: true
+                  checked:
+                    bg_color: red
+                    text_color: black
+                    bg_grad_dir: NONE
+                  widgets:
+                    - label:
+                        align: center
+                        text: "Relay 4"
+                  on_change:
+                    then:
+                      - switch.toggle:
+                          id: relay_4
+              - button:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 4 # the corresponding cell
+                  grid_cell_column_span: 2 #Span 2 columns
+                  grid_cell_row_span: 1 #Span 2 rows
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: btn_relay_5
+                  checkable: true
+                  checked:
+                    bg_color: red
+                    text_color: black
+                    bg_grad_dir: NONE
+                  widgets:
+                    - label:
+                        align: center
+                        text: "Relay 5"
+                  on_change:
+                    then:
+                      - switch.toggle:
+                          id: relay_5
+              - button:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 5 # the corresponding cell
+                  grid_cell_column_span: 2 #Span 2 columns
+                  grid_cell_row_span: 1 #Span 2 rows
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: btn_relay_6
+                  checkable: true
+                  checked:
+                    bg_color: red
+                    text_color: black
+                    bg_grad_dir: NONE
+                  widgets:
+                    - label:
+                        align: center
+                        text: "Relay 6"
+                  on_change:
+                    then:
+                      - switch.toggle:
+                          id: relay_6
+      
         
 #==========================================================================================================================
     - id: ota_page
