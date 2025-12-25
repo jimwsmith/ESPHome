@@ -1,0 +1,208 @@
+# All common code for the Home Assistant Boat Monitor goes in here
+# This file in turn is included in a very empty stub file that just defines the device names
+# Unit designed to have a serial input on rx_pin from teh ATMega 2560 unit that is doing the sensor monitoring and sending back simple update sto this unit
+# for WiFi /MQTT communication back to Home Assistant server
+# Relay 1 = Radiators taking heat from calorifier
+# Relay 2 = Eberspacher Heat ON
+# Relay 3 = Solar Dump 300W immersion heater
+# Relay 4 = 
+# Relay 5 = 
+# Relay 6 = 
+#
+substitutions:
+  sensor_update: 300s #How often do we potentially send info back to Home Assistant via MQTT
+
+  tx_pin: GPIO26 #TXD2 M5Stack Fire
+  rx_pin: GPIO36 #GPIO36 #RXD2 on M5Stack Fire
+  led_strbuf_size: "16"
+
+esphome:
+  name: ${esphome_name}
+  friendly_name: ${friendly_name}
+  build_path: C:/EsphomeTemp/${esphome_name}
+  on_boot:
+    - priority: 600 #Uart should be configured before this runs
+      then:
+        - uart.write: "\r\n" #clear out any partial data sent as Uart started so that LED setup string will be interpreted OK
+    - priority: -100 #Ensure this runs after lvgl is initialised
+      then:
+        - delay: 8s
+        - lvgl.widget.hide: boot_screen
+        - uart.write: "\r\n" #clear out any partial data sent as Uart started
+        - uart.write: "Info\r\n" #Requesting version info from AT Mega on boot"
+
+esp32:
+  board: m5stack-fire
+
+packages:
+  m5stackfire: !include M5StackFire.yaml
+  wifi: !include wifi.yaml
+  mqtt: !include mqtt.yaml
+  lvgl: !include lvglboat.yaml
+
+uart:
+  baud_rate: 9600
+  data_bits: 8
+  parity: NONE
+  stop_bits: 1
+  tx_pin: $tx_pin
+  rx_pin: $rx_pin
+  # rx_buffer_size: 512 #Keep 256 to reduce RAM usage
+
+external_components:
+  - source:
+      type: git
+      url: https://github.com/ssieb/custom_components
+
+# Enable logging
+logger:
+  logs:
+    component: DEBUG #Supress excessive warnings about display writing
+  tx_buffer_size: 256 #Try and reduce RAM usage (default 512)
+#  task_log_buffer_size: 512 # (default 768) - requires later ESPHome version
+  
+number:
+  - platform: template
+    id: wifi_error_count
+    name: "WiFi Error Count"
+    unit_of_measurement: "errors"
+    entity_category: "diagnostic"
+    max_value: 1000000
+    min_value: 0  
+    step: 1
+    optimistic: true  
+  - platform: template
+    id: mqtt_error_count
+    name: "MQTT Error Count"
+    entity_category: "diagnostic"
+    unit_of_measurement: "errors"
+    max_value: 1000000
+    min_value: 0  
+    step: 1
+    optimistic: true  
+
+time:
+  - platform: sntp 
+    id: sntp_time
+    on_time: #Automation to enable display screen saver
+      # - hours: 2,3,4,5
+      #   minutes: 5
+      #   seconds: 30
+      #   then:
+      #     - switch.turn_on: switch_antiburn
+      # - hours: 2,3,4,5
+      #   minutes: 35
+      #   seconds: 30
+      #   then:
+      #     - switch.turn_off: switch_antiburn
+      - minutes: '*'
+        seconds: 0
+        then:
+          - script.execute: time_update #Updates time in top_level lvgl display once a minute
+    on_time_sync:
+      - script.execute: time_update
+
+script:
+  - id: time_update
+    then:
+      - lvgl.label.update:
+          id: lbl_time
+          text: 
+            format: "%s"
+            args: [ 'id(sntp_time).now().strftime("%R").c_str()' ]
+
+  - id: soc_check_alarm # Script to check alarm status - needs calling if thresholds or value changes
+    then:
+      - if:
+          condition:
+            lambda: 'return (id(ve_bmv_soc).state > id(soc_warn_level).state);'
+          then:
+            - light.turn_off:
+                  id: side_light
+      - if:
+          condition:
+            lambda: 'return ((id(ve_bmv_soc).state <= id(soc_warn_level).state) && (id(ve_bmv_soc).state > id(soc_alarm_level).state));'
+          then:
+            - light.turn_on:
+                brightness: 100%
+                id: side_light
+                effect: "Warn Pulse"
+                color_mode: RGB
+                red: 100%
+                green: 40%
+                blue: 0%
+      - if:
+          condition:
+            lambda: 'return ((id(ve_bmv_soc).state < id(soc_warn_level).state) && (id(ve_bmv_soc).state <= id(soc_alarm_level).state));'
+          then:
+            - light.turn_on:
+                brightness: 100%
+                id: side_light
+                effect: "Alarm Pulse"
+                color_mode: RGB
+                red: 100%
+                green: 0%
+                blue: 0%
+
+debug:
+  update_interval: 60s
+
+text_sensor:
+  - platform: debug
+    device:
+      name: "Device Info"
+    reset_reason:
+      name: "Reset Reason"
+
+# Enable this sensor to track memory leak issues
+sensor:
+  - platform: debug
+    free:
+      name: "Heap Free"
+    loop_time:
+      name: "Loop Time"
+    # psram:
+    #   name: "Free PSRAM"
+
+light:
+  - platform: rgb #Individual control of RGB elemenst of LED strip driven from AT Mega via this unit
+    name: "ATMega RGB Light"
+    id: ainsley_rgb_light
+    red: output_red
+    green: output_green
+    blue: output_blue
+    default_transition_length: 0s #instant change of colour as we cannot cope with transitions
+    restore_mode: RESTORE_DEFAULT_OFF
+
+output:
+# Consider adding \r\n at start of each command if issues arise with LED control
+  - platform: template
+    id: output_red
+    type: float
+    write_action:
+      - logger.log:
+          format: "Setting RED output to %.2f"
+          args: [ 'state' ]
+      - uart.write: !lambda  |-
+          char buf[$led_strbuf_size];
+          snprintf(buf, $led_strbuf_size, "LR%02X\r\n", (int)(255*state)); //Send colour value to AT Mega
+          std::string s = buf;
+          return std::vector<unsigned char>( s.begin(), s.end() );
+  - platform: template
+    id: output_green
+    type: float
+    write_action:
+      - uart.write: !lambda  |-
+          char buf[$led_strbuf_size];
+          snprintf(buf, $led_strbuf_size, "LG%02X\r\n", (int)(255*state)); //Send colour value to AT Mega
+          std::string s = buf;
+          return std::vector<unsigned char>( s.begin(), s.end() );
+  - platform: template
+    id: output_blue
+    type: float
+    write_action:
+      - uart.write: !lambda  |-
+          char buf[$led_strbuf_size];
+          snprintf(buf, $led_strbuf_size, "LB%02X\r\n", (int)(255*state)); //Send colour value to AT Mega
+          std::string s = buf;
+          return std::vector<unsigned char>( s.begin(), s.end() );

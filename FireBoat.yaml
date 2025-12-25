@@ -8,4 +8,6 @@ esphome:
   name: ${esphome_name}
 
 packages:
-  boat: !include Boat.yaml
+  common: !include BoatCommon.yaml
+  boat: !include BoatSend.yaml
+  uart: !include FireUartex.yaml
