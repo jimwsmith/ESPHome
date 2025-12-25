@@ -8,6 +8,7 @@ http_request:
 ota:
   - platform: http_request # Triggered by a specific MQTT message
     on_begin:
+        # - lvgl.resume:  #Incase it has timed out to dim
         - lvgl.page.show: ota_page
         - lvgl.label.update:
             id: lbl_ota_source
@@ -62,6 +63,13 @@ sensor:
     unit_of_measurement: "dB"
     update_interval: ${sensor_update}
     entity_category: "diagnostic"
+    on_value:
+        then:
+          - lvgl.label.update:
+              id: lbl_wifi_strength
+              text:
+                format: "Wi-Fi Strength: %.0fdB"
+                args: [ 'id(wifi_signal_db).state' ]  
                 
   - platform: uptime
     name: ${esphome_name} Uptime
@@ -77,7 +85,7 @@ text_sensor:
             - lvgl.label.update:
                 id: lbl_wifi_ssid
                 text:
-                  format: "Wi-Fi SSID:\n%s"
+                  format: "Wi-Fi SSID: %s"
                   args: [ 'id(wifi_ssid).state.c_str()' ]  
                   # args: [ 'x' ]  
     dns_address:
@@ -94,7 +102,7 @@ text_sensor:
             - lvgl.label.update:
                 id: lbl_wifi_ip
                 text:
-                  format: "Wi-Fi IP:\n%s"
+                  format: "Wi-Fi IP: %s"
                   args: [ 'id(wifi_ip).state.c_str()' ]  
                   # args: [ 'x' ]  
   #     address_0:

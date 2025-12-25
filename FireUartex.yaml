@@ -43,6 +43,13 @@ sensor:
       decode: "ascii"
     accuracy_decimals: 0
     # device_class: "duration"
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: lbl_atmega_uptime
+            text:
+              format: "ATMega Uptime: %.0fm"
+              args: [ 'id(atmega_uptime).state' ]
 
   - platform: uartex
     id: atmega_button_counter

@@ -10,7 +10,7 @@
 # Relay 6 = 
 #
 substitutions:
-  sensor_update: 60s #How often do we potentially send info back to Home Assistant via MQTT
+  sensor_update: 300s #How often do we potentially send info back to Home Assistant via MQTT
 
   tx_pin: GPIO26 #TXD2 M5Stack Fire
   rx_pin: GPIO36 #GPIO36 #RXD2 on M5Stack Fire
@@ -39,7 +39,7 @@ packages:
   wifi: !include wifi.yaml
   mqtt: !include mqtt.yaml
   lvgl: !include lvglboat.yaml
-  uart: !include FireUartex copy.yaml
+  uart: !include FireNoUartex.yaml
 
 uart:
   baud_rate: 9600
@@ -194,9 +194,10 @@ text_sensor:
     id: relay_1_sender
     topic: ${esphome_source}/switch/atmega_relay_1/state   
     on_value:
-      # - logger.log:
-      #     format: "State from Boat Relay 1 %s"
-      #     args: [ 'id(relay_1_state).state.c_str()' ]
+    #debug code remove later
+      - logger.log:
+          format: "received State from Boat Relay 1 %s"
+          args: [ 'id(relay_1_sender).state.c_str()' ]
       - if:
           condition:
             lambda: 'return (id(relay_1_sender).state == "ON");'
@@ -371,6 +372,15 @@ switch:
     # state_topic: ${esphome_name}/switch/atmega_relay_1/state #Needs to publish own state so that reboot doesn't corrupt the monitored device state
     id: relay_1
     name: "ATMega Relay 1"
+#debug code
+    on_state:
+      - if:
+          condition:
+            lambda: 'return x;'
+          then:
+            - logger.log: "Relay 1 is now ON!"
+          else:
+            - logger.log: "Relay 1 is now OFF!"
     turn_on_action:
       - uart.write: [0x52, 0x31, 0x31, 0x0A, 0x0D] #Send Relay state to AT Mega R21\r\n
       - lvgl.widget.update:

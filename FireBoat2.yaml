@@ -7,4 +7,4 @@ esphome:
   name: ${esphome_name}
 
 packages:
-  boat: !include Boat copy.yaml
+  boat: !include BoatReceive.yaml

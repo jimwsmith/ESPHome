@@ -47,6 +47,13 @@ sensor:
     unit_of_measurement: "m"
     accuracy_decimals: 0
     # device_class: "duration"
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: lbl_atmega_uptime
+            text:
+              format: "ATMega Uptime: %.0fm"
+              args: [ 'id(atmega_uptime).state' ]
 
   # - platform: uartex
   #   state: "B2"
@@ -495,6 +502,11 @@ sensor:
             text:
               format: "Bat Curr: %.1fA"
               args: [ 'id(ve_bmv_current).state' ]
+        - lvgl.label.update:
+            id: lbl_rpm_bmv_current
+            text:
+              format: "Batt I:\n %.1fA"
+              args: [ 'id(ve_bmv_current).state' ]
 
   # - platform: uartex
   #   state: "VE06"
@@ -700,7 +712,7 @@ sensor:
         - lvgl.label.update:
             id: lbl_rpm_dial
             text:
-              format: "%.0frpm"
+              format: "%.0f"
               args: [ 'id(vt_engine_rpm).state' ]
 
   # - platform: uartex
@@ -973,6 +985,11 @@ sensor:
             id: lbl_temp1
             text:
               format: "Cyl Top: %.1f°C"
+              args: [ 'id(vt_temp1).state' ]
+        - lvgl.label.update:
+            id: lbl_rpm_lbl_temp1
+            text:
+              format: "Cyl Tmp:\n%.1f°C"
               args: [ 'id(vt_temp1).state' ]
         - lvgl.bar.update:
             id: bar_temp1
