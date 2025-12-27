@@ -1,34 +1,7 @@
-
-substitutions:
-  float_length : "10" 
-  temp_bar_scale: "3.0" #Scale factor to convert room temperature to 0-100 range for lvgl bar display
-  hot_temp_bar_scale: "1.5" #Scale factor to convert coolant & heater temperature to 0-100 range for lvgl bar display
-external_components:
-  - source: github://eigger/espcomponents@latest
-    components: [ uartex ]
-    refresh: always
-
-uartex:
-  rx_timeout: 10ms
-  tx_delay: 50ms
-  tx_timeout: 500ms
-  tx_retry_cnt: 3
-  # rx_priority: loop #Lower priority for Rx than main loop tasks
-  # rx_header: [0x02, 0x01]
-  rx_footer: [0x0D, 0x0A]
-  # tx_header: [0x02, 0x01]
-  tx_footer: [0x0D, 0x0A]
-
-  version:
-    name: "Uartex Version"
-    disabled: False
-  error:
-    name: "Uartex Error"
-    disabled: False
-  log:
-    name: "Uartex Log"
-    disabled: True #False
-
+# Uses Uartex external component to decode received messages on Serial 3 port
+# These are sent by ATMega unit that is actually monitoring the various sensors
+# Remember any lvgl label updaes need coding in both FireUartex.yaml and FireNoUartex.yaml versions
+#
 sensor: 
   - platform: uartex
     id: atmega_uptime
@@ -38,7 +11,7 @@ sensor:
     state: "H1"
     state_number:
       offset: 2
-      length: 16 #If value received is shorter than this, decoding seems OK
+      length: ${uartex_length} #If value received is shorter than this, decoding seems OK
       precision: 0
       decode: "ascii"
     accuracy_decimals: 0
@@ -58,7 +31,7 @@ sensor:
     state: "B2"
     state_number:
       offset: 2
-      length: 16 #If value received is shorter than this, decoding seems OK
+      length: ${uartex_length} #If value received is shorter than this, decoding seems OK
       precision: 0
       decode: "ascii"
     accuracy_decimals: 0
@@ -325,7 +298,7 @@ sensor:
     state: "VB13"
     state_number:
       offset: 4
-      length: $float_length 
+      length: ${uartex_length} 
       decode: "ascii"
     on_value:
       then:
@@ -449,6 +422,11 @@ sensor:
             id: lbl_bmv_current
             text:
               format: "Bat Curr: %.1fA"
+              args: [ 'id(ve_bmv_current).state' ]
+        - lvgl.label.update:
+            id: lbl_rpm_bmv_current
+            text:
+              format: "Batt I:\n %.1fA"
               args: [ 'id(ve_bmv_current).state' ]
 
   - platform: uartex
@@ -872,6 +850,11 @@ sensor:
             text:
               format: "Cyl Top: %.1f°C"
               args: [ 'id(vt_temp1).state' ]
+        - lvgl.label.update:
+            id: lbl_rpm_lbl_temp1
+            text:
+              format: "Cyl Tmp:\n%.1f°C"
+              args: [ 'id(vt_temp1).state' ]
         - lvgl.bar.update:
             id: bar_temp1
             value: !lambda 'return (id(vt_temp1).state) * $hot_temp_bar_scale;'
@@ -1175,87 +1158,3 @@ binary_sensor:
             text:
               format: "Button State:\n%s"
               args: [ 'id(atmega_button).state ? "Pressed" : "Released"' ]
-
-# A bunch of template sensors to decode status in this device and reduce the uartex sensors required
-  - platform: template
-    id: vc_multi_mains
-    name: "Multi Mains"
-
-  - platform: template
-    id: vc_multi_inverter
-    name: "Multi Inverter"
-
-  - platform: template
-    id: vc_multi_absorb
-    name: "Multi Absorb"
-
-  - platform: template
-    id: vc_multi_bulk
-    name: "Multi Bulk"
-
-  - platform: template
-    id: vc_multi_float
-    name: "Multi Float"
-
-  - platform: template
-    id: vc_multi_overload
-    name: "Multi Overload"
-
-  - platform: template
-    id: vc_multi_lowbatt
-    name: "Multi Low Battery"
-
-  - platform: template
-    id: vc_multi_temp
-    name: "Multi Temperature"
-
-  - platform: template
-    id: ve_mppt_fault
-    name: "MPPT Fault"
-    on_press:
-      then:
-        - lvgl.label.update:
-            id: lbl_mppt_state
-            text: "Fault"
-            bg_color: 0xC30000 #Dark Red
-
-  - platform: template
-    id: ve_mppt_bulk
-    name: "MPPT Bulk"
-    on_press:
-      then:
-        - lvgl.label.update:
-            id: lbl_mppt_state
-            text: "Bulk"
-            bg_color: 0x0010C3 #Dark Blue
-
-  - platform: template
-    id: ve_mppt_absorption
-    name: "MPPT Absorp"
-    on_press:
-      then:
-        - lvgl.label.update:
-            id: lbl_mppt_state
-            text: "Absorption" 
-            bg_color: 0xC37600 #Dark Orange
-
-  - platform: template
-    id: ve_mppt_float
-    name: "MPPT Float"
-    on_press:
-      then:
-        - lvgl.label.update:
-            id: lbl_mppt_state
-            text: "Float"
-            bg_color: 0x06840B #Dark Green
-
-  - platform: template
-    id: ve_mppt_starting
-    name: "MPPT Start"
-    on_press:
-      then:
-        - lvgl.label.update:
-            id: lbl_mppt_state
-            text: "Starting"
-            bg_color: 0x9D0093 #Dark Purple
-
