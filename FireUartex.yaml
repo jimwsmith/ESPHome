@@ -43,10 +43,13 @@ sensor:
     unit_of_measurement: "V"
     accuracy_decimals: 2
     state: "VB01"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
+    # state_number:
+    #   offset: 4
+    #   length: $float_length 
+    #   decode: "ascii"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4));
+      return n.has_value() ? n.value() : NAN;
     on_value:
       then:
         - lvgl.label.update:
@@ -62,10 +65,13 @@ sensor:
     unit_of_measurement: "A"
     accuracy_decimals: 1
     state: "VB02"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
+    # state_number:
+    #   offset: 4
+    #   length: $float_length 
+    #   decode: "ascii"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4));
+      return n.has_value() ? n.value() : NAN;
     on_value:
       then:
         - lvgl.label.update:
@@ -100,10 +106,13 @@ sensor:
     unit_of_measurement: "Hz"
     accuracy_decimals: 1
     state: "VB04"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
+    # state_number:
+    #   offset: 4
+    #   length: $float_length 
+    #   decode: "ascii"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4));
+      return n.has_value() ? n.value() : NAN;
     on_value:
       then:
         - lvgl.label.update:
@@ -147,10 +156,13 @@ sensor:
     unit_of_measurement: "V"
     accuracy_decimals: 0
     state: "VB06"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
+    # state_number:
+    #   offset: 4
+    #   length: $float_length 
+    #   decode: "ascii"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4));
+      return n.has_value() ? n.value() : NAN;
     on_value:
       then:
         - lvgl.label.update:
@@ -166,10 +178,13 @@ sensor:
     unit_of_measurement: "A"
     accuracy_decimals: 1
     state: "VB07"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
+    # state_number:
+    #   offset: 4
+    #   length: $float_length 
+    #   decode: "ascii"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4));
+      return n.has_value() ? n.value() : NAN;
     on_value:
       then:
         - lvgl.label.update:
@@ -213,10 +228,13 @@ sensor:
     unit_of_measurement: "V"
     accuracy_decimals: 0
     state: "VB09"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
+    # state_number:
+    #   offset: 4
+    #   length: $float_length 
+    #   decode: "ascii"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4));
+      return n.has_value() ? n.value() : NAN;
     on_value:
       then:
         - lvgl.label.update:
@@ -232,10 +250,13 @@ sensor:
     unit_of_measurement: "A"
     accuracy_decimals: 1
     state: "VB10"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
+    # state_number:
+    #   offset: 4
+    #   length: $float_length 
+    #   decode: "ascii"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4));
+      return n.has_value() ? n.value() : NAN;
     on_value:
       then:
         - lvgl.label.update:
@@ -251,10 +272,13 @@ sensor:
     unit_of_measurement: "Hz"
     accuracy_decimals: 1
     state: "VB11"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
+    # state_number:
+    #   offset: 4
+    #   length: $float_length 
+    #   decode: "ascii"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4));
+      return n.has_value() ? n.value() : NAN;
     on_value:
       then:
         - lvgl.label.update:
@@ -335,10 +359,13 @@ sensor:
     unit_of_measurement: "%"
     accuracy_decimals: 1
     state: "VE01"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
+    # state_number:
+    #   offset: 4
+    #   length: $float_length 
+    #   decode: "ascii"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4));
+      return n.has_value() ? n.value() : NAN;
     on_value:
       then:
         - lvgl.label.update:
@@ -355,10 +382,13 @@ sensor:
     unit_of_measurement: "V"
     accuracy_decimals: 2
     state: "VE02"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
+    # state_number:
+    #   offset: 4
+    #   length: $float_length 
+    #   decode: "ascii"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4));
+      return n.has_value() ? n.value() : NAN;
     on_value:
       then:
         - lvgl.label.update:
@@ -374,10 +404,13 @@ sensor:
     unit_of_measurement: "V"
     accuracy_decimals: 2
     state: "VE03"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
+    # state_number:
+    #   offset: 4
+    #   length: $float_length 
+    #   decode: "ascii"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4));
+      return n.has_value() ? n.value() : NAN;
     on_value:
       then:
         - lvgl.label.update:
@@ -393,10 +426,13 @@ sensor:
     unit_of_measurement: "W"
     accuracy_decimals: 0
     state: "VE04"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
+    # state_number:
+    #   offset: 4
+    #   length: $float_length 
+    #   decode: "ascii"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4));
+      return n.has_value() ? n.value() : NAN;
     on_value:
       then:
         - lvgl.label.update:
@@ -412,10 +448,13 @@ sensor:
     unit_of_measurement: "A"
     accuracy_decimals: 2
     state: "VE05"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
+    # state_number:
+    #   offset: 4
+    #   length: $float_length 
+    #   decode: "ascii"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4));
+      return n.has_value() ? n.value() : NAN;
     on_value:
       then:
         - lvgl.label.update:
@@ -435,10 +474,13 @@ sensor:
     unit_of_measurement: "units"
     accuracy_decimals: 0
     state: "VE06"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
+    # state_number:
+    #   offset: 4
+    #   length: $float_length 
+    #   decode: "ascii"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4));
+      return n.has_value() ? n.value() : NAN;
     on_value:
       then:
         - lvgl.label.update:
@@ -465,10 +507,13 @@ sensor:
     unit_of_measurement: "V"
     accuracy_decimals: 2
     state: "VE08"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
+    # state_number:
+    #   offset: 4
+    #   length: $float_length 
+    #   decode: "ascii"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4));
+      return n.has_value() ? n.value() : NAN;
     on_value:
       then:
         - lvgl.label.update:
@@ -484,10 +529,13 @@ sensor:
     unit_of_measurement: "V"
     accuracy_decimals: 2
     state: "VE09"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
+    # state_number:
+    #   offset: 4
+    #   length: $float_length 
+    #   decode: "ascii"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4));
+      return n.has_value() ? n.value() : NAN;
     on_value:
       then:
         - lvgl.label.update:
@@ -503,10 +551,13 @@ sensor:
     unit_of_measurement: "W"
     accuracy_decimals: 0
     state: "VE10"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
+    # state_number:
+    #   offset: 4
+    #   length: $float_length 
+    #   decode: "ascii"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4));
+      return n.has_value() ? n.value() : NAN;
     on_value:
       then:
         - lvgl.label.update:
@@ -522,10 +573,13 @@ sensor:
     unit_of_measurement: "A"
     accuracy_decimals: 2
     state: "VE11"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
+    # state_number:
+    #   offset: 4
+    #   length: $float_length 
+    #   decode: "ascii"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4));
+      return n.has_value() ? n.value() : NAN;
     on_value:
       then:
         - lvgl.label.update:
@@ -579,10 +633,13 @@ sensor:
     unit_of_measurement: "lx"
     accuracy_decimals: 0
     state: "VT01"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
+    # state_number:
+    #   offset: 4
+    #   length: $float_length 
+    #   decode: "ascii"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4));
+      return n.has_value() ? n.value() : NAN;
     on_value:
       then:
         - lvgl.label.update:
@@ -597,10 +654,13 @@ sensor:
     unit_of_measurement: "rpm"
     accuracy_decimals: 0
     state: "VT02"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
+    # state_number:
+    #   offset: 4
+    #   length: $float_length 
+    #   decode: "ascii"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4));
+      return n.has_value() ? n.value() : NAN;
     on_value:
       then:
         - lvgl.indicator.update:
@@ -619,10 +679,13 @@ sensor:
     unit_of_measurement: "°C"
     accuracy_decimals: 1
     state: "VT03"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
+    # state_number:
+    #   offset: 4
+    #   length: $float_length 
+    #   decode: "ascii"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4));
+      return n.has_value() ? n.value() : NAN;
     on_value:
       then:
         - lvgl.label.update:
@@ -641,10 +704,13 @@ sensor:
     unit_of_measurement: "%"
     accuracy_decimals: 1
     state: "VT04"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
+    # state_number:
+    #   offset: 4
+    #   length: $float_length 
+    #   decode: "ascii"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4));
+      return n.has_value() ? n.value() : NAN;
     on_value: 
       then:
         - lvgl.label.update:
@@ -663,10 +729,13 @@ sensor:
     unit_of_measurement: "°C"
     accuracy_decimals: 1
     state: "VT05"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
+    # state_number:
+    #   offset: 4
+    #   length: $float_length 
+    #   decode: "ascii"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4));
+      return n.has_value() ? n.value() : NAN;
     on_value:
       then:
         - lvgl.label.update:
@@ -685,10 +754,13 @@ sensor:
     unit_of_measurement: "%"
     accuracy_decimals: 1
     state: "VT06"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
+    # state_number:
+    #   offset: 4
+    #   length: $float_length 
+    #   decode: "ascii"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4));
+      return n.has_value() ? n.value() : NAN;
     on_value: 
       then:
         - lvgl.label.update:
@@ -707,10 +779,13 @@ sensor:
     unit_of_measurement: "°C"
     accuracy_decimals: 1
     state: "VT07"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
+    # state_number:
+    #   offset: 4
+    #   length: $float_length 
+    #   decode: "ascii"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4));
+      return n.has_value() ? n.value() : NAN;
     on_value:
       then:
         - lvgl.label.update:
@@ -729,10 +804,13 @@ sensor:
     unit_of_measurement: "%"
     accuracy_decimals: 1
     state: "VT08"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
+    # state_number:
+    #   offset: 4
+    #   length: $float_length 
+    #   decode: "ascii"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4));
+      return n.has_value() ? n.value() : NAN;
     on_value: 
       then:
         - lvgl.label.update:
@@ -751,10 +829,13 @@ sensor:
     unit_of_measurement: "°C"
     accuracy_decimals: 1
     state: "VT09"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
+    # state_number:
+    #   offset: 4
+    #   length: $float_length 
+    #   decode: "ascii"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4));
+      return n.has_value() ? n.value() : NAN;
     on_value:
       then:
         - lvgl.label.update:
@@ -773,10 +854,13 @@ sensor:
     unit_of_measurement: "%"
     accuracy_decimals: 1
     state: "VT10"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
+    # state_number:
+    #   offset: 4
+    #   length: $float_length 
+    #   decode: "ascii"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4));
+      return n.has_value() ? n.value() : NAN;
     on_value: 
       then:
         - lvgl.label.update:
@@ -795,10 +879,13 @@ sensor:
     unit_of_measurement: "°C"
     accuracy_decimals: 1
     state: "VT11"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
+    # state_number:
+    #   offset: 4
+    #   length: $float_length 
+    #   decode: "ascii"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4));
+      return n.has_value() ? n.value() : NAN;
     on_value:
       then:
         - lvgl.label.update:
@@ -817,10 +904,13 @@ sensor:
     unit_of_measurement: "%"
     accuracy_decimals: 1
     state: "VT12"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
+    # state_number:
+    #   offset: 4
+    #   length: $float_length 
+    #   decode: "ascii"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4));
+      return n.has_value() ? n.value() : NAN;
     on_value: 
       then:
         - lvgl.label.update:
@@ -839,10 +929,13 @@ sensor:
     unit_of_measurement: "°C"
     accuracy_decimals: 1
     state: "VT13"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
+    # state_number:
+    #   offset: 4
+    #   length: $float_length 
+    #   decode: "ascii"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4));
+      return n.has_value() ? n.value() : NAN;
     on_value:
       then:
         - lvgl.label.update:
@@ -866,10 +959,13 @@ sensor:
     unit_of_measurement: "°C"
     accuracy_decimals: 1
     state: "VT14"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
+    # state_number:
+    #   offset: 4
+    #   length: $float_length 
+    #   decode: "ascii"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4));
+      return n.has_value() ? n.value() : NAN;
     on_value:
       then:
         - lvgl.label.update:
@@ -888,10 +984,13 @@ sensor:
     unit_of_measurement: "°C"
     accuracy_decimals: 1
     state: "VT15"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
+    # state_number:
+    #   offset: 4
+    #   length: $float_length 
+    #   decode: "ascii"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4));
+      return n.has_value() ? n.value() : NAN;
     on_value:
       then:
         - lvgl.label.update:
@@ -910,10 +1009,13 @@ sensor:
     unit_of_measurement: "°C"
     accuracy_decimals: 1
     state: "VT16"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
+    # state_number:
+    #   offset: 4
+    #   length: $float_length 
+    #   decode: "ascii"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4));
+      return n.has_value() ? n.value() : NAN;
     on_value:
       then:
         - lvgl.label.update:
@@ -932,10 +1034,13 @@ sensor:
     unit_of_measurement: "°C"
     accuracy_decimals: 1
     state: "VT17"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
+    # state_number:
+    #   offset: 4
+    #   length: $float_length 
+    #   decode: "ascii"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4));
+      return n.has_value() ? n.value() : NAN;
     on_value:
       then:
         - lvgl.label.update:
@@ -954,10 +1059,13 @@ sensor:
     unit_of_measurement: "°C"
     accuracy_decimals: 1
     state: "VT18"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
+    # state_number:
+    #   offset: 4
+    #   length: $float_length 
+    #   decode: "ascii"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4));
+      return n.has_value() ? n.value() : NAN;
     on_value:
       then:
         - lvgl.label.update:
@@ -976,10 +1084,13 @@ sensor:
     unit_of_measurement: "°C"
     accuracy_decimals: 1
     state: "VT19"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
+    # state_number:
+    #   offset: 4
+    #   length: $float_length 
+    #   decode: "ascii"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4));
+      return n.has_value() ? n.value() : NAN;
     on_value:
       then:
         - lvgl.label.update:
@@ -998,10 +1109,13 @@ sensor:
     unit_of_measurement: "°C"
     accuracy_decimals: 1
     state: "VT20"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
+    # state_number:
+    #   offset: 4
+    #   length: $float_length 
+    #   decode: "ascii"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4));
+      return n.has_value() ? n.value() : NAN;
     on_value:
       then:
         - lvgl.label.update:
@@ -1020,10 +1134,13 @@ sensor:
     unit_of_measurement: "°C"
     accuracy_decimals: 1
     state: "VT21"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
+    # state_number:
+    #   offset: 4
+    #   length: $float_length 
+    #   decode: "ascii"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4));
+      return n.has_value() ? n.value() : NAN;
     on_value:
       then:
         - lvgl.label.update:
@@ -1042,10 +1159,13 @@ sensor:
     unit_of_measurement: "°C"
     accuracy_decimals: 1
     state: "VT22"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
+    # state_number:
+    #   offset: 4
+    #   length: $float_length 
+    #   decode: "ascii"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4));
+      return n.has_value() ? n.value() : NAN;
     on_value:
       then:
         - lvgl.label.update:
@@ -1064,10 +1184,13 @@ sensor:
     unit_of_measurement: "°C"
     accuracy_decimals: 1
     state: "VT23"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
+    # state_number:
+    #   offset: 4
+    #   length: $float_length 
+    #   decode: "ascii"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4));
+      return n.has_value() ? n.value() : NAN;
     on_value:
       then:
         - lvgl.label.update:
@@ -1086,10 +1209,13 @@ sensor:
     unit_of_measurement: "°C"
     accuracy_decimals: 1
     state: "VT24"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
+    # state_number:
+    #   offset: 4
+    #   length: $float_length 
+    #   decode: "ascii"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4));
+      return n.has_value() ? n.value() : NAN;
     on_value:
       then:
         - lvgl.label.update:
@@ -1108,10 +1234,13 @@ sensor:
     unit_of_measurement: "°C"
     accuracy_decimals: 1
     state: "VT25"
-    state_number:
-      offset: 4
-      length: $float_length 
-      decode: "ascii"
+    # state_number:
+    #   offset: 4
+    #   length: $float_length 
+    #   decode: "ascii"
+    lambda: |-
+      auto n = parse_number<float>(std::string(reinterpret_cast<const char*>(data+4), len-4));
+      return n.has_value() ? n.value() : NAN;
     on_value:
       then:
         - lvgl.label.update:

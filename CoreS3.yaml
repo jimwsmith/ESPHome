@@ -31,6 +31,7 @@ psram:
 packages:
   wifi: !include wifi.yaml
   lvgl: !include lvglCore3.yaml
+  mqtt: !include mqtt.yaml
 
 logger:
   level: DEBUG

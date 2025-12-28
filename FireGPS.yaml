@@ -2,10 +2,14 @@ substitutions:
   friendly_name: "FireGPS" #AINSLEY GPS
   esphome_name: "firegps"
   sensor_update: 60s
+  update_interval_speed: 5s
+  tx_pin: GPIO26 #TXD2 M5Stack Fire
+  rx_pin: GPIO36 #GPIO36 #RXD2 on M5Stack Fire
 
 esphome:
   name: ${esphome_name}
   friendly_name: ${friendly_name}
+  build_path: C:/EsphomeTemp/${esphome_name}
   on_boot:
     - priority: -100 #Ensure this runs after lvgl is initialised
       then:
@@ -15,20 +19,20 @@ esphome:
 packages:
   m5stackfire: !include M5StackFire.yaml
   wifi: !include wifi.yaml
-  mqtt: !include mqttGPS.yaml
+  mqtt: !include mqtt.yaml
   lvgl: !include lvglGPS.yaml
 
 external_components:
   - source:
       type: git
       url: https://github.com/ssieb/custom_components
+    components: [ ip5306 ]
 
 # Enable logging
 logger:
   logs:
     component: DEBUG #Supress excessive warnings about display writing
   
-captive_portal:
 
 time:
   - platform: sntp 
@@ -62,22 +66,58 @@ script:
 
 uart:
   id: uart_bus
-  tx_pin: 1 #13
-  rx_pin: 3 #5
+  tx_pin: ${tx_pin}
+  rx_pin: ${rx_pin}
   baud_rate: 9600
 
 gps:
   latitude:
+    id: gps_latitude
     name: "Latitude"
   longitude:
+    id: gps_longitude
     name: "Longitude"
   altitude:
+    id: gps_altitude
     name: "Altitude"
   speed:
+    id: gps_speed_kmh
     name: "Speed"
+  course:
+    id: gps_course
+    name: "Course"
   satellites:
+    id: pgs_satelites
     name: "Satellites"
-#  hdop:
-#    name: "HDOP"
-#  update_interval: ${sensor_update}
+  hdop:
+    id: gps_hdop
+    name: "HDOP"
+    device_class: distance
+    unit_of_measurement: "m"
+  update_interval: ${update_interval_speed}
   uart_id: uart_bus
+# Note in HA these are combined into a position sensor using a template sensor with multiple attributes
+
+
+sensor:
+  - platform: template
+    name: "Speed mph"
+    id: speed_mph
+    unit_of_measurement: "mph"
+    device_class: speed
+    accuracy_decimals: 1
+    update_interval: ${update_interval_speed}
+    lambda: |-
+      if (id(gps_speed_kmh).state < 0.4) return 0; //Ignore low speeds as these are just noise
+      return id(gps_speed_kmh).state * 0.621371;
+    on_value:
+      then:
+        - lvgl.indicator.update:
+            id: speed_needle
+            value: !lambda 'return (id(speed_mph).state)*100; //Scale value as meter only copes with integers' 
+        - lvgl.label.update:
+            id: lbl_speed_dial
+            text:
+              format: "%.1f"
+              args: [ 'id(speed_mph).state' ]
+    

@@ -61,7 +61,9 @@ lvgl:
   id: lv_id #Only reqd so that ota can force updates to lvgl display even when main loop not running
 
   on_idle:
-    timeout: !lambda "return (id(display_timeout).state * 1000);" # display_timeout is a number control to allow user adjustment
+    timeout: !lambda |-
+      if (id(display_timeout).state == 0) return 1d; //Zero timeout sets 1day
+      return (id(display_timeout).state * 1000); // display_timeout is a number control to allow user adjustment
     then:
       - logger.log: "LVGL is idle so turn off backlight"
       - light.turn_off: display_backlight
