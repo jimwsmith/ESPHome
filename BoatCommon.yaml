@@ -11,6 +11,7 @@
 #
 substitutions:
   sensor_update: 300s #How often do we potentially send info back to Home Assistant via MQTT
+  update_interval_speed: 10s
   float_length : "16"
   uartex_length: "16" #Length of string sent from WiFi unit to Monitor unit - 14 plus CRLFL seems to be max
   temp_bar_scale: "3.0" #Scale factor to convert room temperature to 0-100 range for lvgl bar display
@@ -44,6 +45,7 @@ packages:
   lvgl: !include lvglboat.yaml
 
 uart:
+  id: uart_bus
   baud_rate: 9600
   data_bits: 8
   parity: NONE
@@ -56,10 +58,6 @@ external_components:
   - source:
       type: git
       url: https://github.com/ssieb/custom_components
-
-  - source: github://eigger/espcomponents@latest
-    components: [ uartex ]
-    refresh: always
 
 # Enable logging
 logger:
@@ -297,24 +295,3 @@ output:
           snprintf(buf, $led_strbuf_size, "LB%02X\r\n", (int)(255*state)); //Send colour value to AT Mega
           std::string s = buf;
           return std::vector<unsigned char>( s.begin(), s.end() );
-
-uartex:
-  rx_timeout: 30ms #was 10ms
-  tx_delay: 50ms
-  tx_timeout: 500ms
-  tx_retry_cnt: 3
-  # rx_priority: loop #Lower priority for Rx than main loop tasks
-  rx_header: [0x21, 0x24] #All messages start !$
-  rx_footer: [0x0D, 0x0A] #All messages end CRLF
-  # tx_header: [0x02, 0x01]
-  tx_footer: [0x0D, 0x0A]
-
-  version:
-    name: "Uartex Version"
-    disabled: False
-  error:
-    name: "Uartex Error"
-    disabled: False
-  log:
-    name: "Uartex Log"
-    disabled: True #False

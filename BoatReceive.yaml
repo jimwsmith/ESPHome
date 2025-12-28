@@ -35,6 +35,62 @@ number:
       then:
         - script.execute: soc_check_alarm
 
+#Only fit GPS unit to the receiver Fire unit
+gps:
+  latitude:
+    id: gps_latitude
+    name: "Latitude"
+  longitude:
+    id: gps_longitude
+    name: "Longitude"
+  altitude:
+    id: gps_altitude
+    name: "Altitude"
+    filters: #Altitude is very noisy signal so average it out
+      - sliding_window_moving_average:
+          window_size: 10
+          send_every: 10
+  speed:
+    id: gps_speed_kmh
+    name: "Speed"
+  course:
+    id: gps_course
+    name: "Course"
+  satellites:
+    id: pgs_satelites
+    name: "Satellites"
+  hdop:
+    id: gps_hdop
+    name: "HDOP"
+    device_class: distance
+    unit_of_measurement: "m"
+  update_interval: ${update_interval_speed}
+  uart_id: uart_bus
+# Note in HA these are combined into a position sensor using a template sensor with multiple attributes
+
+sensor:
+  - platform: template
+    name: "Speed mph"
+    id: speed_mph
+    unit_of_measurement: "mph"
+    device_class: speed
+    accuracy_decimals: 1
+    update_interval: ${update_interval_speed}
+    lambda: |-
+      if (id(gps_speed_kmh).state < 0.4) return 0; //Ignore low speeds as these are just noise
+      return id(gps_speed_kmh).state * 0.621371;
+    on_value:
+      then:
+        - lvgl.indicator.update:
+            id: speed_needle
+            value: !lambda 'return (id(speed_mph).state)*100; //Scale value as meter only copes with integers' 
+        - lvgl.label.update:
+            id: lbl_speed_dial
+            text:
+              format: "%.1f"
+              args: [ 'id(speed_mph).state' ]
+
+
 text_sensor:
 # Receive messages from Boat relay switches (including retained state) and use to update this unit's relay switches as a mirror
   - platform: mqtt_subscribe

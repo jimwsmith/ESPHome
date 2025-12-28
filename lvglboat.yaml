@@ -15,15 +15,16 @@ text_sensor:
 
 number:
   - platform: template
-    name: LVGL Screen timeout
+    name:  Screen timeout
     optimistic: true
     id: display_timeout
     unit_of_measurement: "s"
     initial_value: 45
     restore_value: true
-    min_value: 10
+    min_value: 0
     max_value: 300
-    step: 5
+    step: 10
+    mode: slider
 
 #==========================================================================================================================
 font:
@@ -39,7 +40,19 @@ font:
       - GF_Latin_Core
       - GF_Latin_Plus
       - GF_Greek_Core
-#      - GF_Cyrillic_Core
+
+  - file: 
+      fonts/Roboto-Medium.ttf
+    id: font_roboto_medium80
+    size: 80
+    glyphs: [
+      '!"%()+,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz/³µŋ',
+      ]
+    glyphsets:
+      - GF_Latin_Core
+      - GF_Latin_Plus
+      - GF_Greek_Core
+
 #==========================================================================================================================
 image:
   - file: https://esphome.io/favicon-512x512.png #relocated to remove _static location ref in url
@@ -62,7 +75,7 @@ lvgl:
 
   on_idle:
     timeout: !lambda |-
-      if (id(display_timeout).state == 0) return 1d; //Zero timeout sets 1day
+      if (id(display_timeout).state == 0) return 1000*60*60*24; //Zero timeout sets 1day
       return (id(display_timeout).state * 1000); // display_timeout is a number control to allow user adjustment
     then:
       - logger.log: "LVGL is idle so turn off backlight"
@@ -1155,12 +1168,6 @@ lvgl:
         - label: 
             align: CENTER
             text_align: CENTER
-            text: RPM
-            text_color: WHITE
-        - label: 
-            id: lbl_rpm_dial
-            align: CENTER
-            text_align: CENTER
             # # x: 145
             # y: 180
             y: 70
@@ -1200,7 +1207,7 @@ lvgl:
               indicators:
                 - line:
                     id: rpm_needle
-                    width: 6
+                    width: 8
                     color: 0xFF0000
                     r_mod: -15
                 - arc:
@@ -1209,7 +1216,107 @@ lvgl:
                     end_value: 4000
                     r_mod: -6
                     width: 2
-#--------------------------------------------------------------------------
+        - label: 
+            id: lbl_rpm_dial
+            align: CENTER
+            text_align: CENTER
+            text: RPM
+            text_color: WHITE
+            text_font: font_roboto_medium80
+
+#==========================================================================================================================
+    - id: speed_page
+      bg_color: BLACK
+      bg_opa: COVER
+      widgets:
+        - obj:
+            align: TOP_MID
+            styles: header_footer
+            outline_width: 0
+            border_width: 0
+            shadow_width: 0
+            shadow_spread: 0
+            widgets:
+              - label:
+                  text: "Speed"
+                  align: CENTER
+                  text_align: CENTER
+                  text_color: 0xFFFFFF
+        # - label: 
+        #     id: lbl_rpm_bmv_current
+        #     align: TOP_LEFT
+        #     y: 30
+        #     text: "Batt I"
+        #     text_color: WHITE
+        # - label: 
+        #     id: lbl_rpm_lbl_temp1
+        #     align: TOP_RIGHT
+        #     text_align: RIGHT
+        #     y: 30
+        #     text: "Cyl Tmp"
+        #     text_color: WHITE
+        - label: 
+            align: CENTER
+            text_align: CENTER
+            y: 70
+            text: mph
+            text_color: WHITE
+        - meter:
+            align: CENTER
+            # x: 35
+            y: 25
+            height: 240
+            width: 240
+            bg_color: BLACK
+            bg_opa: TRANSP #COVER
+            # outline_width: 0
+            # outline_color: BLACK
+            # outline_opa: TRANSP
+            border_color: BLACK
+            border_width: 0
+            line_color: WHITE
+            text_color: WHITE
+            scales:
+              - range_from: 0
+                range_to: 500 #Only copes with integer valiues so we have to scale speed up
+                angle_range: 240
+                rotation: 150
+                indicators:
+                  - line:
+                      id: speed_needle
+                      width: 8
+                      color: 0xFF0000
+                      r_mod: -15
+                  - arc:
+                      color: WHITE
+                      start_value: 0
+                      end_value: 500 #Only copes with integer valiues so we have to scale speed up
+                      r_mod: -6
+                      width: 2
+              - range_from: 0
+                range_to: 5 #Scale used for labels
+                angle_range: 240
+                rotation: 150
+                ticks:
+                  color: WHITE
+                  count: 21 #remember an extra tick for zero position
+                  length: 8
+                  width: 2
+                  major:
+                    color: WHITE
+                    stride: 4
+                    length: 16
+                    width: 3
+                    label_gap: 10
+        - label: #List this after meter widget so label is on top
+            id: lbl_speed_dial
+            align: CENTER
+            text_align: CENTER
+            text_color: WHITE
+            text: mph
+            text_font: font_roboto_medium80
+
+#==========================================================================================================================
     - id: relay_page
       bg_color: 0x000000 #black
       widgets:
