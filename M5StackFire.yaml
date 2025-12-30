@@ -27,7 +27,7 @@ i2c:
 spi:
   clk_pin: 18
   mosi_pin: 23
-  miso_pin: 19
+  miso_pin: 19 #possibly not reqd if only display is on spi bus
   interface: hardware
   # data_rate: 20MHz
 
@@ -171,9 +171,20 @@ output:
     id: gpio_32_backlight_pwm
 
 display:
-  - platform: ili9xxx
+  # - platform: ili9xxx
+  #   id: m5stack_display #320x240 pixels
+  #   model: M5Stack
+  #   cs_pin: 14
+  #   dc_pin: 27
+  #   reset_pin: 33
+  #   rotation: 0
+  #   invert_colors: true
+  #   auto_clear_enabled: false
+  #   data_rate: 20MHz
+
+  - platform: mipi_spi #Updated platform as ili9xxx deprecated from esphome2025.12.4
     id: m5stack_display #320x240 pixels
-    model: M5Stack
+    model: M5CORE
     cs_pin: 14
     dc_pin: 27
     reset_pin: 33
