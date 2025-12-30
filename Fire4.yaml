@@ -4,7 +4,6 @@ substitutions:
   friendly_name: "Fire4" #Jim Office
   esphome_name: "fire4"
 
-
 esphome:
   name: ${esphome_name}
 

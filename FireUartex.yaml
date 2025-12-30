@@ -373,6 +373,16 @@ sensor:
             text:
               format: "SOC: %.1f%%"
               args: [ 'id(ve_bmv_soc).state' ]
+        - lvgl.label.update:
+            id: lbl_speed_lbl_soc
+            text:
+              format: "SoC:\n%.1f%%"
+              args: [ 'id(ve_bmv_soc).state' ]
+        - lvgl.label.update:
+            id: lbl_rpm_lbl_soc
+            text:
+              format: "SoC:\n%.1f%%"
+              args: [ 'id(ve_bmv_soc).state' ]
         - script.execute: soc_check_alarm
 
   - platform: uartex
@@ -669,7 +679,12 @@ sensor:
         - lvgl.label.update:
             id: lbl_rpm_dial
             text:
-              format: "%.0frpm"
+              format: "%.0f"
+              args: [ 'id(vt_engine_rpm).state' ]
+        - lvgl.label.update:
+            id: lbl_speed_lbl_rpm
+            text:
+              format: "rpm\n%.0f"
               args: [ 'id(vt_engine_rpm).state' ]
 
   - platform: uartex

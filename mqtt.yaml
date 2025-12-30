@@ -11,19 +11,20 @@ mqtt:
   discover_ip: true # enable device discovery
   discovery_retain: true #retain discovery messages
   discovery_unique_id_generator: mac #Use Mac address to generate unique entity Ids
-#   on_connect:
-#     - lvgl.widget.show: lbl_hastatus
-#   on_disconnect:
-#     - lvgl.widget.hide: lbl_hastatus
-
+  on_connect:
+    then:
+      - lvgl.led.update:
+          id: led_mqtt
+          color: GREEN
+  on_disconnect:
+    then:
+      - lvgl.led.update:
+          id: led_mqtt
+          color: RED
   on_message: 
     - topic: ${esphome_name}/restart
       then:
         - button.press: restart_button
-    # - topic: ${esphome_name}/scd30_calibrate
-    #   then:
-    #     - logger.log: "Starting SCD30 Calibration"
-    #     - button.press: scd30_calibrate
     - topic: ${esphome_name}/ota
       then:
         - logger.log: "Starting OTA"

@@ -89,6 +89,11 @@ sensor:
             text:
               format: "%.1f"
               args: [ 'id(speed_mph).state' ]
+        - lvgl.label.update:
+            id: lbl_rpm_lbl_speed
+            text:
+              format: "mph:\n%.1f"
+              args: [ 'id(speed_mph).state' ]
 
 
 text_sensor:

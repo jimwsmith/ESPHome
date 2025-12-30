@@ -176,3 +176,28 @@ climate:
       min_temperature: 30
       max_temperature: 80
       temperature_step: 1
+
+sensor: 
+  - platform: mqtt_subscribe #copy in the speed from the receiver Fire unit
+    topic: ${esphome_monitor}/sensor/speed_mph/state #Monitor state of another device
+    name: "Speed mph copy"
+    id: speed_mph
+    unit_of_measurement: "mph"
+    device_class: speed
+    accuracy_decimals: 1
+    internal: true #don't want this in HA as the real sensor is there
+    on_value:
+      then:
+        - lvgl.indicator.update:
+            id: speed_needle
+            value: !lambda 'return (id(speed_mph).state)*100; //Scale value as meter only copes with integers' 
+        - lvgl.label.update:
+            id: lbl_speed_dial
+            text:
+              format: "%.1f"
+              args: [ 'id(speed_mph).state' ]
+        - lvgl.label.update:
+            id: lbl_rpm_lbl_speed
+            text:
+              format: "mph:\n%.1f"
+              args: [ 'id(speed_mph).state' ]

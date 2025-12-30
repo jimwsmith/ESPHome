@@ -1,12 +1,13 @@
 substitutions:
   devicename: m5cores3
-  esphome_name: M5CoreS3
+  esphome_name: m5cores3
   sensor_update: 60s
   temp_bar_scale: "3.0"
 
 esphome:
   name: ${devicename}
   friendly_name: ${esphome_name}
+  build_path: C:/EsphomeTemp/${esphome_name}
 
 esp32:
   board: esp32-s3-devkitc-1
@@ -137,6 +138,36 @@ light:
     output: lcd_backlight_output
     restore_mode: RESTORE_DEFAULT_ON
     default_transition_length: 250ms
+
+time:
+  - platform: sntp 
+    id: sntp_time
+    on_time: #Automation to enable display screen saver
+      # - hours: 2,3,4,5
+      #   minutes: 5
+      #   seconds: 30
+      #   then:
+      #     - switch.turn_on: switch_antiburn
+      # - hours: 2,3,4,5
+      #   minutes: 35
+      #   seconds: 30
+      #   then:
+      #     - switch.turn_off: switch_antiburn
+      - minutes: '*'
+        seconds: 0
+        then:
+          - script.execute: time_update #Updates time in top_level lvgl display once a minute
+    on_time_sync:
+      - script.execute: time_update
+
+script:
+  - id: time_update
+    then:
+      - lvgl.label.update:
+          id: lbl_time
+          text: 
+            format: "%s"
+            args: [ 'id(sntp_time).now().strftime("%R").c_str()' ]
 
 #=========================================================================================================
 binary_sensor:

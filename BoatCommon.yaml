@@ -30,8 +30,13 @@ esphome:
         - uart.write: "\r\n" #clear out any partial data sent as Uart started so that LED setup string will be interpreted OK
     - priority: -100 #Ensure this runs after lvgl is initialised
       then:
-        - delay: 8s
+        - delay: 4s #reduced booting screen display so we get to see wifi connect and then mqtt connect
         - lvgl.widget.hide: boot_screen
+        - lvgl.widget.focus: 
+            id: top_layer
+        - lvgl.matrix.button.update: #Ensure focus is on the Next Page button to avoid accidental relay switches
+            id: page_next
+            selected: true   
         - uart.write: "\r\n" #clear out any partial data sent as Uart started
         - uart.write: "Info\r\n" #Requesting version info from AT Mega on boot"
 
@@ -53,11 +58,6 @@ uart:
   tx_pin: $tx_pin
   rx_pin: $rx_pin
   # rx_buffer_size: 512 #Keep 256 to reduce RAM usage
-
-external_components:
-  - source:
-      type: git
-      url: https://github.com/ssieb/custom_components
 
 # Enable logging
 logger:

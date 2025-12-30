@@ -160,14 +160,14 @@ lvgl:
         # bg_grad_dir: NONE
         border_width: 2
       items: # set all your buttonmatrix buttons to use your custom defined styles and font
-        bg_color: 0x2F8CD8
-        bg_grad_color: 0x005782
-        bg_grad_dir: VER
-        bg_opa: COVER
-        border_color: 0x0077b3
-        border_width: 1
-        text_color: 0xFFFFFF
-        text_font: montserrat_14
+        # bg_color: 0x2F8CD8
+        # bg_grad_color: 0x005782
+        # bg_grad_dir: VER
+        # bg_opa: COVER
+        # border_color: 0x0077b3
+        # border_width: 1
+        # text_color: 0xFFFFFF
+        # text_font: montserrat_14
         pressed:
           bg_color: 0x006699
           bg_grad_color: 0x00334d
@@ -178,9 +178,10 @@ lvgl:
         focused:
           bg_color: 0x00cc00
           border_color: 0xff0000
+          bg_opa: COVER
           bg_grad_dir: NONE
           border_width: 2
-          border_post: true
+          border_post: true #Draw border after all children have been rendered
     switch:
       bg_color: 0xC0C0C0
       bg_grad_color: 0xb0b0b0
@@ -244,20 +245,21 @@ lvgl:
 #==========================================================================================================================
   style_definitions:
     - id: header_footer
-      bg_color: 0x2F8CD8
+      bg_color: BLACK #0x2F8CD8
       bg_grad_color: 0x005782
       bg_grad_dir: VER
-      bg_opa: COVER
+      bg_opa: TRANSP #COVER
       # border_opa: TRANSP
-      border_opa: COVER
       radius: 0
       pad_all: 0
       pad_row: 0
       pad_column: 0
       border_color:  0x0077b3
-      text_color: 0xFFFFFF
+      border_opa: COVER
+      text_color: YELLOW
       width: 100%
       height: 30
+      scrollbar_mode: "OFF" #Never show scrollbars which otherwise appear if we make an object to big for parent container
 
     - id: bar_temperature
       bg_color: BLACK
@@ -293,33 +295,57 @@ lvgl:
       shadow_width: 0
   
   top_layer:
+    styles: header_footer
     widgets:
       - label:
           text: "B"
           id: lbl_battery
-#          hidden: true
           align: top_right
-          x: -26
+          x: -26 # moved across from -26
           y: 6
           text_align: right
-          text_color: 0xFFFFFF
+          # text_color: 0xFFFFFF
       - label:
-          text: "\uF1EB"
+          text: "\uF1EB" #WIFi symbol (will be overlaid by LEDs anyway)
           id: lbl_hastatus
-          hidden: true
+          # hidden: true
           align: top_right
-          x: -2
-          y: 6
+          x: 0 #-2
+          y: 2 #6
           text_align: right
-          text_color: 0xFFFFFF
+          # text_color: 0xFFFFFF
+      - led:
+          id: led_wifi
+          align: top_right
+          x: -6
+          y: 2
+          width: 12
+          height: 12
+          color: YELLOW
+          brightness: 100%
+          border_color: BLACK
+          border_width: 1
+          border_opa: COVER
+      - led:
+          id: led_mqtt
+          align: top_right
+          x: -6
+          y: 16
+          width: 12
+          height: 12
+          color: YELLOW
+          brightness: 100%
+          outline_color: BLACK
+          outline_width: 1
+          outline_opa: COVER
       - label:
           text: "Time" # Will be overwritten by the time update script
           id: lbl_time
           align: top_left
           x: 2
-          y: 6
+          y: 4
           text_align: left
-          text_color: 0xFFFFFF
+          # text_color: 0xFFFFFF
       - buttonmatrix:
           align: bottom_mid
           styles: header_footer
@@ -382,6 +408,235 @@ lvgl:
 #==========================================================================================================================
   pages:
 #==========================================================================================================================
+    - id: speed_page
+      bg_color: BLACK
+      bg_opa: COVER
+      widgets:
+        - obj:
+            align: TOP_MID
+            styles: header_footer
+            # outline_width: 0
+            # border_width: 0
+            # shadow_width: 0
+            # shadow_spread: 0
+            widgets:
+              - label:
+                  text: "Speed"
+                  align: CENTER
+                  text_align: CENTER
+                  text_color: WHITE
+        - obj: # a properly placed coontainer object for all the displays
+            text_color: 0xFFFFFF
+            align: CENTER
+            width: 320
+            height: 180 #240-(2*30) #Display area less header & footer
+            pad_all: 0
+            bg_opa: TRANSP
+            border_opa: TRANSP
+            outline_width: 0 #debug
+            scrollbar_mode: "OFF"
+            widgets:
+              - label: 
+                  id: lbl_speed_bmv_current
+                  align: TOP_LEFT
+                  y: 0
+                  text: "Batt I"
+                  text_color: WHITE
+              - label: 
+                  id: lbl_speed_lbl_temp1
+                  align: TOP_RIGHT
+                  text_align: RIGHT
+                  y: 0
+                  text: "Cyl Tmp"
+                  text_color: WHITE
+              - label: 
+                  id: lbl_speed_lbl_soc
+                  align: BOTTOM_LEFT
+                  text_align: LEFT
+                  y: 0
+                  text: "SoC"
+                  text_color: WHITE
+              - label: 
+                  id: lbl_speed_lbl_rpm
+                  align: BOTTOM_RIGHT
+                  text_align: RIGHT
+                  y: 0
+                  text: "rpm"
+                  text_color: WHITE
+              - label: 
+                  align: CENTER
+                  text_align: CENTER
+                  y: 70
+                  text: mph
+                  text_color: WHITE
+              - meter:
+                  align: CENTER
+                  # x: 35
+                  y: 25
+                  height: 240
+                  width: 240
+                  bg_color: BLACK
+                  bg_opa: TRANSP #COVER
+                  # outline_width: 0
+                  # outline_color: BLACK
+                  # outline_opa: TRANSP
+                  border_color: BLACK
+                  border_width: 0
+                  line_color: WHITE
+                  text_color: WHITE
+                  scales:
+                    - range_from: 0
+                      range_to: 500 #Only copes with integer valiues so we have to scale speed up
+                      angle_range: 240
+                      rotation: 150
+                      indicators:
+                        - line:
+                            id: speed_needle
+                            width: 8
+                            color: 0xFF0000
+                            r_mod: -15
+                        - arc:
+                            color: WHITE
+                            start_value: 0
+                            end_value: 500 #Only copes with integer valiues so we have to scale speed up
+                            r_mod: -6
+                            width: 2
+                    - range_from: 0
+                      range_to: 5 #Scale used for labels
+                      angle_range: 240
+                      rotation: 150
+                      ticks:
+                        color: WHITE
+                        count: 21 #remember an extra tick for zero position
+                        length: 8
+                        width: 2
+                        major:
+                          color: WHITE
+                          stride: 4
+                          length: 16
+                          width: 3
+                          label_gap: 10
+              - label: #List this after meter widget so label is on top
+                  id: lbl_speed_dial
+                  align: CENTER
+                  text_align: CENTER
+                  text_color: WHITE
+                  text: mph
+                  text_font: font_roboto_medium80
+#==========================================================================================================================
+    - id: rpm_page
+      bg_color: BLACK
+      widgets:
+        - obj:
+            align: TOP_MID
+            styles: header_footer
+            # outline_width: 0
+            # border_width: 0
+            # shadow_width: 0
+            # shadow_spread: 0
+            widgets:
+              - label:
+                  text: "Engine RPM"
+                  align: CENTER
+                  text_align: CENTER
+                  text_color: 0xFFFFFF
+        - obj: # a properly placed coontainer object for all the displays
+            text_color: 0xFFFFFF
+            align: CENTER
+            width: 320
+            height: 180 #240-(2*30) #Display area less header & footer
+            pad_all: 0
+            bg_opa: TRANSP
+            border_opa: TRANSP
+            outline_width: 0 #debug
+            scrollbar_mode: "OFF"
+            widgets:
+              - label: 
+                  id: lbl_rpm_bmv_current
+                  align: TOP_LEFT
+                  y: 0
+                  text: "Batt I"
+                  text_color: WHITE
+              - label: 
+                  id: lbl_rpm_lbl_temp1
+                  align: TOP_RIGHT
+                  text_align: RIGHT
+                  y: 0
+                  text: "Cyl Tmp"
+                  text_color: WHITE
+              - label: 
+                  id: lbl_rpm_lbl_soc
+                  align: BOTTOM_LEFT
+                  text_align: LEFT
+                  y: 0
+                  text: "SoC"
+                  text_color: WHITE
+              - label: 
+                  id: lbl_rpm_lbl_speed
+                  align: BOTTOM_RIGHT
+                  text_align: RIGHT
+                  y: 0
+                  text: "mph"
+                  text_color: WHITE
+              - label: 
+                  align: CENTER
+                  text_align: CENTER
+                  # # x: 145
+                  # y: 180
+                  y: 70
+                  text_color: WHITE
+                  text: rpm
+              - meter:
+                  align: CENTER
+                  # x: 35
+                  y: 25
+                  height: 240
+                  width: 240
+                  bg_color: BLACK
+                  bg_opa: TRANSP #COVER
+                  # outline_width: 0
+                  # outline_color: BLACK
+                  # outline_opa: TRANSP
+                  border_color: BLACK
+                  border_width: 0
+                  line_color: WHITE
+                  text_color: WHITE
+                  scales:
+                    range_from: 0
+                    range_to: 4000
+                    angle_range: 240
+                    rotation: 150
+                    ticks:
+                      color: WHITE
+                      count: 21 #remember an extra tick for zero position
+                      length: 8
+                      width: 2
+                      major:
+                        color: WHITE
+                        stride: 5
+                        length: 16
+                        width: 3
+                        label_gap: 20
+                    indicators:
+                      - line:
+                          id: rpm_needle
+                          width: 8
+                          color: 0xFF0000
+                          r_mod: -15
+                      - arc:
+                          color: WHITE
+                          start_value: 0
+                          end_value: 4000
+                          r_mod: -6
+                          width: 2
+              - label: 
+                  id: lbl_rpm_dial
+                  align: CENTER
+                  text_align: CENTER
+                  text: RPM
+                  text_color: WHITE
+                  text_font: font_roboto_medium80
+
 #--------------------------------------------------------------------------
     - id: main_page
       # on_load:
@@ -1136,187 +1391,6 @@ lvgl:
                   styles: lbl_temperature_humidity
        
 #==========================================================================================================================
-    - id: rpm_page
-      bg_color: BLACK
-      widgets:
-        - obj:
-            align: TOP_MID
-            styles: header_footer
-            outline_width: 0
-            border_width: 0
-            shadow_width: 0
-            shadow_spread: 0
-            widgets:
-              - label:
-                  text: "Engine RPM"
-                  align: CENTER
-                  text_align: CENTER
-                  text_color: 0xFFFFFF
-        - label: 
-            id: lbl_rpm_bmv_current
-            align: TOP_LEFT
-            y: 30
-            text: "Batt I"
-            text_color: WHITE
-        - label: 
-            id: lbl_rpm_lbl_temp1
-            align: TOP_RIGHT
-            text_align: RIGHT
-            y: 30
-            text: "Cyl Tmp"
-            text_color: WHITE
-        - label: 
-            align: CENTER
-            text_align: CENTER
-            # # x: 145
-            # y: 180
-            y: 70
-            text_color: WHITE
-            text: rpm
-        - meter:
-            align: CENTER
-            # x: 35
-            y: 25
-            height: 240
-            width: 240
-            bg_color: BLACK
-            bg_opa: TRANSP #COVER
-            # outline_width: 0
-            # outline_color: BLACK
-            # outline_opa: TRANSP
-            border_color: BLACK
-            border_width: 0
-            line_color: WHITE
-            text_color: WHITE
-            scales:
-              range_from: 0
-              range_to: 4000
-              angle_range: 240
-              rotation: 150
-              ticks:
-                color: WHITE
-                count: 21 #remember an extra tick for zero position
-                length: 8
-                width: 2
-                major:
-                  color: WHITE
-                  stride: 5
-                  length: 16
-                  width: 3
-                  label_gap: 20
-              indicators:
-                - line:
-                    id: rpm_needle
-                    width: 8
-                    color: 0xFF0000
-                    r_mod: -15
-                - arc:
-                    color: WHITE
-                    start_value: 0
-                    end_value: 4000
-                    r_mod: -6
-                    width: 2
-        - label: 
-            id: lbl_rpm_dial
-            align: CENTER
-            text_align: CENTER
-            text: RPM
-            text_color: WHITE
-            text_font: font_roboto_medium80
-
-#==========================================================================================================================
-    - id: speed_page
-      bg_color: BLACK
-      bg_opa: COVER
-      widgets:
-        - obj:
-            align: TOP_MID
-            styles: header_footer
-            outline_width: 0
-            border_width: 0
-            shadow_width: 0
-            shadow_spread: 0
-            widgets:
-              - label:
-                  text: "Speed"
-                  align: CENTER
-                  text_align: CENTER
-                  text_color: 0xFFFFFF
-        # - label: 
-        #     id: lbl_rpm_bmv_current
-        #     align: TOP_LEFT
-        #     y: 30
-        #     text: "Batt I"
-        #     text_color: WHITE
-        # - label: 
-        #     id: lbl_rpm_lbl_temp1
-        #     align: TOP_RIGHT
-        #     text_align: RIGHT
-        #     y: 30
-        #     text: "Cyl Tmp"
-        #     text_color: WHITE
-        - label: 
-            align: CENTER
-            text_align: CENTER
-            y: 70
-            text: mph
-            text_color: WHITE
-        - meter:
-            align: CENTER
-            # x: 35
-            y: 25
-            height: 240
-            width: 240
-            bg_color: BLACK
-            bg_opa: TRANSP #COVER
-            # outline_width: 0
-            # outline_color: BLACK
-            # outline_opa: TRANSP
-            border_color: BLACK
-            border_width: 0
-            line_color: WHITE
-            text_color: WHITE
-            scales:
-              - range_from: 0
-                range_to: 500 #Only copes with integer valiues so we have to scale speed up
-                angle_range: 240
-                rotation: 150
-                indicators:
-                  - line:
-                      id: speed_needle
-                      width: 8
-                      color: 0xFF0000
-                      r_mod: -15
-                  - arc:
-                      color: WHITE
-                      start_value: 0
-                      end_value: 500 #Only copes with integer valiues so we have to scale speed up
-                      r_mod: -6
-                      width: 2
-              - range_from: 0
-                range_to: 5 #Scale used for labels
-                angle_range: 240
-                rotation: 150
-                ticks:
-                  color: WHITE
-                  count: 21 #remember an extra tick for zero position
-                  length: 8
-                  width: 2
-                  major:
-                    color: WHITE
-                    stride: 4
-                    length: 16
-                    width: 3
-                    label_gap: 10
-        - label: #List this after meter widget so label is on top
-            id: lbl_speed_dial
-            align: CENTER
-            text_align: CENTER
-            text_color: WHITE
-            text: mph
-            text_font: font_roboto_medium80
-
-#==========================================================================================================================
     - id: relay_page
       bg_color: 0x000000 #black
       widgets:
@@ -1328,7 +1402,7 @@ lvgl:
                   text: "Relay Control"
                   align: CENTER
                   text_align: CENTER
-                  text_color: 0xFFFFFF #white
+                  # text_color: 0xFFFFFF #white
         - obj: # a properly placed coontainer object for all these controls
             text_color: white
             align: CENTER
@@ -1353,7 +1427,7 @@ lvgl:
                   grid_cell_x_align: STRETCH
                   grid_cell_y_align: STRETCH
                   id: btn_dummy
-                  checkable: true
+                  checkable: false
                   checked:
                     bg_color: red
                     text_color: black

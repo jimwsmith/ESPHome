@@ -1,7 +1,7 @@
 # Stub file that simply defines specific unit name for a AQI Sensor system on a M5Stack Fire Unit
 
 substitutions:
-  friendly_name: "Fire7" #Banbury Shed
+  friendly_name: "Fire7" #Spare Unit
   esphome_name: "fire7"
 
 esphome:

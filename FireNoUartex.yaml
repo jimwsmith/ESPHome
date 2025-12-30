@@ -383,7 +383,17 @@ sensor:
         - lvgl.label.update:
             id: lbl_bmv_soc
             text:
-              format: "SOC: %.1f%%"
+              format: "SoC: %.1f%%"
+              args: [ 'id(ve_bmv_soc).state' ]
+        - lvgl.label.update:
+            id: lbl_speed_lbl_soc
+            text:
+              format: "SoC:\n%.1f%%"
+              args: [ 'id(ve_bmv_soc).state' ]
+        - lvgl.label.update:
+            id: lbl_rpm_lbl_soc
+            text:
+              format: "SoC:\n%.1f%%"
               args: [ 'id(ve_bmv_soc).state' ]
         - script.execute: soc_check_alarm
 
@@ -476,6 +486,11 @@ sensor:
               args: [ 'id(ve_bmv_current).state' ]
         - lvgl.label.update:
             id: lbl_rpm_bmv_current
+            text:
+              format: "Batt I:\n %.1fA"
+              args: [ 'id(ve_bmv_current).state' ]
+        - lvgl.label.update:
+            id: lbl_speed_bmv_current
             text:
               format: "Batt I:\n %.1fA"
               args: [ 'id(ve_bmv_current).state' ]
@@ -685,6 +700,11 @@ sensor:
             id: lbl_rpm_dial
             text:
               format: "%.0f"
+              args: [ 'id(vt_engine_rpm).state' ]
+        - lvgl.label.update:
+            id: lbl_speed_lbl_rpm
+            text:
+              format: "rpm\n%.0f"
               args: [ 'id(vt_engine_rpm).state' ]
 
   # - platform: uartex
@@ -960,6 +980,11 @@ sensor:
               args: [ 'id(vt_temp1).state' ]
         - lvgl.label.update:
             id: lbl_rpm_lbl_temp1
+            text:
+              format: "Cyl Tmp:\n%.1f°C"
+              args: [ 'id(vt_temp1).state' ]
+        - lvgl.label.update:
+            id: lbl_speed_lbl_temp1
             text:
               format: "Cyl Tmp:\n%.1f°C"
               args: [ 'id(vt_temp1).state' ]

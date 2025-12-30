@@ -3,6 +3,7 @@
 substitutions:
   friendly_name: "Boat" #Main unit onboard AINSLEY - other units act as monitors following status of this device
   esphome_name: "fireboat"
+  esphome_monitor: "fireboat2" #The Fire unit that is sending speed info
 
 esphome:
   name: ${esphome_name}

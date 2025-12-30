@@ -4,13 +4,19 @@ esphome:
 esp32:
   board: m5stack-fire
   framework:
-    type: arduino
-    # type: esp-idf
+    # type: arduino
+    type: esp-idf
   flash_size: 16MB # Need to manually override defaults so M5STACK FIRE memory is correct
 
 psram: #Need to include this so logs will display PSRAM detected, note only 4MB detected even though 8MB exists (probably because himem not implemented)
   mode: quad #JWS quad in latest esphome
   speed: 40MHz
+
+external_components:
+  - source: 
+      type: git
+      url: https://github.com/ssieb/custom_components
+    components: [ ip5306 ]
 
 # Define I/O: UART, I²C and SPI
 i2c:
@@ -22,6 +28,8 @@ spi:
   clk_pin: 18
   mosi_pin: 23
   miso_pin: 19
+  interface: hardware
+  # data_rate: 20MHz
 
 # Power Management
 ip5306:
@@ -58,31 +66,40 @@ binary_sensor:
       number: 39
       inverted: true
     filters:
-      - delayed_on: 10ms
-      - delayed_off: 10ms
+      - delayed_on: 30ms
+      - delayed_off: 30ms
     on_double_click:
+      min_length: 50ms
+      max_length: 200ms
       then: # Focus on top level buttons at bottom (of this page)
-        - lvgl.widget.focus: top_layer
+        - lvgl.widget.focus: 
+            id: top_layer
   - platform: gpio
     id: M5_BtnB
     pin:
       number: 38
       inverted: true
     filters:
-      - delayed_on: 10ms
-      - delayed_off: 10ms
+      - delayed_on: 30ms
+      - delayed_off: 30ms
     on_double_click:
+      min_length: 50ms
+      max_length: 350ms
       then: # Return to Home screen with focus on top level button for "next page" at bottom
         - lvgl.page.show: main_page
-        - lvgl.widget.focus: page_next
+        - lvgl.widget.focus: #Select the button matrix fram at bottom of screen
+            id: top_layer
+        - lvgl.matrix.button.update: #Select next page button
+            id: page_next
+            selected: true   
   - platform: gpio
     id: M5_BtnC
     pin:
       number: 37
       inverted: true
     filters:
-      - delayed_on: 10ms
-      - delayed_off: 10ms
+      - delayed_on: 30ms
+      - delayed_off: 30ms
 
 switch:
   - platform: template
@@ -163,4 +180,4 @@ display:
     rotation: 0
     invert_colors: true
     auto_clear_enabled: false
-
+    data_rate: 20MHz

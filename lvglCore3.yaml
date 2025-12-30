@@ -197,20 +197,21 @@ lvgl:
 #==========================================================================================================================
   style_definitions:
     - id: header_footer
-      bg_color: 0x2F8CD8
+      bg_color: BLACK #0x2F8CD8
       bg_grad_color: 0x005782
       bg_grad_dir: VER
-      bg_opa: COVER
-      border_opa: TRANSP
-      # border_opa: COVER
+      bg_opa: TRANSP #COVER
+      # border_opa: TRANSP
       radius: 0
       pad_all: 0
       pad_row: 0
       pad_column: 0
       border_color:  0x0077b3
-      text_color: 0xFFFFFF
+      border_opa: COVER
+      text_color: YELLOW
       width: 100%
       height: 30
+      scrollbar_mode: "OFF" #Never show scrollbars which otherwise appear if we make an object to big for parent container
 
     - id: bar_temperature
       bg_color: BLACK
@@ -256,14 +257,38 @@ lvgl:
           text_align: right
           text_color: 0xFFFFFF
       - label:
-          text: "\uF1EB"
+          text: "\uF1EB" #WIFi symbol (will be overlaid by LEDs anyway)
           id: lbl_hastatus
-          hidden: true
+          # hidden: true
           align: top_right
-          x: -2
-          y: 7
+          x: 0 #-2
+          y: 2 #6
           text_align: right
-          text_color: 0xFFFFFF
+          # text_color: 0xFFFFFF
+      - led:
+          id: led_wifi
+          align: top_right
+          x: -6
+          y: 2
+          width: 12
+          height: 12
+          color: YELLOW
+          brightness: 100%
+          border_color: BLACK
+          border_width: 1
+          border_opa: COVER
+      - led:
+          id: led_mqtt
+          align: top_right
+          x: -6
+          y: 16
+          width: 12
+          height: 12
+          color: YELLOW
+          brightness: 100%
+          outline_color: BLACK
+          outline_width: 1
+          outline_opa: COVER
       - label:
           text: "Time" # Will be overwritten by the time update script
           id: lbl_time
