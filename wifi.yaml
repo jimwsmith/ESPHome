@@ -4,8 +4,8 @@ esphome:
 
 http_request: 
   verify_ssl: false #ESP32 cannot manage SSL connections
-  buffer_size_rx: 4096 #Needed to specify to allow ota to work, which it only does on esp-idf framework now.
-  buffer_size_tx: 4096
+  buffer_size_rx: 1024 #Needed to specify to allow ota to work, which it only does on esp-idf framework now.
+  buffer_size_tx: 1024
 
 ota:
   - platform: http_request # Triggered by a specific MQTT message

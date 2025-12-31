@@ -1,13 +1,18 @@
 substitutions:
-  devicename: m5cores3
+  friendly_name: Heating
   esphome_name: m5cores3
   sensor_update: 60s
   temp_bar_scale: "3.0"
 
 esphome:
-  name: ${devicename}
-  friendly_name: ${esphome_name}
+  name: ${esphome_name}
+  friendly_name: ${friendly_name}
   build_path: C:/EsphomeTemp/${esphome_name}
+  on_boot:
+    - priority: -100 #Ensure this runs after lvgl is initialised
+      then:
+        - delay: 4s
+        - lvgl.widget.hide: boot_screen
 
 esp32:
   board: esp32-s3-devkitc-1
@@ -31,29 +36,30 @@ psram:
 
 packages:
   wifi: !include wifi.yaml
-  lvgl: !include lvglCore3.yaml
   mqtt: !include mqtt.yaml
+  lvgl: !include lvglCore3.yaml #include first so that the first page in here will be displayed on boot
+  lvglcommon: !include lvglcommon.yaml
 
 logger:
   level: DEBUG
 
 # Enable Home Assistant API
-api:
-  reboot_timeout: 0s #disable reboots whilst we recode everything to use mqtt
-  encryption:
-    key: !secret api_encryption
-  on_client_connected:
-    - if:
-        condition:
-          lambda: 'return (0 == client_info.find("Home Assistant "));'
-        then:
-          - lvgl.widget.hide: boot_screen
-  on_client_disconnected:
-    - if:
-        condition:
-          lambda: 'return (0 == client_info.find("Home Assistant "));'
-        then:
-          - lvgl.widget.show: boot_screen
+# api:
+#   reboot_timeout: 0s #disable reboots whilst we recode everything to use mqtt
+#   encryption:
+#     key: !secret api_encryption
+#   on_client_connected:
+#     - if:
+#         condition:
+#           lambda: 'return (0 == client_info.find("Home Assistant "));'
+#         then:
+#           - lvgl.widget.hide: boot_screen
+#   on_client_disconnected:
+#     - if:
+#         condition:
+#           lambda: 'return (0 == client_info.find("Home Assistant "));'
+#         then:
+#           - lvgl.widget.show: boot_screen
 
 external_components:
   - source: github://m5stack/esphome-yaml/components
@@ -131,7 +137,7 @@ display:
 
 light:
   - platform: monochromatic
-    id: lcd_backlight
+    id: display_backlight
     name: "LCD Backlight"
     icon: "mdi:television"
     entity_category: config
@@ -170,17 +176,34 @@ script:
             args: [ 'id(sntp_time).now().strftime("%R").c_str()' ]
 
 #=========================================================================================================
-binary_sensor:
-  - platform: homeassistant
+
+switch: 
+# Note thi sswitch ability to contol a HA switch relies on an Automation being configured in HA to monitor the MQTT command topic
+  - platform: template
+    internal: True
     id: heating_pump
-    entity_id: switch.heating_pump_switch_1
-    trigger_on_initial_state: true
-    on_state:
-      then:
-        lvgl.widget.update:
+    state_topic: homeassistant/switch/heating_pump_switch_1/state
+    command_topic: homeassistant/switch/heating_pump_switch_1/state #We use external state to control this switch
+    restore_mode: RESTORE_DEFAULT_OFF
+    turn_on_action:
+      - lvgl.widget.update:
           id: btn_heating_pump
           state:
-            checked: !lambda return x;
+            checked: True
+      - mqtt.publish:
+          topic: homeassistant/switch/heating_pump_switch_1/command
+          payload: "ON"      
+    turn_off_action:
+      - lvgl.widget.update:
+          id: btn_heating_pump
+          state:
+            checked: False
+      - mqtt.publish:
+          topic: homeassistant/switch/heating_pump_switch_1/command
+          payload: "OFF"      
+    optimistic: true #Required so that state change gets registered even though there is no actual comms back to ack the relay change
+
+binary_sensor:
 
 # some aw9523b inputs (handle interrupts)
 # and other binary sensors
@@ -229,18 +252,410 @@ sensor:
 # PMU
   - platform: axp2101
     id: axp2101_sensor
-    battery_level:
-      name: "Battery Level"
     battery_voltage:
       name: "Battery Voltage"
     axp_temperature:
       name: "AXP2101 Temperature"
     battery_charging:
+      id: battery_charging
       name: "Battery Charging"
+      on_state:
+        then: 
+          - if:
+              condition:
+                lambda: "return (x);"
+              then: 
+                - logger.log: "Charging"
+                - lvgl.widget.show: ani_battery_charging
+                - lvgl.widget.hide: lbl_battery_status
+              else: 
+                - logger.log: "Not Charging"
+                - lvgl.widget.hide: ani_battery_charging
+                - lvgl.widget.show: lbl_battery_status
+    battery_level:
+      name: "Battery Level"
+      on_value:
+        - lvgl.label.update:
+            id: lbl_battery_status
+            text: !lambda |-
+              static char buf[10];
+              std::string icon;
+              if (x == 100.0) {
+                  icon = "\U000F0079"; // mdi-battery (full)
+              } else if (x > 90) {
+                  icon = "\U000F0082"; // mdi-battery-90
+              } else if (x > 80) {
+                  icon = "\U000F0081"; // mdi-battery-80
+              } else if (x > 70) {
+                  icon = "\U000F0080"; // mdi-battery-70
+              } else if (x > 60) {
+                  icon = "\U000F007F"; // mdi-battery-60
+              } else if (x > 50) {
+                  icon = "\U000F007E"; // mdi-battery-50
+              } else if (x > 40) {
+                  icon = "\U000F007D"; // mdi-battery-40
+              } else if (x > 30) {
+                  icon = "\U000F007C"; // mdi-battery-30
+              } else if (x > 20) {
+                  icon = "\U000F007B"; // mdi-battery-20
+              } else if (x > 10) {
+                  icon = "\U000F007A"; // mdi-battery-10
+              } else if (x > 0) {
+                  icon = "\U000F008E"; // mdi-battery-outline
+              } else {
+                  icon = "\U000F0091"; // mdi-battery-unknown
+              }
+              snprintf(buf, sizeof(buf), "%s", icon.c_str());
+              return buf;
+# version with charging icon
+        - if:
+            condition:
+              lambda: "return (x == 100);"
+            then: 
+              lvgl.animimg.update:
+                id: ani_battery_charging
+                src: [
+                  batt_charging_full
+                  ]
+                duration: 2200ms
+            else: 
+              - if:
+                  condition:
+                    lambda: "return (x > 90);"
+                  then: 
+                    lvgl.animimg.update:
+                      id: ani_battery_charging
+                      src: [
+                        batt_charging_90,
+                        batt_charging_full
+                        ]
+                      duration: 2200ms
+                  else: 
+                    - if:
+                        condition: 
+                          lambda: "return (x > 80);"
+                        then: 
+                          lvgl.animimg.update:
+                            id: ani_battery_charging
+                            src: [
+                              batt_charging_80,
+                              batt_charging_90,
+                              batt_charging_full
+                              ]
+                            duration: 2200ms
+                        else: 
+                          - if:
+                              condition:
+                                lambda: "return (x > 70);"
+                              then: 
+                                lvgl.animimg.update:
+                                  id: ani_battery_charging
+                                  src: [
+                                    batt_charging_70,
+                                    batt_charging_80,
+                                    batt_charging_90,
+                                    batt_charging_full
+                                    ]
+                                  duration: 2200ms
+                              else: 
+                                - if:
+                                    condition:
+                                      lambda: "return (x > 60);"
+                                    then: 
+                                      lvgl.animimg.update:
+                                        id: ani_battery_charging
+                                        src: [
+                                          batt_charging_60,
+                                          batt_charging_70,
+                                          batt_charging_80,
+                                          batt_charging_90,
+                                          batt_charging_full
+                                          ]
+                                        duration: 2200ms
+                                    else: 
+                                      - if:
+                                          condition:
+                                            lambda: "return (x > 50);"
+                                          then: 
+                                            lvgl.animimg.update:
+                                              id: ani_battery_charging
+                                              src: [
+                                                batt_charging_50,
+                                                batt_charging_60,
+                                                batt_charging_70,
+                                                batt_charging_80,
+                                                batt_charging_90,
+                                                batt_charging_full
+                                                ]
+                                              duration: 2200ms
+                                          else: 
+                                            - if:
+                                                condition:
+                                                  lambda: "return (x > 40);"
+                                                then: 
+                                                  lvgl.animimg.update:
+                                                    id: ani_battery_charging
+                                                    src: [
+                                                      batt_charging_40,
+                                                      batt_charging_50,
+                                                      batt_charging_60,
+                                                      batt_charging_70,
+                                                      batt_charging_80,
+                                                      batt_charging_90,
+                                                      batt_charging_full
+                                                      ]
+                                                    duration: 2200ms
+                                                else: 
+                                                  - if:
+                                                      condition:
+                                                        lambda: "return (x > 30);"
+                                                      then: 
+                                                        lvgl.animimg.update:
+                                                          id: ani_battery_charging
+                                                          src: [
+                                                            batt_charging_30,
+                                                            batt_charging_40,
+                                                            batt_charging_50,
+                                                            batt_charging_60,
+                                                            batt_charging_70,
+                                                            batt_charging_80,
+                                                            batt_charging_90,
+                                                            batt_charging_full
+                                                            ]
+                                                          duration: 2200ms
+                                                      else: 
+                                                        - if:
+                                                            condition:
+                                                              lambda: "return (x > 20);"
+                                                            then: 
+                                                              lvgl.animimg.update:
+                                                                id: ani_battery_charging
+                                                                src: [
+                                                                  batt_charging_20,
+                                                                  batt_charging_30,
+                                                                  batt_charging_40,
+                                                                  batt_charging_50,
+                                                                  batt_charging_60,
+                                                                  batt_charging_70,
+                                                                  batt_charging_80,
+                                                                  batt_charging_90,
+                                                                  batt_charging_full
+                                                                  ]
+                                                                duration: 2200ms
+                                                            else: 
+                                                              - if:
+                                                                  condition:
+                                                                    lambda: "return (x > 10);"
+                                                                  then: 
+                                                                    lvgl.animimg.update:
+                                                                      id: ani_battery_charging
+                                                                      src: [
+                                                                        batt_charging_10,
+                                                                        batt_charging_20,
+                                                                        batt_charging_30,
+                                                                        batt_charging_40,
+                                                                        batt_charging_50,
+                                                                        batt_charging_60,
+                                                                        batt_charging_70,
+                                                                        batt_charging_80,
+                                                                        batt_charging_90,
+                                                                        batt_charging_full
+                                                                        ]
+                                                                      duration: 2200ms
+                                                                  else: 
+                                                                    lvgl.animimg.update:
+                                                                      id: ani_battery_charging
+                                                                      src: [
+                                                                        batt_charging_empty,
+                                                                        batt_charging_10,
+                                                                        batt_charging_20,
+                                                                        batt_charging_30,
+                                                                        batt_charging_40,
+                                                                        batt_charging_50,
+                                                                        batt_charging_60,
+                                                                        batt_charging_70,
+                                                                        batt_charging_80,
+                                                                        batt_charging_90,
+                                                                        batt_charging_full
+                                                                        ]
+                                                                      duration: 2200ms
+# version with just battery icon
+          # - if:
+          #     condition:
+          #       lambda: "return (x == 100);"
+          #     then: 
+          #       lvgl.animimg.update:
+          #         id: ani_battery_charging
+          #         src: [
+          #           batt_full
+          #           ]
+          #         duration: 2200ms
+          #     else: 
+          #       - if:
+          #           condition:
+          #             lambda: "return (x > 90);"
+          #           then: 
+          #             lvgl.animimg.update:
+          #               id: ani_battery_charging
+          #               src: [
+          #                 batt_90,
+          #                 batt_full
+          #                 ]
+          #               duration: 2200ms
+          #           else: 
+          #             - if:
+          #                 condition: 
+          #                   lambda: "return (x > 80);"
+          #                 then: 
+          #                   lvgl.animimg.update:
+          #                     id: ani_battery_charging
+          #                     src: [
+          #                       batt_80,
+          #                       batt_90,
+          #                       batt_full
+          #                       ]
+          #                     duration: 2200ms
+          #                 else: 
+          #                   - if:
+          #                       condition:
+          #                         lambda: "return (x > 70);"
+          #                       then: 
+          #                         lvgl.animimg.update:
+          #                           id: ani_battery_charging
+          #                           src: [
+          #                             batt_70,
+          #                             batt_80,
+          #                             batt_90,
+          #                             batt_full
+          #                             ]
+          #                           duration: 2200ms
+          #                       else: 
+          #                         - if:
+          #                             condition:
+          #                               lambda: "return (x > 60);"
+          #                             then: 
+          #                               lvgl.animimg.update:
+          #                                 id: ani_battery_charging
+          #                                 src: [
+          #                                   batt_60,
+          #                                   batt_70,
+          #                                   batt_80,
+          #                                   batt_90,
+          #                                   batt_full
+          #                                   ]
+          #                                 duration: 2200ms
+          #                             else: 
+          #                               - if:
+          #                                   condition:
+          #                                     lambda: "return (x > 50);"
+          #                                   then: 
+          #                                     lvgl.animimg.update:
+          #                                       id: ani_battery_charging
+          #                                       src: [
+          #                                         batt_50,
+          #                                         batt_60,
+          #                                         batt_70,
+          #                                         batt_80,
+          #                                         batt_90,
+          #                                         batt_full
+          #                                         ]
+          #                                       duration: 2200ms
+          #                                   else: 
+          #                                     - if:
+          #                                         condition:
+          #                                           lambda: "return (x > 40);"
+          #                                         then: 
+          #                                           lvgl.animimg.update:
+          #                                             id: ani_battery_charging
+          #                                             src: [
+          #                                               batt_40,
+          #                                               batt_50,
+          #                                               batt_60,
+          #                                               batt_70,
+          #                                               batt_80,
+          #                                               batt_90,
+          #                                               batt_full
+          #                                               ]
+          #                                             duration: 2200ms
+          #                                         else: 
+          #                                           - if:
+          #                                               condition:
+          #                                                 lambda: "return (x > 30);"
+          #                                               then: 
+          #                                                 lvgl.animimg.update:
+          #                                                   id: ani_battery_charging
+          #                                                   src: [
+          #                                                     batt_30,
+          #                                                     batt_40,
+          #                                                     batt_50,
+          #                                                     batt_60,
+          #                                                     batt_70,
+          #                                                     batt_80,
+          #                                                     batt_90,
+          #                                                     batt_full
+          #                                                     ]
+          #                                                   duration: 2200ms
+          #                                               else: 
+          #                                                 - if:
+          #                                                     condition:
+          #                                                       lambda: "return (x > 20);"
+          #                                                     then: 
+          #                                                       lvgl.animimg.update:
+          #                                                         id: ani_battery_charging
+          #                                                         src: [
+          #                                                           batt_20,
+          #                                                           batt_30,
+          #                                                           batt_40,
+          #                                                           batt_50,
+          #                                                           batt_60,
+          #                                                           batt_70,
+          #                                                           batt_80,
+          #                                                           batt_90,
+          #                                                           batt_full
+          #                                                           ]
+          #                                                         duration: 2200ms
+          #                                                     else: 
+          #                                                       - if:
+          #                                                           condition:
+          #                                                             lambda: "return (x > 10);"
+          #                                                           then: 
+          #                                                             lvgl.animimg.update:
+          #                                                               id: ani_battery_charging
+          #                                                               src: [
+          #                                                                 batt_10,
+          #                                                                 batt_20,
+          #                                                                 batt_30,
+          #                                                                 batt_40,
+          #                                                                 batt_50,
+          #                                                                 batt_60,
+          #                                                                 batt_70,
+          #                                                                 batt_80,
+          #                                                                 batt_90,
+          #                                                                 batt_full
+          #                                                                 ]
+          #                                                               duration: 2200ms
+          #                                                           else: 
+          #                                                             lvgl.animimg.update:
+          #                                                               id: ani_battery_charging
+          #                                                               src: [
+          #                                                                 batt_empty,
+          #                                                                 batt_10,
+          #                                                                 batt_20,
+          #                                                                 batt_30,
+          #                                                                 batt_40,
+          #                                                                 batt_50,
+          #                                                                 batt_60,
+          #                                                                 batt_70,
+          #                                                                 batt_80,
+          #                                                                 batt_90,
+          #                                                                 batt_full
+          #                                                                 ]
+          #                                                               duration: 2200ms
+  
 
-  - platform: homeassistant
+  - platform: mqtt_subscribe
     id: t_h_jim_study_temperature
-    entity_id: sensor.t_h_jim_study_temperature
+    topic: homeassistant/sensor/t_h_jim_study_temperature/state
     on_value: 
       then:
         - lvgl.label.update:
@@ -251,9 +666,9 @@ sensor:
         - lvgl.bar.update:
             id: bar_jim_study_temp
             value: !lambda 'return (id(t_h_jim_study_temperature).state) * $temp_bar_scale;'
-  - platform: homeassistant
+  - platform: mqtt_subscribe
     id: t_h_sue_study_temperature
-    entity_id: sensor.t_h_sue_study_temperature
+    topic: homeassistant/sensor/t_h_sue_study_temperature/state
     on_value: 
       then:
         - lvgl.label.update:
@@ -264,9 +679,9 @@ sensor:
         - lvgl.bar.update:
             id: bar_sue_study_temp
             value: !lambda 'return (id(t_h_sue_study_temperature).state) * $temp_bar_scale;'
-  - platform: homeassistant
+  - platform: mqtt_subscribe
     id: t_h_kitchen_temperature
-    entity_id: sensor.t_h_kitchen_temperature
+    topic: homeassistant/sensor/t_h_kitchen_temperature/state
     on_value: 
       then:
         - lvgl.label.update:
@@ -277,9 +692,9 @@ sensor:
         - lvgl.bar.update:
             id: bar_kitchen_temp
             value: !lambda 'return (id(t_h_kitchen_temperature).state) * $temp_bar_scale;'
-  - platform: homeassistant
+  - platform: mqtt_subscribe
     id: t_h_lounge_temperature
-    entity_id: sensor.t_h_lounge_temperature
+    topic: homeassistant/sensor/t_h_lounge_temperature/state
     on_value: 
       then:
         - lvgl.label.update:
@@ -290,9 +705,9 @@ sensor:
         - lvgl.bar.update:
             id: bar_lounge_temp
             value: !lambda 'return (id(t_h_lounge_temperature).state) * $temp_bar_scale;'
-  - platform: homeassistant
+  - platform: mqtt_subscribe
     id: t_h_hall_temperature
-    entity_id: sensor.t_h_hall_temperature
+    topic: homeassistant/sensor/t_h_hall_temperature/state
     on_value: 
       then:
         - lvgl.label.update:
@@ -303,9 +718,9 @@ sensor:
         - lvgl.bar.update:
             id: bar_hall_temp
             value: !lambda 'return (id(t_h_hall_temperature).state) * $temp_bar_scale;'
-  - platform: homeassistant
+  - platform: mqtt_subscribe
     id: t_h_spare_room_temperature
-    entity_id: sensor.t_h_spare_room_temperature
+    topic: homeassistant/sensor/t_h_spare_room_temperature/state
     on_value: 
       then:
         - lvgl.label.update:
@@ -316,22 +731,22 @@ sensor:
         - lvgl.bar.update:
             id: bar_spare_rm_temp
             value: !lambda 'return (id(t_h_spare_room_temperature).state) * $temp_bar_scale;'
-  - platform: homeassistant
+  - platform: mqtt_subscribe
     id: t_h_main_bed_rm_temperature
-    entity_id: sensor.temperature_humidity_sensor_8_temperature
+    topic: homeassistant/sensor/temperature_humidity_sensor_8_temperature/state
     on_value: 
       then:
         - lvgl.label.update:
             id: lbl_main_bed_rm_temp
             text:
-              format: "Main BedRm: %.1f°C"
+              format: "Main BRm: %.1f°C"
               args: [ 'id(t_h_main_bed_rm_temperature).state' ]
         - lvgl.bar.update:
             id: bar_main_bed_rm_temp
             value: !lambda 'return (id(t_h_main_bed_rm_temperature).state) * $temp_bar_scale;'
-  - platform: homeassistant
+  - platform: mqtt_subscribe
     id: t_h_jim_study_humidity
-    entity_id: sensor.t_h_jim_study_humidity
+    topic: homeassistant/sensor/t_h_jim_study_humidity/state
     on_value: 
       then:
         - lvgl.label.update:
@@ -342,9 +757,9 @@ sensor:
         - lvgl.bar.update:
             id: bar_jim_study_humidity
             value: !lambda 'return id(t_h_jim_study_humidity).state;'
-  - platform: homeassistant
+  - platform: mqtt_subscribe
     id: t_h_sue_study_humidity
-    entity_id: sensor.t_h_sue_study_humidity
+    topic: homeassistant/sensor/t_h_sue_study_humidity/state
     on_value: 
       then:
         - lvgl.label.update:
@@ -355,9 +770,9 @@ sensor:
         - lvgl.bar.update:  
             id: bar_sue_study_humidity
             value: !lambda 'return id(t_h_sue_study_humidity).state;'
-  - platform: homeassistant
+  - platform: mqtt_subscribe
     id: t_h_kitchen_humidity
-    entity_id: sensor.t_h_kitchen_humidity
+    topic: homeassistant/sensor/t_h_kitchen_humidity/state
     on_value: 
       then:
         - lvgl.label.update:
@@ -368,9 +783,9 @@ sensor:
         - lvgl.bar.update:  
             id: bar_kitchen_humidity
             value: !lambda 'return id(t_h_kitchen_humidity).state;'
-  - platform: homeassistant
+  - platform: mqtt_subscribe
     id: t_h_lounge_humidity
-    entity_id: sensor.t_h_lounge_humidity
+    topic: homeassistant/sensor/t_h_lounge_humidity/state
     on_value: 
       then:
         - lvgl.label.update:
@@ -381,9 +796,9 @@ sensor:
         - lvgl.bar.update:
             id: bar_lounge_humidity
             value: !lambda 'return id(t_h_lounge_humidity).state;'
-  - platform: homeassistant
+  - platform: mqtt_subscribe
     id: t_h_hall_humidity
-    entity_id: sensor.t_h_hall_humidity
+    topic: homeassistant/sensor/t_h_hall_humidity/state
     on_value: 
       then:
         - lvgl.label.update:
@@ -394,9 +809,9 @@ sensor:
         - lvgl.bar.update:
             id: bar_hall_humidity
             value: !lambda 'return id(t_h_hall_humidity).state;'
-  - platform: homeassistant
+  - platform: mqtt_subscribe
     id: t_h_spare_room_humidity
-    entity_id: sensor.t_h_spare_room_humidity
+    topic: homeassistant/sensor/t_h_spare_room_humidity/state
     on_value: 
       then:
         - lvgl.label.update:
@@ -407,9 +822,9 @@ sensor:
         - lvgl.bar.update:
             id: bar_spare_rm_humidity
             value: !lambda 'return id(t_h_spare_room_humidity).state;'
-  - platform: homeassistant
+  - platform: mqtt_subscribe
     id: t_h_main_bed_rm_humidity
-    entity_id: sensor.temperature_humidity_sensor_8_humidity
+    topic: homeassistant/sensor/temperature_humidity_sensor_8_humidity/state
     on_value: 
       then:
         - lvgl.label.update:

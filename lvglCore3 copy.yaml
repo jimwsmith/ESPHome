@@ -5,7 +5,7 @@ esphome:
 lvgl:
   theme:
     label:
-      text_font: montserrat_16 # set all your labels to use your custom defined font
+      text_font: montserrat_14 # set all your labels to use your custom defined font
     button:
       bg_color: 0x2F8CD8
       bg_grad_color: 0x005782
@@ -46,7 +46,7 @@ lvgl:
         border_color: 0x0077b3
         border_width: 1
         text_color: 0xFFFFFF
-        text_font: montserrat_16
+        text_font: montserrat_14
         pressed:
           bg_color: 0x006699
           bg_grad_color: 0x00334d
@@ -172,263 +172,252 @@ lvgl:
                       - logger.log:
                           format: "Heating Pump button state: %d"
                           args: [ x ]
-                  on_click:
-                    - switch.toggle: heating_pump
                   widgets:
                     - label:
-                        text: "Heating Pump"
-                        align: CENTER
-              - bar:
+                        align: center
+                        text: "Heating"
+                  on_click:
+                    - homeassistant.action:
+                        action: switch.toggle
+                        data:
+                          entity_id: switch.heating_pump_switch_1
+              - obj:
+                  styles: obj_temperature_humidity
                   grid_cell_column_pos: 0 # place the widget in
                   grid_cell_row_pos: 2 # the corresponding cell
                   grid_cell_x_align: STRETCH
                   grid_cell_y_align: STRETCH
-                  id: bar_jim_study_temp
-                  value: 100
-                  styles: bar_temperature
-                  indicator: 
-                    styles: indicator_temperature
-              - label:
-                  grid_cell_column_pos: 0 # place the widget in
-                  grid_cell_row_pos: 2 # the corresponding cell
-                  grid_cell_x_align: STRETCH
-                  grid_cell_y_align: STRETCH
-                  id: lbl_jim_study_temp
-                  text: "Jim Study"
-                  styles: lbl_temperature_humidity
-              - bar:
-                  grid_cell_column_pos: 0 # place the widget in
-                  grid_cell_row_pos: 3 # the corresponding cell
-                  grid_cell_x_align: STRETCH
-                  grid_cell_y_align: STRETCH
-                  id: bar_jim_study_humidity
-                  value: 100
-                  styles: bar_temperature
-                  indicator: 
-                    styles: indicator_humidity
-              - label:
+                  widgets:
+                    - bar:
+                        id: bar_jim_study_temp
+                        value: 100
+                        styles: bar_temperature
+                        indicator: 
+                          styles: indicator_temperature
+                    - label:
+                        id: lbl_jim_study_temp
+                        text: "Jim Study"
+                        styles: lbl_temperature_humidity
+              - obj:
+                  styles: obj_temperature_humidity
                   grid_cell_column_pos: 0 # place the widget in
                   grid_cell_row_pos: 3 # the corresponding cell
                   grid_cell_x_align: STRETCH
                   grid_cell_y_align: STRETCH
-                  id: lbl_jim_study_humidity
-                  text: "Jim Study"
-                  styles: lbl_temperature_humidity
-              - bar:
-                  grid_cell_column_pos: 1 # place the widget in
-                  grid_cell_row_pos: 2 # the corresponding cell
-                  grid_cell_x_align: STRETCH
-                  grid_cell_y_align: STRETCH
-                  id: bar_hall_temp
-                  value: 100
-                  styles: bar_temperature
-                  indicator: 
-                    styles: indicator_temperature
-              - label:
+                  widgets:
+                    - bar:
+                        id: bar_jim_study_humidity
+                        value: 100
+                        styles: bar_temperature
+                        indicator: 
+                          styles: indicator_humidity
+                    - label:
+                        id: lbl_jim_study_humidity
+                        text: "Jim Study"
+                        styles: lbl_temperature_humidity
+              - obj:
+                  styles: obj_temperature_humidity
                   grid_cell_column_pos: 1 # place the widget in
                   grid_cell_row_pos: 2 # the corresponding cell
                   grid_cell_x_align: STRETCH
                   grid_cell_y_align: STRETCH
-                  id: lbl_hall_temp
-                  text: "Hall"
-                  styles: lbl_temperature_humidity
-              - bar:
+                  widgets:
+                    - bar:
+                        id: bar_hall_temp
+                        value: 100
+                        styles: bar_temperature
+                        indicator: 
+                          styles: indicator_temperature
+                    - label:
+                        id: lbl_hall_temp
+                        text: "Hall"
+                        styles: lbl_temperature_humidity
+              - obj:
+                  styles: obj_temperature_humidity
                   grid_cell_column_pos: 1 # place the widget in
                   grid_cell_row_pos: 3 # the corresponding cell
                   grid_cell_x_align: STRETCH
                   grid_cell_y_align: STRETCH
-                  id: bar_hall_humidity
-                  value: 100
-                  styles: bar_temperature
-                  indicator: 
-                    styles: indicator_humidity
-              - label:
-                  grid_cell_column_pos: 1 # place the widget in
-                  grid_cell_row_pos: 3 # the corresponding cell
-                  grid_cell_x_align: STRETCH
-                  grid_cell_y_align: STRETCH
-                  id: lbl_hall_humidity
-                  text: "Hall"
-                  styles: lbl_temperature_humidity
-              - bar:
+                  widgets:
+                    - bar:
+                        id: bar_hall_humidity
+                        value: 100
+                        styles: bar_temperature
+                        indicator: 
+                          styles: indicator_humidity
+                    - label:
+                        id: lbl_hall_humidity
+                        text: "Hall"
+                        styles: lbl_temperature_humidity
+              - obj:
+                  styles: obj_temperature_humidity
                   grid_cell_column_pos: 0 # place the widget in
                   grid_cell_row_pos: 4 # the corresponding cell
                   grid_cell_x_align: STRETCH
                   grid_cell_y_align: STRETCH
-                  id: bar_sue_study_temp
-                  value: 100
-                  styles: bar_temperature
-                  indicator: 
-                    styles: indicator_temperature
-              - label:
-                  grid_cell_column_pos: 0 # place the widget in
-                  grid_cell_row_pos: 4 # the corresponding cell
-                  grid_cell_x_align: STRETCH
-                  grid_cell_y_align: STRETCH
-                  id: lbl_sue_study_temp
-                  text: "Sue Study"
-                  styles: lbl_temperature_humidity
-              - bar:
-                  grid_cell_column_pos: 0 # place the widget in
-                  grid_cell_row_pos: 5 # the corresponding cell
-                  grid_cell_x_align: STRETCH
-                  grid_cell_y_align: STRETCH
-                  id: bar_sue_study_humidity
-                  value: 100
-                  styles: bar_temperature
-                  indicator: 
-                    styles: indicator_humidity
-              - label:
+                  widgets:
+                    - bar:
+                        id: bar_sue_study_temp
+                        value: 100
+                        styles: bar_temperature
+                        indicator: 
+                          styles: indicator_temperature
+                    - label:
+                        id: lbl_sue_study_temp
+                        text: "Sue Study"
+                        styles: lbl_temperature_humidity
+              - obj:
+                  styles: obj_temperature_humidity
                   grid_cell_column_pos: 0 # place the widget in
                   grid_cell_row_pos: 5 # the corresponding cell
                   grid_cell_x_align: STRETCH
                   grid_cell_y_align: STRETCH
-                  id: lbl_sue_study_humidity
-                  text: "Sue Study"
-                  styles: lbl_temperature_humidity
-              - bar:
+                  widgets:
+                    - bar:
+                        id: bar_sue_study_humidity
+                        value: 100
+                        styles: bar_temperature
+                        indicator: 
+                          styles: indicator_humidity
+                    - label:
+                        id: lbl_sue_study_humidity
+                        text: "Sue Study"
+                        styles: lbl_temperature_humidity
+              - obj:
+                  styles: obj_temperature_humidity
                   grid_cell_column_pos: 1 # place the widget in
                   grid_cell_row_pos: 4 # the corresponding cell
                   grid_cell_x_align: STRETCH
                   grid_cell_y_align: STRETCH
-                  id: bar_spare_rm_temp
-                  value: 100
-                  styles: bar_temperature
-                  indicator: 
-                    styles: indicator_temperature
-              - label:
-                  grid_cell_column_pos: 1 # place the widget in
-                  grid_cell_row_pos: 4 # the corresponding cell
-                  grid_cell_x_align: STRETCH
-                  grid_cell_y_align: STRETCH
-                  id: lbl_spare_rm_temp
-                  text: "Spare Rm"
-                  styles: lbl_temperature_humidity
-              - bar:
-                  grid_cell_column_pos: 1 # place the widget in
-                  grid_cell_row_pos: 5 # the corresponding cell
-                  grid_cell_x_align: STRETCH
-                  grid_cell_y_align: STRETCH
-                  id: bar_spare_rm_humidity
-                  value: 100
-                  styles: bar_temperature
-                  indicator: 
-                    styles: indicator_humidity
-              - label:
+                  widgets:
+                    - bar:
+                        id: bar_spare_rm_temp
+                        value: 100
+                        styles: bar_temperature
+                        indicator: 
+                          styles: indicator_temperature
+                    - label:
+                        id: lbl_spare_rm_temp
+                        text: "Spare Rm"
+                        styles: lbl_temperature_humidity
+              - obj:
+                  styles: obj_temperature_humidity
                   grid_cell_column_pos: 1 # place the widget in
                   grid_cell_row_pos: 5 # the corresponding cell
                   grid_cell_x_align: STRETCH
                   grid_cell_y_align: STRETCH
-                  id: lbl_spare_rm_humidity
-                  text: "Spare Rm"
-                  styles: lbl_temperature_humidity
-              - bar:
+                  widgets:
+                    - bar:
+                        id: bar_spare_rm_humidity
+                        value: 100
+                        styles: bar_temperature
+                        indicator: 
+                          styles: indicator_humidity
+                    - label:
+                        id: lbl_spare_rm_humidity
+                        text: "Spare Rm"
+                        styles: lbl_temperature_humidity
+              - obj:
+                  styles: obj_temperature_humidity
                   grid_cell_column_pos: 0 # place the widget in
                   grid_cell_row_pos: 6 # the corresponding cell
                   grid_cell_x_align: STRETCH
                   grid_cell_y_align: STRETCH
-                  id: bar_main_bed_rm_temp
-                  value: 100
-                  styles: bar_temperature
-                  indicator: 
-                    styles: indicator_temperature
-              - label:
-                  grid_cell_column_pos: 0 # place the widget in
-                  grid_cell_row_pos: 6 # the corresponding cell
-                  grid_cell_x_align: STRETCH
-                  grid_cell_y_align: STRETCH
-                  id: lbl_main_bed_rm_temp
-                  text: "Main Bed"
-                  styles: lbl_temperature_humidity
-              - bar:
-                  grid_cell_column_pos: 0 # place the widget in
-                  grid_cell_row_pos: 7 # the corresponding cell
-                  grid_cell_x_align: STRETCH
-                  grid_cell_y_align: STRETCH
-                  id: bar_main_bed_rm_humidity
-                  value: 100
-                  styles: bar_temperature
-                  indicator: 
-                    styles: indicator_humidity
-              - label:
+                  widgets:
+                    - bar:
+                        id: bar_main_bed_rm_temp
+                        value: 100
+                        styles: bar_temperature
+                        indicator: 
+                          styles: indicator_temperature
+                    - label:
+                        id: lbl_main_bed_rm_temp
+                        text: "Main Bed"
+                        styles: lbl_temperature_humidity
+              - obj:
+                  styles: obj_temperature_humidity
                   grid_cell_column_pos: 0 # place the widget in
                   grid_cell_row_pos: 7 # the corresponding cell
                   grid_cell_x_align: STRETCH
                   grid_cell_y_align: STRETCH
-                  id: lbl_main_bed_rm_humidity
-                  text: "Main Bed"
-                  styles: lbl_temperature_humidity
-              - bar:
+                  widgets:
+                    - bar:
+                        id: bar_main_bed_rm_humidity
+                        value: 100
+                        styles: bar_temperature
+                        indicator: 
+                          styles: indicator_humidity
+                    - label:
+                        id: lbl_main_bed_rm_humidity
+                        text: "Main Bed"
+                        styles: lbl_temperature_humidity
+              - obj:
+                  styles: obj_temperature_humidity
                   grid_cell_column_pos: 0 # place the widget in
                   grid_cell_row_pos: 8 # the corresponding cell
                   grid_cell_x_align: STRETCH
                   grid_cell_y_align: STRETCH
-                  id: bar_kitchen_temp
-                  value: 100
-                  styles: bar_temperature
-                  indicator: 
-                    styles: indicator_temperature
-              - label:
-                  grid_cell_column_pos: 0 # place the widget in
-                  grid_cell_row_pos: 8 # the corresponding cell
-                  grid_cell_x_align: STRETCH
-                  grid_cell_y_align: STRETCH
-                  id: lbl_kitchen_temp
-                  text: "Kitchen"
-                  styles: lbl_temperature_humidity
-              - bar:
-                  grid_cell_column_pos: 0 # place the widget in
-                  grid_cell_row_pos: 9 # the corresponding cell
-                  grid_cell_x_align: STRETCH
-                  grid_cell_y_align: STRETCH
-                  id: bar_kitchen_humidity
-                  value: 100
-                  styles: bar_temperature
-                  indicator: 
-                    styles: indicator_humidity
-              - label:
+                  widgets:
+                    - bar:
+                        id: bar_kitchen_temp
+                        value: 100
+                        styles: bar_temperature
+                        indicator: 
+                          styles: indicator_temperature
+                    - label:
+                        id: lbl_kitchen_temp
+                        text: "Kitchen"
+                        styles: lbl_temperature_humidity
+              - obj:
+                  styles: obj_temperature_humidity
                   grid_cell_column_pos: 0 # place the widget in
                   grid_cell_row_pos: 9 # the corresponding cell
                   grid_cell_x_align: STRETCH
                   grid_cell_y_align: STRETCH
-                  id: lbl_kitchen_humidity
-                  text: "Kitchen"
-                  styles: lbl_temperature_humidity
-              - bar:
+                  widgets:
+                    - bar:
+                        id: bar_kitchen_humidity
+                        value: 100
+                        styles: bar_temperature
+                        indicator: 
+                          styles: indicator_humidity
+                    - label:
+                        id: lbl_kitchen_humidity
+                        text: "Kitchen"
+                        styles: lbl_temperature_humidity
+              - obj:
+                  styles: obj_temperature_humidity
                   grid_cell_column_pos: 1 # place the widget in
                   grid_cell_row_pos: 8 # the corresponding cell
                   grid_cell_x_align: STRETCH
                   grid_cell_y_align: STRETCH
-                  id: bar_lounge_temp
-                  value: 100
-                  styles: bar_temperature
-                  indicator: 
-                    styles: indicator_temperature
-              - label:
-                  grid_cell_column_pos: 1 # place the widget in
-                  grid_cell_row_pos: 8 # the corresponding cell
-                  grid_cell_x_align: STRETCH
-                  grid_cell_y_align: STRETCH
-                  id: lbl_lounge_temp
-                  text: "Lounge"
-                  styles: lbl_temperature_humidity
-              - bar:
-                  grid_cell_column_pos: 1 # place the widget in
-                  grid_cell_row_pos: 9 # the corresponding cell
-                  grid_cell_x_align: STRETCH
-                  grid_cell_y_align: STRETCH
-                  id: bar_lounge_humidity
-                  value: 100
-                  styles: bar_temperature
-                  indicator: 
-                    styles: indicator_humidity
-              - label:
+                  widgets:
+                    - bar:
+                        id: bar_lounge_temp
+                        value: 100
+                        styles: bar_temperature
+                        indicator: 
+                          styles: indicator_temperature
+                    - label:
+                        id: lbl_lounge_temp
+                        text: "Lounge"
+                        styles: lbl_temperature_humidity
+              - obj:
+                  styles: obj_temperature_humidity
                   grid_cell_column_pos: 1 # place the widget in
                   grid_cell_row_pos: 9 # the corresponding cell
                   grid_cell_x_align: STRETCH
                   grid_cell_y_align: STRETCH
-                  id: lbl_lounge_humidity
-                  text: "Lounge"
-                  styles: lbl_temperature_humidity
+                  widgets:
+                    - bar:
+                        id: bar_lounge_humidity
+                        value: 100
+                        styles: bar_temperature
+                        indicator: 
+                          styles: indicator_humidity
+                    - label:
+                        id: lbl_lounge_humidity
+                        text: "Lounge"
+                        styles: lbl_temperature_humidity
        
 #==========================================================================================================================

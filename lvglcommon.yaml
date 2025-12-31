@@ -1,0 +1,475 @@
+esphome:
+  name: ${esphome_name}
+
+text_sensor:
+  - platform: version
+    name: "Firmware Version"
+    id: firmware_version
+    on_value:
+        then:
+          - lvgl.label.update:
+              id: lbl_app_name
+              text:
+                format: "${esphome_name}\n%s"
+                args: [ 'id(firmware_version).state.c_str()' ]
+
+# Control to allow adjustment of display timeout
+number:
+  - platform: template
+    optimistic: true
+    id: display_timeout
+    name: "Screen Timeout" # Needs a name otherwise will never appear in the HA front end
+    unit_of_measurement: "s"
+    initial_value: 0
+    restore_value: true
+    min_value: 0 # Zero will be interpreted as no timeout (well 1 day actually)
+    max_value: 300
+    step: 10
+    mode: slider
+    # entity_category: config
+
+#==========================================================================================================================
+font:
+  # - file: "gfonts://Roboto@medium"
+  - file: 
+      fonts/Roboto-Medium.ttf
+    id: font_roboto_medium22
+    size: 22
+    glyphs: '!"%()+,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz/³µŋ'
+    glyphsets:
+      - GF_Latin_Core
+      - GF_Latin_Plus
+      - GF_Greek_Core
+      - GF_Cyrillic_Core
+
+# Battery icons
+  - file: "fonts/materialdesignicons-webfont.ttf"
+    id: battery_icons_20
+    size: 20
+    bpp: 4
+    glyphs: [
+      "\U000F007A", # mdi-battery-10
+      "\U000F007B", # mdi-battery-20
+      "\U000F007C", # mdi-battery-30
+      "\U000F007D", # mdi-battery-40
+      "\U000F007E", # mdi-battery-50
+      "\U000F007F", # mdi-battery-60
+      "\U000F0080", # mdi-battery-70
+      "\U000F0081", # mdi-battery-80
+      "\U000F0082", # mdi-battery-90
+      "\U000F0079", # mdi-battery (full)
+      "\U000F008E", # mdi-battery-outline
+      "\U000F0091", # mdi-battery-unknown
+      "\U000F089C", # mdi-battery-charging-10
+      "\U000F0086", # mdi-battery-charging-20
+      "\U000F0087", # mdi-battery-charging-30
+      "\U000F0088", # mdi-battery-charging-40
+      "\U000F089D", # mdi-battery-charging-50
+      "\U000F0089", # mdi-battery-charging-60
+      "\U000F089E", # mdi-battery-charging-70
+      "\U000F008A", # mdi-battery-charging-80
+      "\U000F008B", # mdi-battery-charging-90
+      "\U000F0085", # mdi-battery-charging (full)
+
+      ]
+
+#==========================================================================================================================
+image:
+  defaults: 
+    type: BINARY
+    resize: 20x20
+
+  images:
+    - file: https://esphome.io/favicon-512x512.png #relocated to remove _static location ref in url
+      id: boot_logo
+      resize: 200x200
+      type: RGB565
+      transparency: alpha_channel #JWS Changed syntax ESPHome 2025.8.0
+
+    # Battery status icons as images to show as an animated charging display
+    - file: mdi:battery-charging-10
+      id: batt_charging_10
+    - file: mdi:battery-charging-20
+      id: batt_charging_20
+    - file: mdi:battery-charging-30
+      id: batt_charging_30
+    - file: mdi:battery-charging-40
+      id: batt_charging_40
+    - file: mdi:battery-charging-50
+      id: batt_charging_50
+    - file: mdi:battery-charging-60
+      id: batt_charging_60
+    - file: mdi:battery-charging-70
+      id: batt_charging_70
+    - file: mdi:battery-charging-80
+      id: batt_charging_80
+    - file: mdi:battery-charging-90
+      id: batt_charging_90
+    - file: mdi:battery-charging-100
+      id: batt_charging_full
+    - file: mdi:battery-charging-outline
+      id: batt_charging_empty
+    - file: mdi:battery-10
+      id: batt_10
+    - file: mdi:battery-20
+      id: batt_20
+    - file: mdi:battery-30
+      id: batt_30
+    - file: mdi:battery-40
+      id: batt_40
+    - file: mdi:battery-50
+      id: batt_50
+    - file: mdi:battery-60
+      id: batt_60
+    - file: mdi:battery-70
+      id: batt_70
+    - file: mdi:battery-80
+      id: batt_80
+    - file: mdi:battery-90
+      id: batt_90
+    - file: mdi:battery
+      id: batt_full
+    - file: mdi:battery-outline
+      id: batt_empty
+
+#==========================================================================================================================
+lvgl:
+  displays:
+    - m5cores3_lcd
+  resume_on_input: true #resume from pause on button press (encoder rotate)
+  id: lv_id #Only reqd so that ota can force updates to lvgl display even when main loop not running
+  bg_color: BLACK
+  text_color: WHITE
+
+  on_idle:
+    timeout: !lambda |-
+      if (id(display_timeout).state == 0) return 1000*60*60*24; //Zero timeout sets 1 day
+      return (id(display_timeout).state * 1000); // display_timeout is a number control to allow user adjustment
+    then:
+      - logger.log: "LVGL is idle so turn off backlight"
+      - light.turn_off: display_backlight
+      - lvgl.pause:
+  on_resume:
+    then:
+      - light.turn_on: display_backlight
+      - logger.log: "LVGL resuming"
+      - lvgl.widget.redraw:
+
+
+#==========================================================================================================================
+  gradients:
+    - id: color_bar
+      direction: hor
+      dither: none
+      stops:
+        - color: 0xFF0000
+          position: 0
+        - color: 0xFFFF00
+          position: 42
+        - color: 0x00FF00
+          position: 84
+        - color: 0x00FFFF
+          position: 127
+        - color: 0x0000FF
+          position: 169
+        - color: 0xFF00FF
+          position: 212
+        - color: 0xFF0000
+          position: 255
+    - id: blue_red_bar
+      direction: hor
+      dither: none
+      stops:
+        - color: blue
+          position: 0
+        - color: red
+          position: 255
+    - id: green_blue_bar
+      direction: hor
+      dither: none
+      stops:
+        - color: green
+          position: 0
+        - color: blue
+          position: 255
+
+#==========================================================================================================================
+  style_definitions:
+    - id: header_footer
+      bg_color: BLACK #0x2F8CD8
+      bg_grad_color: 0x005782
+      bg_grad_dir: VER
+      bg_opa: TRANSP #COVER
+      # border_opa: TRANSP
+      radius: 0
+      pad_all: 0
+      pad_row: 0
+      pad_column: 0
+      border_color:  0x0077b3
+      border_opa: COVER
+      text_color: YELLOW
+      width: 100%
+      height: 30
+      scrollbar_mode: "OFF" #Never show scrollbars which otherwise appear if we make an object to big for parent container
+
+    - id: bar_temperature
+      bg_color: BLACK
+      bg_opa: COVER
+      align: CENTER
+    - id: indicator_temperature
+      bg_grad: blue_red_bar
+      bg_opa: 70%
+      # align: RIGHT_MID
+      bg_color: BLACK
+    - id: bar_humidity
+      bg_color: BLACK
+      bg_opa: TRANSP #COVER
+      align: CENTER
+    - id: indicator_humidity
+      bg_grad: green_blue_bar
+      bg_opa: 70%
+      # align: RIGHT_MID
+      bg_color: BLACK
+    - id: lbl_temperature_humidity
+      text_align: RIGHT
+      align: RIGHT_MID
+      text_color: WHITE
+      bg_color: BLACK
+      bg_opa: TRANSP
+    - id: obj_temperature_humidity
+      align: RIGHT_MID
+      text_color: WHITE
+      bg_color: BLACK
+      bg_opa: COVER
+      border_color: BLACK
+      border_width: 0
+
+  top_layer:
+    text_color: YELLOW
+    # bg_color: WHITE
+    # bg_opa: COVER
+    widgets:
+      - label:
+          id: lbl_battery_status
+          align: TOP_RIGHT
+          y: 3
+          x: -20
+          text_font: battery_icons_20
+          text: "\U000F0091" # start with mdi-battery-unknown      - label:
+      - animimg:
+          image_recolor: YELLOW # to set colour of binary image
+          image_recolor_opa: COVER # defaults to TRANSP so needs explicit define
+          hidden: True
+          id: ani_battery_charging
+          align: TOP_RIGHT
+          y: 4
+          x: -20
+          src: [
+            batt_charging_empty,
+            batt_charging_10,
+            batt_charging_20,
+            batt_charging_30,
+            batt_charging_40,
+            batt_charging_50,
+            batt_charging_60,
+            batt_charging_70,
+            batt_charging_80,
+            batt_charging_90,
+            batt_charging_full
+            ]
+          duration: 2200ms
+      - label:
+          text: "\uF1EB" #WIFi symbol (will be overlaid by LEDs anyway)
+          id: lbl_hastatus
+          align: top_right
+          x: 0 #-2
+          y: 2 #6
+          text_align: right
+      - led:
+          id: led_wifi
+          align: top_right
+          x: -5
+          y: 2
+          width: 12
+          height: 12
+          color: YELLOW
+          brightness: 100%
+          border_color: BLACK
+          border_width: 1
+          border_opa: COVER
+      - led:
+          id: led_mqtt
+          align: top_right
+          x: -5
+          y: 16
+          width: 12
+          height: 12
+          color: YELLOW
+          brightness: 100%
+          outline_color: BLACK
+          outline_width: 1
+          outline_opa: COVER
+      - label:
+          text: "Time" # Will be overwritten by the time update script
+          id: lbl_time
+          align: top_left
+          x: 3
+          y: 7
+          text_align: left
+      - buttonmatrix:
+          align: bottom_mid
+          styles: header_footer
+          pad_all: 0
+          outline_width: 0
+          id: top_layer
+          items:
+            styles: header_footer
+          rows:
+            - buttons:
+              - id: focus_next
+                text: "\uF053"
+                on_press:
+                  then:
+                    - lvgl.page.previous:
+                    - logger.log: "Left pressed"
+              - id: page_home
+                text: "\uF015"
+                on_press:
+                  then:
+                    - logger.log: "Home pressed"
+                    - lvgl.page.show: main_page
+              - id: page_next
+                text: "\uF054"
+                on_press:
+                  then:
+                    - logger.log: "Next P pressed"
+                    - lvgl.page.next:
+      - obj:
+          id: boot_screen
+          x: 0
+          y: 0
+          width: 100%
+          height: 100%
+          bg_color: 0xffffff
+          bg_opa: COVER
+          radius: 0
+          pad_all: 0
+          border_width: 0
+          widgets:
+            - image:
+                align: CENTER
+                src: boot_logo
+                y: -40
+            - spinner:
+                align: CENTER
+                y: 95
+                height: 50
+                width: 50
+                spin_time: 1s
+                arc_length: 60deg
+                arc_width: 8
+                indicator:
+                  arc_color: 0x18bcf2
+                  arc_width: 8
+          on_press:
+            - logger.log: "Boot pressed"
+            - lvgl.widget.hide: boot_screen
+#==========================================================================================================================
+  pages:
+#==========================================================================================================================
+    - id: main_page
+      # on_load:
+      #   - lvgl.widget.focus: top_layer # focus_next
+      # bg_color: BLACK
+      widgets:
+        - obj: # Title block
+            align: TOP_MID
+            styles: header_footer
+            widgets:
+              - label:
+                  text: "${friendly_name}"
+                  align: CENTER
+                  text_align: CENTER
+        - obj: # a properly placed coontainer object for all these controls
+            text_color: WHITE
+            align: CENTER
+            width: 320
+            height: 160 #240-(2*30) #Display area less header & footer
+            pad_all: 6
+            bg_opa: TRANSP
+            border_opa: TRANSP
+            outline_width: 1 #debug
+            layout: # enable the GRID layout for the children widgets
+              type: GRID # split the rows and the columns proportionally
+              grid_columns: [FR(1), FR(1)] # equal
+              grid_rows: [FR(1), FR(1), FR(1), FR(1)] # like percents
+              pad_row: 6
+              pad_column: 8
+            widgets:
+              - label:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 0 # the corresponding cell
+                  grid_cell_column_span: 2 #Span 2 columns as firmware version is a long string
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_app_name
+                  text: ${esphome_name}
+              - label:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 1 # the corresponding cell
+                  grid_cell_column_span: 2 #Span 2 columns as firmware version is a long string
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_wifi_strength
+                  text: wifi
+              - label:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 2 # the corresponding cell
+                  grid_cell_column_span: 2 #Span 2 columns as firmware version is a long string
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_wifi_ssid
+                  text: ssid
+              - label:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 3 # the corresponding cell
+                  grid_cell_column_span: 2 #Span 2 columns as firmware version is a long string
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_wifi_ip
+                  text: ip addr
+#==========================================================================================================================
+    - id: ota_page
+      skip: true #don't include in menu cycle
+      widgets:
+        - obj:
+            align: TOP_MID
+            styles: header_footer
+            widgets:
+              - label:
+                  text: "Firmware Update"
+                  align: CENTER
+                  text_align: CENTER
+        - obj: # a properly placed coontainer object for all these controls
+            bg_color: PINK
+            text_color: BLACK
+            align: CENTER
+            width: 320
+            height: 160 #240-(2*30) #Display area less header & footer
+            pad_all: 4
+            bg_opa: COVER
+            widgets:
+              - bar:
+                  x: 50
+                  y: 70
+                  width: 220
+                  id: bar_ota_progress
+                  value: 1
+                  min_value: 0
+                  max_value: 100 #OTA progress
+              - label:
+                  x: 50
+                  y: 20
+                  text_font: montserrat_28 # Bigger text
+                  id: lbl_ota_source
+                  text: "OTA"
