@@ -27,18 +27,9 @@ esphome:
   on_boot:
     - priority: 600 #Uart should be configured before this runs
       then:
-        - uart.write: "\r\n" #clear out any partial data sent as Uart started so that LED setup string will be interpreted OK
-    - priority: -100 #Ensure this runs after lvgl is initialised
+    - priority: -100
       then:
-        - delay: 4s #reduced booting screen display so we get to see wifi connect and then mqtt connect
-        - lvgl.widget.hide: boot_screen
-        - lvgl.widget.focus: 
-            id: top_layer
-        - lvgl.matrix.button.update: #Ensure focus is on the Next Page button to avoid accidental relay switches
-            id: page_next
-            selected: true   
-        - uart.write: "\r\n" #clear out any partial data sent as Uart started
-        - uart.write: "Info\r\n" #Requesting version info from AT Mega on boot"
+        - uart.write: "\r\nInfo\r\n" #Requesting version info from AT Mega on boot"
 
 esp32:
   board: m5stack-fire
@@ -48,6 +39,7 @@ packages:
   wifi: !include wifi.yaml
   mqtt: !include mqtt.yaml
   lvgl: !include lvglboat.yaml
+  lvglcommon: !include lvglcommon.yaml
 
 uart:
   id: uart_bus
@@ -108,14 +100,6 @@ time:
       - script.execute: time_update
 
 script:
-  - id: time_update
-    then:
-      - lvgl.label.update:
-          id: lbl_time
-          text: 
-            format: "%s"
-            args: [ 'id(sntp_time).now().strftime("%R").c_str()' ]
-
   - id: soc_check_alarm # Script to check alarm status - needs calling if thresholds or value changes
     then:
       - if:

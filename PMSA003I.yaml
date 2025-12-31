@@ -163,13 +163,12 @@ lvgl:
                   text: "Particle AQI Sensor"
                   align: CENTER
                   text_align: CENTER
-                  text_color: 0xFFFFFF
         - obj: # a properly placed coontainer object for all these controls
             align: CENTER
             width: 320
             height: 180 #240-(2*30) #Display area less header & footer
             pad_all: 6
-            bg_opa: TRANSP
+            bg_opa: COVER #TRANSP
             border_opa: TRANSP
             outline_width: 1 #debug
             layout: # enable the GRID layout for the children widgets

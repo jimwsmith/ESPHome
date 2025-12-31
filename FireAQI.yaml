@@ -13,8 +13,6 @@ esphome:
   on_boot:
     - priority: -100 #Ensure this runs after lvgl is initialised
       then:
-        - delay: 8s
-        - lvgl.widget.hide: boot_screen
         # - delay: 10s
         # - switch.turn_on: calibration_switch # Run a calibration on bootup for MCS6814
 
@@ -23,11 +21,11 @@ packages:
   wifi: !include wifi.yaml
   mqtt: !include mqtt.yaml
   lvgl: !include lvglAQI.yaml
+  lvglcommon: !include lvglcommon.yaml
   bme68x: !include BME68x.yaml
   pmsa003i: !include pmsa003i.yaml
   # mics6814: !include MICS6814.yaml
   scd30: !include scd30.yaml
-
 # mqtt:
 #   on_message: 
 #     - topic: ${esphome_name}/scd30_calibrate
@@ -47,8 +45,6 @@ external_components:
 logger:
   logs:
     component: DEBUG #Supress excessive warnings about display writing
-  
-# captive_portal:
 
 time:
   - platform: sntp 
@@ -70,15 +66,6 @@ time:
           - script.execute: time_update #Updates time in top_level lvgl display
     on_time_sync:
       - script.execute: time_update
-
-script:
-  - id: time_update
-    then:
-      - lvgl.label.update:
-          id: lbl_time
-          text: 
-            format: "%s"
-            args: [ 'id(sntp_time).now().strftime("%R").c_str()' ]
 
 debug:
   update_interval: 60s

@@ -1,5 +1,18 @@
 esphome:
   name: ${esphome_name}
+  on_boot:
+    - priority: -100 #Ensure this runs after lvgl is initialised
+      then:
+        - delay: 4s #reduced booting screen display so we get to see wifi connect and then mqtt connect
+        - lvgl.widget.hide: boot_screen
+        - script.execute: check_charger
+        - script.execute: check_charge_level
+        # Next we need to configure startup settings for encoder / lvgl screen
+        - lvgl.widget.focus: 
+            id: top_layer
+        - lvgl.matrix.button.update: #Ensure focus is on the Next Page button to avoid accidental relay switches
+            id: page_next
+            selected: true   
 
 esp32:
   board: m5stack-fire
@@ -38,22 +51,14 @@ ip5306:
     id: battery_percent
     entity_category: "diagnostic"
     on_value: #When value changes update LVGL display
-    - lvgl.label.update:
-        id: lbl_battery
-        text: !lambda |-
-          if (id(battery_percent).state == 100) {
-            return "\uF240";
-          } else if (id(battery_percent).state == 75) {
-            return "\uF241";
-          } else if (id(battery_percent).state == 50) {
-            return "\uF242";
-          } else if (id(battery_percent).state == 25) {
-            return "\uF243";
-          } else return "\uF244";
+    - script.execute: check_charge_level
   charger_connected:
     name: ${friendly_name} Charger Connected
-    id: connected
+    id: charger_connected
     entity_category: "diagnostic"
+    on_state:
+      then:
+        script.execute: check_charger
   charge_full:
     name: ${friendly_name} Charge Full
     id: full
@@ -183,7 +188,7 @@ display:
   #   data_rate: 20MHz
 
   - platform: mipi_spi #Updated platform as ili9xxx deprecated from esphome2025.12.4
-    id: m5stack_display #320x240 pixels
+    id: m5core_lcd #320x240 pixels
     model: M5CORE
     cs_pin: 14
     dc_pin: 27
@@ -192,3 +197,11 @@ display:
     invert_colors: true
     auto_clear_enabled: false
     data_rate: 20MHz
+
+lvgl:
+  encoders:
+    enter_button: M5_BtnB
+    sensor: 
+      left_button: M5_BtnA
+      right_button: M5_BtnC
+
