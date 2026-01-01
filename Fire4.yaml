@@ -6,6 +6,8 @@ substitutions:
 
 esphome:
   name: ${esphome_name}
+  build_path: C:/EsphomeTemp/${esphome_name}
 
 packages:
   boat: !include FireAQI.yaml
+  m5stackfire: !include M5StackFire.yaml

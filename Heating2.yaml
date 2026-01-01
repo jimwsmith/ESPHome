@@ -1,0 +1,13 @@
+# Stub file that simply defines specific unit name for a Heating Sensor / Control system on a M5Stack Core Unit
+
+substitutions:
+  friendly_name: "Heating2" #Test Fire3
+  esphome_name: "heating2"
+
+esphome:
+  name: ${esphome_name}
+  build_path: C:/EsphomeTemp/${esphome_name}
+
+packages:
+  boat: !include M5CoreHeating.yaml
+  m5cores3: !include M5StackFire.yaml

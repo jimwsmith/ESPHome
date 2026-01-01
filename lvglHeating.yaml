@@ -3,127 +3,7 @@ esphome:
 
 #==========================================================================================================================
 lvgl:
-  theme:
-    label:
-      text_font: montserrat_16 # set all your labels to use your custom defined font
-    button:
-      bg_color: 0x2F8CD8
-      bg_grad_color: 0x005782
-      bg_grad_dir: VER
-      bg_opa: COVER
-      border_color: 0x0077b3
-      border_width: 1
-      text_color: 0xFFFFFF
-      pressed: # set some button colors to be different in pressed state
-        bg_color: 0x006699
-        bg_grad_color: 0x00334d
-      checked: # set some button colors to be different in checked state
-        bg_color: 0x1d5f96
-        bg_grad_color: 0x03324A
-        text_color: 0xfff300
-#       focused:
-# #        bg_color: 0x00cc00
-#         border_color: 0xff0000
-# #        bg_grad_dir: NONE
-#         border_width: 4
-    buttonmatrix:
-#      bg_opa: COVER
-      bg_opa: TRANSP
-      border_color: 0x0077b3
-      border_width: 0 #Must be same border width focussed and non-focussed otherwise buttons shift up from screen bottom when focussed
-      text_color: 0xFFFFFF
-      pad_all: 0
-      # focused:
-      #   # bg_color: 0x00cc00
-      #   border_color: 0xff0000
-      #   # bg_grad_dir: NONE
-      #   border_width: 2
-      items: # set all your buttonmatrix buttons to use your custom defined styles and font
-        bg_color: 0x2F8CD8
-        bg_grad_color: 0x005782
-        bg_grad_dir: VER
-        bg_opa: COVER
-        border_color: 0x0077b3
-        border_width: 1
-        text_color: 0xFFFFFF
-        text_font: montserrat_16
-        pressed:
-          bg_color: 0x006699
-          bg_grad_color: 0x00334d
-        checked:
-          bg_color: 0x1d5f96
-          bg_grad_color: 0x03324A
-          text_color: 0x005580
-        # focused:
-        #   bg_color: 0x00cc00
-        #   border_color: 0xff0000
-        #   bg_grad_dir: NONE
-        #   border_width: 2
-        #   border_post: true
-    switch:
-      bg_color: 0xC0C0C0
-      bg_grad_color: 0xb0b0b0
-      bg_grad_dir: VER
-      bg_opa: COVER
-      focused:
-        # bg_color: 0x00cc00
-        border_color: 0xff0000
-        # bg_grad_dir: NONE
-        border_width: 2
-      checked:
-        bg_color: 0x1d5f96
-        bg_grad_color: 0x03324A
-        bg_grad_dir: VER
-        bg_opa: COVER
-      knob:
-        bg_color: 0xFFFFFF
-        bg_grad_color: 0xC0C0C0
-        bg_grad_dir: VER
-        bg_opa: COVER
-    slider:
-      border_width: 1
-      border_opa: COVER
-      bg_color: 0xcccaca
-      bg_opa: COVER
-      pad_all: 0
-      pressed: #Occurs momentarily when changed value is accepted
-        border_color: 0xff0000
-        # bg_grad_dir: NONE
-        border_width: 4
-        border_opa: COVER
-        bg_color: 0x00cc00 #only affects the background not covered by indicator bar
-      # focused:
-      #   border_color: 0xff0000
-      #   # bg_grad_dir: NONE
-      #   border_width: 2
-      #   border_opa: COVER
-      indicator:
-        bg_color: 0x1d5f96
-        bg_grad_color: 0x03324A
-        bg_grad_dir: VER
-        bg_opa: COVER
-        # focused:
-        #   # bg_color: 0x00cc00
-        #   border_color: 0xff0000
-        #   # bg_grad_dir: NONE
-        #   border_width: 2
-      knob:
-        bg_color: 0x2F8CD8
-        bg_grad_color: 0x005782
-        bg_grad_dir: VER
-        bg_opa: COVER
-        border_color: 0x0077b3
-        border_width: 1
-        text_color: 0xFFFFFF
-        # focused:
-        #   bg_color: 0x00cc00
-        #   border_color: 0xff0000
-        #   bg_grad_dir: NONE
-        #   border_width: 2
-#==========================================================================================================================
-#==========================================================================================================================
   pages:
-#==========================================================================================================================
 #--------------------------------------------------------------------------
     - id: heating_page
       bg_color: 0x000000 #black
@@ -150,8 +30,8 @@ lvgl:
               type: GRID # split the rows and the columns proportionally
               grid_columns: [FR(1), FR(1)] # equal
               grid_rows: [FR(1), FR(1), FR(1), FR(1), FR(1), FR(1), FR(1), FR(1), FR(1), FR(1)] # like percents
-              pad_row: 4
-              pad_column: 8
+              pad_row: 2
+              pad_column: 2
               multiple_widgets_per_cell: true  #Flag to overcome bug introduced when ESPHome started checking for overlaid widgets
             widgets:
               - button:

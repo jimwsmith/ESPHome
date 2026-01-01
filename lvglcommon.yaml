@@ -10,7 +10,7 @@ text_sensor:
           - lvgl.label.update:
               id: lbl_app_name
               text:
-                format: "${esphome_name}\n%s"
+                format: "%s"
                 args: [ 'id(firmware_version).state.c_str()' ]
 
 # Control to allow adjustment of display timeout
@@ -26,7 +26,7 @@ number:
     max_value: 300
     step: 10
     mode: slider
-    # entity_category: config
+    entity_category: config
 
 #==========================================================================================================================
 font:
@@ -207,15 +207,13 @@ lvgl:
 #==========================================================================================================================
   style_definitions:
     - id: header_footer
-      bg_color: BLACK #0x2F8CD8
-      bg_grad_color: 0x005782
-      bg_grad_dir: VER
-      bg_opa: TRANSP #COVER
-      # border_opa: TRANSP
-      radius: 0
+      bg_color: BLACK # 0x2F8CD8
+      # bg_grad_color: 0x005782
+      # bg_grad_dir: VER
+      # bg_opa: COVER #TRANSP
+      # radius: 0
       pad_all: 0
-      pad_row: 0
-      pad_column: 0
+      # border_width: 0 # jws 1
       border_color:  0x0077b3
       border_opa: COVER
       text_color: YELLOW
@@ -226,39 +224,32 @@ lvgl:
     - id: bar_temperature
       bg_color: BLACK
       bg_opa: COVER
-      align: CENTER
+      align: BOTTOM_LEFT
+      pad_top: 6 #Fudge to make bars align with text in same cell
     - id: indicator_temperature
       bg_grad: blue_red_bar
       bg_opa: 70%
-      # align: RIGHT_MID
+      align: BOTTOM_MID #CENTER
       bg_color: BLACK
     - id: bar_humidity
       bg_color: BLACK
       bg_opa: TRANSP #COVER
-      align: CENTER
+      align: BOTTOM_MID #CENTER
+      pad_top: 6 #Fudge to make bars align with text in same cell
     - id: indicator_humidity
       bg_grad: green_blue_bar
       bg_opa: 70%
-      # align: RIGHT_MID
+      align: BOTTOM_LEFT
       bg_color: BLACK
     - id: lbl_temperature_humidity
       text_align: RIGHT
-      align: RIGHT_MID
+      align: TOP_RIGHT #RIGHT_MID
       text_color: WHITE
       bg_color: BLACK
       bg_opa: TRANSP
-    - id: obj_temperature_humidity
-      align: RIGHT_MID
-      text_color: WHITE
-      bg_color: BLACK
-      bg_opa: COVER
-      border_color: BLACK
-      border_width: 0
 
   top_layer:
     text_color: YELLOW
-    # bg_color: WHITE
-    # bg_opa: COVER
     widgets:
       - label:
           id: lbl_battery_status
@@ -325,36 +316,70 @@ lvgl:
           id: lbl_time
           align: top_left
           x: 4
-          y: 4
+          y: 5
           text_align: left
-      - buttonmatrix:
-          align: bottom_mid
-          styles: header_footer
+      - obj:
+          # styles: header_footer
+          bg_color: BLACK # 0x2F8CD8
           pad_all: 0
-          outline_width: 0
-          id: top_layer
-          items:
-            styles: header_footer
-          rows:
-            - buttons:
-              - id: focus_next
-                text: "\uF053"
+          border_width: 0 # jws 1
+          width: 100%
+          height: 30
+          align: BOTTOM_MID
+          layout:
+            type: GRID
+            grid_columns: [FR(1), FR(1), FR(1)] # equal
+            grid_rows: [FR(1)] # like percents
+          widgets: 
+            - button:
+                grid_cell_column_pos: 0 # place the widget in
+                grid_cell_row_pos: 0 # the corresponding cell
+                grid_cell_x_align: STRETCH
+                grid_cell_y_align: STRETCH
+                align: CENTER
+                id: btn_focus_next
                 on_press:
                   then:
                     - lvgl.page.previous:
                     - logger.log: "Left pressed"
-              - id: page_home
-                text: "\uF015"
+                widgets:
+                  - label:
+                      text_color: YELLOW
+                      text: "\uF053"
+                      align: CENTER
+            - button:
+                grid_cell_column_pos: 1 # place the widget in
+                grid_cell_row_pos: 0 # the corresponding cell
+                grid_cell_x_align: STRETCH
+                grid_cell_y_align: STRETCH
+                align: CENTER
+                id: btn_page_home
                 on_press:
                   then:
                     - logger.log: "Home pressed"
                     - lvgl.page.show: main_page
-              - id: page_next
-                text: "\uF054"
+                widgets:
+                  - label:
+                      text_color: YELLOW
+                      text: "\uF015"
+                      align: CENTER
+            - button:
+                grid_cell_column_pos: 2 # place the widget in
+                grid_cell_row_pos: 0 # the corresponding cell
+                grid_cell_x_align: STRETCH
+                grid_cell_y_align: STRETCH
+                align: CENTER
+                id: btn_page_next
                 on_press:
                   then:
                     - logger.log: "Next P pressed"
                     - lvgl.page.next:
+                widgets:
+                  - label:
+                      text_color: YELLOW
+                      text: "\uF054"
+                      align: CENTER
+
       - obj:
           id: boot_screen
           x: 0
@@ -382,6 +407,11 @@ lvgl:
                 indicator:
                   arc_color: 0x18bcf2
                   arc_width: 8
+            - label: 
+                align: CENTER
+                y: 60
+                text_align: CENTER
+                text: "Booting"
           on_press:
             - logger.log: "Boot pressed"
             - lvgl.widget.hide: boot_screen
@@ -422,7 +452,7 @@ lvgl:
                   grid_cell_column_span: 2 #Span 2 columns as firmware version is a long string
                   grid_cell_x_align: STRETCH
                   grid_cell_y_align: STRETCH
-                  id: lbl_app_name
+                  id: lbl_esphome_name
                   text: ${esphome_name}
               - label:
                   grid_cell_column_pos: 0 # place the widget in
@@ -430,11 +460,19 @@ lvgl:
                   grid_cell_column_span: 2 #Span 2 columns as firmware version is a long string
                   grid_cell_x_align: STRETCH
                   grid_cell_y_align: STRETCH
+                  id: lbl_app_name
+                  text: "Version"
+              - label:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 2 # the corresponding cell
+                  grid_cell_column_span: 2 #Span 2 columns as firmware version is a long string
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
                   id: lbl_wifi_strength
                   text: wifi
               - label:
                   grid_cell_column_pos: 0 # place the widget in
-                  grid_cell_row_pos: 2 # the corresponding cell
+                  grid_cell_row_pos: 3 # the corresponding cell
                   grid_cell_column_span: 2 #Span 2 columns as firmware version is a long string
                   grid_cell_x_align: STRETCH
                   grid_cell_y_align: STRETCH
@@ -442,7 +480,7 @@ lvgl:
                   text: ssid
               - label:
                   grid_cell_column_pos: 0 # place the widget in
-                  grid_cell_row_pos: 3 # the corresponding cell
+                  grid_cell_row_pos: 4 # the corresponding cell
                   grid_cell_column_span: 2 #Span 2 columns as firmware version is a long string
                   grid_cell_x_align: STRETCH
                   grid_cell_y_align: STRETCH
@@ -461,9 +499,10 @@ lvgl:
                   align: CENTER
                   text_align: CENTER
         - obj: # a properly placed coontainer object for all these controls
+            align: CENTER
+            text_align: CENTER
             bg_color: PINK
             text_color: BLACK
-            align: CENTER
             width: 320
             height: 160 #240-(2*30) #Display area less header & footer
             pad_all: 4
@@ -478,11 +517,20 @@ lvgl:
                   min_value: 0
                   max_value: 100 #OTA progress
               - label:
-                  x: 50
-                  y: 20
+                  align: CENTER
+                  text_align: CENTER
+                  # x: 50
+                  y: -30
                   text_font: montserrat_28 # Bigger text
                   id: lbl_ota_source
                   text: "OTA"
+              - label:
+                  align: CENTER
+                  text_align: CENTER
+                  # x: 50
+                  y: 40
+                  text_font: montserrat_14 # Bigger text
+                  text: "Do NOT power down during update"
 
 #==========================================================================================================================
 script: 

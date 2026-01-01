@@ -9,10 +9,11 @@ esphome:
         - script.execute: check_charge_level
         # Next we need to configure startup settings for encoder / lvgl screen
         - lvgl.widget.focus: 
-            id: top_layer
-        - lvgl.matrix.button.update: #Ensure focus is on the Next Page button to avoid accidental relay switches
-            id: page_next
-            selected: true   
+            # id: top_layer_buttons
+            id: btn_page_next
+        # - lvgl.matrix.button.update: #Ensure focus is on the Next Page button to avoid accidental relay switches
+        #     id: page_next
+        #     selected: true   
 
 esp32:
   board: m5stack-fire
@@ -73,12 +74,12 @@ binary_sensor:
     filters:
       - delayed_on: 30ms
       - delayed_off: 30ms
-    on_double_click:
+    on_double_click: #Safer to have double click function on button A as we don't accidentally want to cause a press on a hidden focussed button
       min_length: 50ms
       max_length: 200ms
       then: # Focus on top level buttons at bottom (of this page)
-        - lvgl.widget.focus: 
-            id: top_layer
+        - lvgl.page.show: main_page
+        - lvgl.widget.focus: btn_page_next
   - platform: gpio
     id: M5_BtnB
     pin:
@@ -87,16 +88,17 @@ binary_sensor:
     filters:
       - delayed_on: 30ms
       - delayed_off: 30ms
-    on_double_click:
-      min_length: 50ms
-      max_length: 350ms
-      then: # Return to Home screen with focus on top level button for "next page" at bottom
-        - lvgl.page.show: main_page
-        - lvgl.widget.focus: #Select the button matrix fram at bottom of screen
-            id: top_layer
-        - lvgl.matrix.button.update: #Select next page button
-            id: page_next
-            selected: true   
+    # on_double_click:
+    #   min_length: 50ms
+    #   max_length: 350ms
+    #   then: # Return to Home screen with focus on top level button for "next page" at bottom
+    #     - lvgl.page.show: main_page
+    #     - lvgl.widget.focus: #Select the button matrix fram at bottom of screen
+    #         # id: top_layer_buttons
+    #         id: btn_page_next
+    #     # - lvgl.matrix.button.update: #Select next page button
+    #     #     id: page_next
+    #     #     selected: true   
   - platform: gpio
     id: M5_BtnC
     pin:
@@ -205,3 +207,89 @@ lvgl:
       left_button: M5_BtnA
       right_button: M5_BtnC
 
+# Need to define LVGL themes here as we use an encoder on M5tack FIRE unit so need focussed state visible
+  theme:
+    label:
+      text_font: montserrat_18 # set all your labels to use your custom defined font
+    button:
+      bg_color: 0x2F8CD8
+      bg_grad_color: 0x005782
+      bg_grad_dir: VER
+      bg_opa: COVER
+      border_color: 0x0077b3
+      outline_width: 0
+      shadow_width: 0
+      pad_all: 0
+      border_width: 2
+      pressed: # set some button colors to be different in pressed state
+        bg_color: 0x006699
+        bg_grad_color: 0x00334d
+      checked: # set some button colors to be different in checked state
+        bg_color: 0x1d5f96
+        bg_grad_color: 0x03324A
+        text_color: 0xfff300
+      focused:
+#        bg_color: 0x00cc00
+        border_color: 0xff0000
+#        bg_grad_dir: NONE
+        border_width: 4
+    switch:
+      bg_color: 0xC0C0C0
+      bg_grad_color: 0xb0b0b0
+      bg_grad_dir: VER
+      bg_opa: COVER
+      focused:
+        # bg_color: 0x00cc00
+        border_color: 0xff0000
+        # bg_grad_dir: NONE
+        border_width: 2
+      checked:
+        bg_color: 0x1d5f96
+        bg_grad_color: 0x03324A
+        bg_grad_dir: VER
+        bg_opa: COVER
+      knob:
+        bg_color: 0xFFFFFF
+        bg_grad_color: 0xC0C0C0
+        bg_grad_dir: VER
+        bg_opa: COVER
+    slider:
+      border_width: 1
+      border_opa: COVER
+      bg_color: 0xcccaca
+      bg_opa: COVER
+      pad_all: 0
+      pressed: #Occurs momentarily when changed value is accepted
+        border_color: 0xff0000
+        # bg_grad_dir: NONE
+        border_width: 4
+        border_opa: COVER
+        bg_color: 0x00cc00 #only affects the background not covered by indicator bar
+      focused:
+        border_color: 0xff0000
+        # bg_grad_dir: NONE
+        border_width: 2
+        border_opa: COVER
+      indicator:
+        bg_color: 0x1d5f96
+        bg_grad_color: 0x03324A
+        bg_grad_dir: VER
+        bg_opa: COVER
+        focused:
+          # bg_color: 0x00cc00
+          border_color: 0xff0000
+          # bg_grad_dir: NONE
+          border_width: 2
+      knob:
+        bg_color: 0x2F8CD8
+        bg_grad_color: 0x005782
+        bg_grad_dir: VER
+        bg_opa: COVER
+        border_color: 0x0077b3
+        border_width: 1
+        text_color: 0xFFFFFF
+        focused:
+          bg_color: 0x00cc00
+          border_color: 0xff0000
+          bg_grad_dir: NONE
+          border_width: 2

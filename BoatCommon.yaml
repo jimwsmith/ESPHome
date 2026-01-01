@@ -35,7 +35,6 @@ esp32:
   board: m5stack-fire
 
 packages:
-  m5stackfire: !include M5StackFire.yaml
   wifi: !include wifi.yaml
   mqtt: !include mqtt.yaml
   lvgl: !include lvglboat.yaml

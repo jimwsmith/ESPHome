@@ -14,7 +14,7 @@ ota:
         - lvgl.page.show: ota_page
         - lvgl.label.update:
             id: lbl_ota_source
-            text: "MQTT Trigger"
+            text: "MQTT Http OTA"
         - lambda: "id(lv_id).loop();" # Needed as main loop is blocked during OTA
     on_progress:
       then:

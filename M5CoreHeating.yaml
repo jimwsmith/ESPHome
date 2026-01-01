@@ -1,0 +1,253 @@
+# All common code for the Home Assistant Heating Monitor / Controller goes in here
+# This file in turn is included in a very empty stub file that just defines the device names
+# 
+# for WiFi /MQTT communication back to Home Assistant server
+#
+substitutions:
+  sensor_update: 60s
+  temp_bar_scale: "3.0" #Temp multiplied by this value (to fit a 0-100 scale for temp bar displays in LVGL)
+
+packages:
+  wifi: !include wifi.yaml
+  mqtt: !include mqtt.yaml
+  lvgl: !include lvglHeating.yaml #include first so that the first page in here will be displayed on boot
+  lvglcommon: !include lvglcommon.yaml
+
+logger:
+  level: DEBUG
+
+
+time:
+  - platform: sntp 
+    id: sntp_time
+    on_time: #Automation to enable display screen saver
+      # - hours: 2,3,4,5
+      #   minutes: 5
+      #   seconds: 30
+      #   then:
+      #     - switch.turn_on: switch_antiburn
+      # - hours: 2,3,4,5
+      #   minutes: 35
+      #   seconds: 30
+      #   then:
+      #     - switch.turn_off: switch_antiburn
+      - minutes: '*'
+        seconds: 0
+        then:
+          - script.execute: time_update #Updates time in top_level lvgl display once a minute
+    on_time_sync:
+      - script.execute: time_update
+
+#=========================================================================================================
+
+switch: 
+# Note thi sswitch ability to contol a HA switch relies on an Automation being configured in HA to monitor the MQTT command topic
+  - platform: template
+    internal: True
+    id: heating_pump
+    state_topic: homeassistant/switch/heating_pump_switch_1/state
+    command_topic: homeassistant/switch/heating_pump_switch_1/state #We use external state to control this switch
+    restore_mode: RESTORE_DEFAULT_OFF
+    turn_on_action:
+      - lvgl.widget.update:
+          id: btn_heating_pump
+          state:
+            checked: True
+      - mqtt.publish:
+          topic: homeassistant/switch/heating_pump_switch_1/command
+          payload: "ON"      
+    turn_off_action:
+      - lvgl.widget.update:
+          id: btn_heating_pump
+          state:
+            checked: False
+      - mqtt.publish:
+          topic: homeassistant/switch/heating_pump_switch_1/command
+          payload: "OFF"      
+    optimistic: true #Required so that state change gets registered even though there is no actual comms back to ack the relay change
+
+#=========================================================================================================
+sensor:
+  - platform: mqtt_subscribe
+    id: t_h_jim_study_temperature
+    topic: homeassistant/sensor/t_h_jim_study_temperature/state
+    on_value: 
+      then:
+        - lvgl.label.update:
+            id: lbl_jim_study_temp
+            text:
+              format: "Jim Study: %.1f°C"
+              args: [ 'id(t_h_jim_study_temperature).state' ]
+        - lvgl.bar.update:
+            id: bar_jim_study_temp
+            value: !lambda 'return (id(t_h_jim_study_temperature).state) * $temp_bar_scale;'
+  - platform: mqtt_subscribe
+    id: t_h_sue_study_temperature
+    topic: homeassistant/sensor/t_h_sue_study_temperature/state
+    on_value: 
+      then:
+        - lvgl.label.update:
+            id: lbl_sue_study_temp
+            text:
+              format: "Sue Study: %.1f°C"
+              args: [ 'id(t_h_sue_study_temperature).state' ]
+        - lvgl.bar.update:
+            id: bar_sue_study_temp
+            value: !lambda 'return (id(t_h_sue_study_temperature).state) * $temp_bar_scale;'
+  - platform: mqtt_subscribe
+    id: t_h_kitchen_temperature
+    topic: homeassistant/sensor/t_h_kitchen_temperature/state
+    on_value: 
+      then:
+        - lvgl.label.update:
+            id: lbl_kitchen_temp
+            text:
+              format: "Kitchen: %.1f°C"
+              args: [ 'id(t_h_kitchen_temperature).state' ]
+        - lvgl.bar.update:
+            id: bar_kitchen_temp
+            value: !lambda 'return (id(t_h_kitchen_temperature).state) * $temp_bar_scale;'
+  - platform: mqtt_subscribe
+    id: t_h_lounge_temperature
+    topic: homeassistant/sensor/t_h_lounge_temperature/state
+    on_value: 
+      then:
+        - lvgl.label.update:
+            id: lbl_lounge_temp
+            text:
+              format: "Lounge: %.1f°C"
+              args: [ 'id(t_h_lounge_temperature).state' ]
+        - lvgl.bar.update:
+            id: bar_lounge_temp
+            value: !lambda 'return (id(t_h_lounge_temperature).state) * $temp_bar_scale;'
+  - platform: mqtt_subscribe
+    id: t_h_hall_temperature
+    topic: homeassistant/sensor/t_h_hall_temperature/state
+    on_value: 
+      then:
+        - lvgl.label.update:
+            id: lbl_hall_temp
+            text:
+              format: "Hall: %.1f°C"
+              args: [ 'id(t_h_hall_temperature).state' ]
+        - lvgl.bar.update:
+            id: bar_hall_temp
+            value: !lambda 'return (id(t_h_hall_temperature).state) * $temp_bar_scale;'
+  - platform: mqtt_subscribe
+    id: t_h_spare_room_temperature
+    topic: homeassistant/sensor/t_h_spare_room_temperature/state
+    on_value: 
+      then:
+        - lvgl.label.update:
+            id: lbl_spare_rm_temp
+            text:
+              format: "Spare Rm: %.1f°C"
+              args: [ 'id(t_h_spare_room_temperature).state' ]
+        - lvgl.bar.update:
+            id: bar_spare_rm_temp
+            value: !lambda 'return (id(t_h_spare_room_temperature).state) * $temp_bar_scale;'
+  - platform: mqtt_subscribe
+    id: t_h_main_bed_rm_temperature
+    topic: homeassistant/sensor/temperature_humidity_sensor_8_temperature/state
+    on_value: 
+      then:
+        - lvgl.label.update:
+            id: lbl_main_bed_rm_temp
+            text:
+              format: "Main BRm: %.1f°C"
+              args: [ 'id(t_h_main_bed_rm_temperature).state' ]
+        - lvgl.bar.update:
+            id: bar_main_bed_rm_temp
+            value: !lambda 'return (id(t_h_main_bed_rm_temperature).state) * $temp_bar_scale;'
+  - platform: mqtt_subscribe
+    id: t_h_jim_study_humidity
+    topic: homeassistant/sensor/t_h_jim_study_humidity/state
+    on_value: 
+      then:
+        - lvgl.label.update:
+            id: lbl_jim_study_humidity
+            text:
+              format: "%.0f%%"
+              args: [ 'id(t_h_jim_study_humidity).state' ]  
+        - lvgl.bar.update:
+            id: bar_jim_study_humidity
+            value: !lambda 'return id(t_h_jim_study_humidity).state;'
+  - platform: mqtt_subscribe
+    id: t_h_sue_study_humidity
+    topic: homeassistant/sensor/t_h_sue_study_humidity/state
+    on_value: 
+      then:
+        - lvgl.label.update:
+            id: lbl_sue_study_humidity
+            text:
+              format: "%.0f%%"
+              args: [ 'id(t_h_sue_study_humidity).state' ]
+        - lvgl.bar.update:  
+            id: bar_sue_study_humidity
+            value: !lambda 'return id(t_h_sue_study_humidity).state;'
+  - platform: mqtt_subscribe
+    id: t_h_kitchen_humidity
+    topic: homeassistant/sensor/t_h_kitchen_humidity/state
+    on_value: 
+      then:
+        - lvgl.label.update:
+            id: lbl_kitchen_humidity
+            text:
+              format: "%.0f%%"
+              args: [ 'id(t_h_kitchen_humidity).state' ]
+        - lvgl.bar.update:  
+            id: bar_kitchen_humidity
+            value: !lambda 'return id(t_h_kitchen_humidity).state;'
+  - platform: mqtt_subscribe
+    id: t_h_lounge_humidity
+    topic: homeassistant/sensor/t_h_lounge_humidity/state
+    on_value: 
+      then:
+        - lvgl.label.update:
+            id: lbl_lounge_humidity
+            text:
+              format: "%.0f%%"
+              args: [ 'id(t_h_lounge_humidity).state' ]
+        - lvgl.bar.update:
+            id: bar_lounge_humidity
+            value: !lambda 'return id(t_h_lounge_humidity).state;'
+  - platform: mqtt_subscribe
+    id: t_h_hall_humidity
+    topic: homeassistant/sensor/t_h_hall_humidity/state
+    on_value: 
+      then:
+        - lvgl.label.update:
+            id: lbl_hall_humidity
+            text:
+              format: "%.0f%%"
+              args: [ 'id(t_h_hall_humidity).state' ]
+        - lvgl.bar.update:
+            id: bar_hall_humidity
+            value: !lambda 'return id(t_h_hall_humidity).state;'
+  - platform: mqtt_subscribe
+    id: t_h_spare_room_humidity
+    topic: homeassistant/sensor/t_h_spare_room_humidity/state
+    on_value: 
+      then:
+        - lvgl.label.update:
+            id: lbl_spare_rm_humidity
+            text:
+              format: "%.0f%%"
+              args: [ 'id(t_h_spare_room_humidity).state' ]
+        - lvgl.bar.update:
+            id: bar_spare_rm_humidity
+            value: !lambda 'return id(t_h_spare_room_humidity).state;'
+  - platform: mqtt_subscribe
+    id: t_h_main_bed_rm_humidity
+    topic: homeassistant/sensor/temperature_humidity_sensor_8_humidity/state
+    on_value: 
+      then:
+        - lvgl.label.update:
+            id: lbl_main_bed_rm_humidity
+            text:
+              format: "%.0f%%"
+              args: [ 'id(t_h_main_bed_rm_humidity).state' ]
+        - lvgl.bar.update:    
+            id: bar_main_bed_rm_humidity
+            value: !lambda 'return id(t_h_main_bed_rm_humidity).state;'
+

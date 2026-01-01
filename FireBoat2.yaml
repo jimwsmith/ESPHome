@@ -5,8 +5,10 @@ substitutions:
 
 esphome:
   name: ${esphome_name}
+  build_path: C:/EsphomeTemp/${esphome_name}
 
 packages:
   common: !include BoatCommon.yaml
   boat: !include BoatReceive.yaml
   uart: !include FireNoUartex.yaml
+  m5stackfire: !include M5StackFire.yaml

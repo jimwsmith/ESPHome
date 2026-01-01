@@ -1,6 +1,6 @@
-# All common code for the Home Assistant Boat Monitor goes in here
+# All common code for the Home Assistant AQI Monitor goes in here
 # This file in turn is included in a very empty stub file that just defines the device names
-# Unit designed to have a serial input on rx_pin from teh ATMega 2560 unit that is doing the sensor monitoring and sending back simple update sto this unit
+# 
 # for WiFi /MQTT communication back to Home Assistant server
 #
 substitutions:
@@ -9,7 +9,6 @@ substitutions:
 esphome:
   name: ${esphome_name}
   friendly_name: ${friendly_name}
-  build_path: C:/EsphomeTemp/${esphome_name}
   on_boot:
     - priority: -100 #Ensure this runs after lvgl is initialised
       then:
@@ -17,7 +16,6 @@ esphome:
         # - switch.turn_on: calibration_switch # Run a calibration on bootup for MCS6814
 
 packages:
-  m5stackfire: !include M5StackFire.yaml
   wifi: !include wifi.yaml
   mqtt: !include mqtt.yaml
   lvgl: !include lvglAQI.yaml
