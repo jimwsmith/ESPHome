@@ -96,135 +96,137 @@ sensor:
               args: [ 'id(speed_mph).state' ]
 
 
-text_sensor:
-# Receive messages from Boat relay switches (including retained state) and use to update this unit's relay switches as a mirror
-  - platform: mqtt_subscribe
-    name: "relay 1 sender"
-    id: relay_1_sender
-    topic: ${esphome_source}/switch/atmega_relay_1/state   
-    on_value:
-    # #debug code remove later
-    #   - logger.log:
-    #       format: "received State from Boat Relay 1 %s"
-    #       args: [ 'id(relay_1_sender).state.c_str()' ]
-      - if:
-          condition:
-            lambda: 'return (id(relay_1_sender).state == "ON");'
-          then:
-            - switch.turn_on:
-                  id: relay_1
-      - if:
-          condition:
-            lambda: 'return (id(relay_1_sender).state == "OFF");'
-          then:
-            - switch.turn_off:
-                  id: relay_1
-  - platform: mqtt_subscribe
-    name: "relay 2 sender"
-    id: relay_2_sender
-    topic: ${esphome_source}/switch/atmega_relay_2/state   
-    on_value:
-      # - logger.log:
-      #     format: "State from Boat Relay 2 %s"
-      #     args: [ 'id(relay_2_state).state.c_str()' ]
-      - if:
-          condition:
-            lambda: 'return (id(relay_2_sender).state == "ON");'
-          then:
-            - switch.turn_on:
-                  id: relay_2
-      - if:
-          condition:
-            lambda: 'return (id(relay_2_sender).state == "OFF");'
-          then:
-            - switch.turn_off:
-                  id: relay_2
-  - platform: mqtt_subscribe
-    name: "relay 3 sender"
-    id: relay_3_sender
-    topic: ${esphome_source}/switch/atmega_relay_3/state   
-    on_value:
-      # - logger.log:
-      #     format: "State from Boat Relay 3 %s"
-      #     args: [ 'id(relay_3_state).state.c_str()' ]
-      - if:
-          condition:
-            lambda: 'return (id(relay_3_sender).state == "ON");'
-          then:
-            - switch.turn_on:
-                  id: relay_3
-      - if:
-          condition:
-            lambda: 'return (id(relay_3_sender).state == "OFF");'
-          then:
-            - switch.turn_off:
-                  id: relay_3
-  - platform: mqtt_subscribe
-    name: "relay 4 sender"
-    id: relay_4_sender
-    topic: ${esphome_source}/switch/atmega_relay_4/state   
-    on_value:
-      # - logger.log:
-      #     format: "State from Boat Relay 4 %s"
-      #     args: [ 'id(relay_4_state).state.c_str()' ]
-      - if:
-          condition:
-            lambda: 'return (id(relay_4_sender).state == "ON");'
-          then:
-            - switch.turn_on:
-                  id: relay_4
-      - if:
-          condition:
-            lambda: 'return (id(relay_4_sender).state == "OFF");'
-          then:
-            - switch.turn_off:
-                  id: relay_4
-  - platform: mqtt_subscribe
-    name: "relay 5 sender"
-    id: relay_5_sender
-    topic: ${esphome_source}/switch/atmega_relay_5/state   
-    on_value:
-      # - logger.log:
-      #     format: "State from Boat Relay 5 %s"
-      #     args: [ 'id(relay_5_state).state.c_str()' ]
-      - if:
-          condition:
-            lambda: 'return (id(relay_5_sender).state == "ON");'
-          then:
-            - switch.turn_on:
-                  id: relay_5
-      - if:
-          condition:
-            lambda: 'return (id(relay_5_sender).state == "OFF");'
-          then:
-            - switch.turn_off:
-                  id: relay_5
-  - platform: mqtt_subscribe
-    name: "relay 6 sender"
-    id: relay_6_sender
-    topic: ${esphome_source}/switch/atmega_relay_6/state   
-    on_value:
-      # - logger.log:
-      #     format: "State from Boat Relay 6 %s"
-      #     args: [ 'id(relay_6_state).state.c_str()' ]
-      - if:
-          condition:
-            lambda: 'return (id(relay_6_sender).state == "ON");'
-          then:
-            - switch.turn_on:
-                  id: relay_6
-      - if:
-          condition:
-            lambda: 'return (id(relay_6_sender).state == "OFF");'
-          then:
-            - switch.turn_off:
-                  id: relay_6
+# text_sensor:
+# # Receive messages from Boat relay switches (including retained state) and use to update this unit's relay switches as a mirror
+#   - platform: mqtt_subscribe
+#     name: "relay 1 sender"
+#     id: relay_1_sender
+#     topic: ${esphome_source}/switch/atmega_relay_1/state   
+#     on_value:
+#     # #debug code remove later
+#     #   - logger.log:
+#     #       format: "received State from Boat Relay 1 %s"
+#     #       args: [ 'id(relay_1_sender).state.c_str()' ]
+#       - if:
+#           condition:
+#             lambda: 'return (id(relay_1_sender).state == "ON");'
+#           then:
+#             - switch.turn_on:
+#                   id: relay_1
+#       - if:
+#           condition:
+#             lambda: 'return (id(relay_1_sender).state == "OFF");'
+#           then:
+#             - switch.turn_off:
+#                   id: relay_1
+#   - platform: mqtt_subscribe
+#     name: "relay 2 sender"
+#     id: relay_2_sender
+#     topic: ${esphome_source}/switch/atmega_relay_2/state   
+#     on_value:
+#       # - logger.log:
+#       #     format: "State from Boat Relay 2 %s"
+#       #     args: [ 'id(relay_2_state).state.c_str()' ]
+#       - if:
+#           condition:
+#             lambda: 'return (id(relay_2_sender).state == "ON");'
+#           then:
+#             - switch.turn_on:
+#                   id: relay_2
+#       - if:
+#           condition:
+#             lambda: 'return (id(relay_2_sender).state == "OFF");'
+#           then:
+#             - switch.turn_off:
+#                   id: relay_2
+#   - platform: mqtt_subscribe
+#     name: "relay 3 sender"
+#     id: relay_3_sender
+#     topic: ${esphome_source}/switch/atmega_relay_3/state   
+#     on_value:
+#       # - logger.log:
+#       #     format: "State from Boat Relay 3 %s"
+#       #     args: [ 'id(relay_3_state).state.c_str()' ]
+#       - if:
+#           condition:
+#             lambda: 'return (id(relay_3_sender).state == "ON");'
+#           then:
+#             - switch.turn_on:
+#                   id: relay_3
+#       - if:
+#           condition:
+#             lambda: 'return (id(relay_3_sender).state == "OFF");'
+#           then:
+#             - switch.turn_off:
+#                   id: relay_3
+#   - platform: mqtt_subscribe
+#     name: "relay 4 sender"
+#     id: relay_4_sender
+#     topic: ${esphome_source}/switch/atmega_relay_4/state   
+#     on_value:
+#       # - logger.log:
+#       #     format: "State from Boat Relay 4 %s"
+#       #     args: [ 'id(relay_4_state).state.c_str()' ]
+#       - if:
+#           condition:
+#             lambda: 'return (id(relay_4_sender).state == "ON");'
+#           then:
+#             - switch.turn_on:
+#                   id: relay_4
+#       - if:
+#           condition:
+#             lambda: 'return (id(relay_4_sender).state == "OFF");'
+#           then:
+#             - switch.turn_off:
+#                   id: relay_4
+#   - platform: mqtt_subscribe
+#     name: "relay 5 sender"
+#     id: relay_5_sender
+#     topic: ${esphome_source}/switch/atmega_relay_5/state   
+#     on_value:
+#       # - logger.log:
+#       #     format: "State from Boat Relay 5 %s"
+#       #     args: [ 'id(relay_5_state).state.c_str()' ]
+#       - if:
+#           condition:
+#             lambda: 'return (id(relay_5_sender).state == "ON");'
+#           then:
+#             - switch.turn_on:
+#                   id: relay_5
+#       - if:
+#           condition:
+#             lambda: 'return (id(relay_5_sender).state == "OFF");'
+#           then:
+#             - switch.turn_off:
+#                   id: relay_5
+#   - platform: mqtt_subscribe
+#     name: "relay 6 sender"
+#     id: relay_6_sender
+#     topic: ${esphome_source}/switch/atmega_relay_6/state   
+#     on_value:
+#       # - logger.log:
+#       #     format: "State from Boat Relay 6 %s"
+#       #     args: [ 'id(relay_6_state).state.c_str()' ]
+#       - if:
+#           condition:
+#             lambda: 'return (id(relay_6_sender).state == "ON");'
+#           then:
+#             - switch.turn_on:
+#                   id: relay_6
+#       - if:
+#           condition:
+#             lambda: 'return (id(relay_6_sender).state == "OFF");'
+#           then:
+#             - switch.turn_off:
+#                   id: relay_6
 
 # Same code as main unit really but adds a MQTT publish simulating main unit if buttons checked on lvgl screen
 switch: 
   - platform: template
     id: relay_1
     name: "ATMega Relay 1"
+    internal: True
+    command_topic: ${esphome_source}/switch/atmega_relay_1/state
     turn_on_action:
       - uart.write: [0x52, 0x31, 0x31, 0x0A, 0x0D] #Send Relay state to AT Mega R21\r\n
       - lvgl.widget.update:
@@ -248,6 +250,8 @@ switch:
   - platform: template
     id: relay_2
     name: "ATMega Relay 2"
+    internal: True
+    command_topic: ${esphome_source}/switch/atmega_relay_2/state
     turn_on_action:
       - uart.write: [0x52, 0x32, 0x31, 0x0A, 0x0D] #Send Relay state to AT Mega R21\r\n
       - lvgl.widget.update:
@@ -271,6 +275,8 @@ switch:
   - platform: template
     id: relay_3
     name: "ATMega Relay 3"
+    internal: True
+    command_topic: ${esphome_source}/switch/atmega_relay_3/state
     turn_on_action:
       - uart.write: [0x52, 0x33, 0x31, 0x0A, 0x0D] #Send Relay state to AT Mega R21\r\n
       - lvgl.widget.update:
@@ -294,6 +300,8 @@ switch:
   - platform: template
     id: relay_4
     name: "ATMega Relay 4"
+    internal: True
+    command_topic: ${esphome_source}/switch/atmega_relay_4/state
     turn_on_action:
       - uart.write: [0x52, 0x34, 0x31, 0x0A, 0x0D] #Send Relay state to AT Mega R21\r\n
       - lvgl.widget.update:
@@ -317,6 +325,8 @@ switch:
   - platform: template
     id: relay_5
     name: "ATMega Relay 5"
+    internal: True
+    command_topic: ${esphome_source}/switch/atmega_relay_5/state
     turn_on_action:
       - uart.write: [0x52, 0x35, 0x31, 0x0A, 0x0D] #Send Relay state to AT Mega R21\r\n
       - lvgl.widget.update:
@@ -340,6 +350,8 @@ switch:
   - platform: template
     id: relay_6
     name: "ATMega Relay 6"
+    internal: True
+    command_topic: ${esphome_source}/switch/atmega_relay_6/state
     turn_on_action:
       - uart.write: [0x52, 0x36, 0x31, 0x0A, 0x0D] #Send Relay state to AT Mega R21\r\n
       - lvgl.widget.update:

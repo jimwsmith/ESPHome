@@ -10,7 +10,6 @@ http_request:
 ota:
   - platform: http_request # Triggered by a specific MQTT message
     on_begin:
-        # - lvgl.resume:  #Incase it has timed out to dim
         - lvgl.page.show: ota_page
         - lvgl.label.update:
             id: lbl_ota_source

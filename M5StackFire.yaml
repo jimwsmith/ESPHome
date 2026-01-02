@@ -131,11 +131,7 @@ light:
     output: gpio_32_backlight_pwm
     name: "${friendly_name} Display Backlight"
     id: display_backlight #back_light
-    restore_mode: RESTORE_DEFAULT_ON
-    # on_state:
-    #   - lvgl.slider.update:
-    #       id: dimmer_slider #lvgl item that will adjust to reflect global backlight change LVGL slider needs value 0-255
-    #       value: !lambda 'return (int(id(back_light).remote_values.get_brightness() * 255));' 
+    restore_mode: ALWAYS_ON
 
   - platform: esp32_rmt_led_strip
     rgb_order: GRB

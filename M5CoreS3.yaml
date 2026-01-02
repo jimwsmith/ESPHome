@@ -113,7 +113,7 @@ light:
     icon: "mdi:television"
     entity_category: config
     output: lcd_backlight_output
-    restore_mode: RESTORE_DEFAULT_ON
+    restore_mode: ALWAYS_ON #Always want to have a backlight on when we boot up
     default_transition_length: 250ms
 
 #=========================================================================================================

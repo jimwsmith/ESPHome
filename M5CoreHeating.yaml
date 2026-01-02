@@ -41,13 +41,13 @@ time:
 #=========================================================================================================
 
 switch: 
-# Note thi sswitch ability to contol a HA switch relies on an Automation being configured in HA to monitor the MQTT command topic
+# Note this switch ability to contol a HA switch relies on an Automation being configured in HA to monitor the MQTT command topic
   - platform: template
     internal: True
     id: heating_pump
-    state_topic: homeassistant/switch/heating_pump_switch_1/state
+    # state_topic: homeassistant/switch/heating_pump_switch_1/state #No state topic to avoid boot confusion and cycling
     command_topic: homeassistant/switch/heating_pump_switch_1/state #We use external state to control this switch
-    restore_mode: RESTORE_DEFAULT_OFF
+    # restore_mode: RESTORE_DEFAULT_OFF
     turn_on_action:
       - lvgl.widget.update:
           id: btn_heating_pump
