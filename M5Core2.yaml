@@ -1,0 +1,305 @@
+#Specific setup to run code on a M5STack CoreS3 unit
+
+esphome:
+  name: ${esphome_name}
+  friendly_name: ${friendly_name}
+  on_boot:
+    - priority: -100 #Ensure this runs after lvgl is initialised
+      then:
+        - delay: 4s
+        - lvgl.widget.hide: boot_screen
+        - delay: 20s # Give long enough for hardware to detect power state
+        - script.execute: check_charger
+        - script.execute: check_charge_level
+
+esp32:
+  board: m5stack-core2
+  # board: esp32-s3-devkitc-1
+  flash_size: 16MB
+  framework:
+    type: esp-idf
+    ## Note: Disable these configurations if you face the boot loop issue.
+    sdkconfig_options:
+        CONFIG_ESP32S3_DATA_CACHE_64KB: "y"
+        CONFIG_ESP32S3_DATA_CACHE_LINE_64B: "y"
+        CONFIG_ESP32S3_INSTRUCTION_CACHE_32KB: "y"
+        # Moves instructions and read only data from flash into PSRAM on boot.
+        # Both enabled allows instructions to execute while a flash operation is in progress without needing to be placed in IRAM.
+        # Considerably speeds up mWW at the cost of using more PSRAM.
+        CONFIG_SPIRAM_RODATA: "y"
+        CONFIG_SPIRAM_FETCH_INSTRUCTIONS: "y"
+
+psram:
+  mode: quad
+  speed: 80MHz
+
+external_components:
+  # - source: github://m5stack/esphome-yaml/components
+  #   components: [axp2101, aw88298, aw9523b ]
+  # - source: github://martydingo/esphome-axp192
+  #   components: [axp192]
+  # - source:
+  #     type: git
+  #     url: https://github.com/suphammer/m5stack_core2_components.git
+  #   components: [axp192]
+  #   refresh: 0s
+  - source: github://jimwsmith/espcomponents
+    components: [ axp192 ]
+
+i2c:
+  - id: bus_internal
+    sda: GPIO21
+    scl: GPIO22
+    scan: true
+
+spi:
+  - id: spi_bus
+    clk_pin: GPIO18
+    mosi_pin: GPIO23
+    # miso_pin: GPIO19
+
+touchscreen:
+  - platform: ft63x6
+    id: touch
+    interrupt_pin: GPIO39
+
+axp192:
+  address: 0x34
+  i2c_id: bus_internal
+  update_interval: 30s
+  battery_level:
+    id: battery_percent
+    on_value:
+      - script.execute: check_charge_level
+  battery_charging:
+    id: charger_connected
+    name: "Battery Charging"
+    entity_category: "diagnostic"
+    on_state: #When value changes update LVGL display
+    - script.execute: check_charger
+  brightness: 
+    id: axp_brightness
+    name: "AXP Brightness"
+
+
+binary_sensor:
+  # the virtual buttons--coordinates taken from
+  # https://github.com/m5stack/M5Core2/blob/0134dd3a38cfd335a1ec39da2c149f88baf54326/src/M5Core2.h#L54-L56
+  # and
+  # https://github.com/m5stack/M5Core2/blob/0134dd3a38cfd335a1ec39da2c149f88baf54326/src/utility/M5Button.h#L811-L815
+  # for the parameter order `(x, y, width, height)`
+  - platform: touchscreen
+    name: Button A
+    x_min: 10
+    x_max: 120
+    y_min: 240
+    y_max: 280
+    use_raw: true
+
+  - platform: touchscreen
+    name: Button B
+    x_min: 130
+    x_max: 200
+    y_min: 240
+    y_max: 280
+    use_raw: true
+
+  - platform: touchscreen
+    name: Button C
+    x_min: 230
+    x_max: 310
+    y_min: 240
+    y_max: 280
+    use_raw: true
+
+  # - platform: template
+  #   id: charger_connected
+  #   name: "Battery Charging"
+  #   entity_category: "diagnostic"
+  #   on_state: #When value changes update LVGL display
+  #     - script.execute: check_charger
+
+
+display:
+  - platform: mipi_spi
+    model: M5CORE2
+    dc_pin: GPIO15
+    reset_pin: GPIO4
+    cs_pin: 
+      number: GPIO5
+      ignore_strapping_warning: true
+    data_rate: 40MHz
+    invert_colors: true
+    id: m5core_lcd
+    show_test_card: true
+
+light:
+  - platform: monochromatic
+    id: display_backlight
+    name: "LCD Backlight"
+    icon: "mdi:television"
+    entity_category: config
+    output: gpio_32_backlight_pwm
+    restore_mode: ALWAYS_ON #Always want to have a backlight on when we boot up
+    default_transition_length: 250ms
+
+output:
+  - platform: ledc # backlight output
+    pin: 27
+    id: gpio_32_backlight_pwm
+
+#=========================================================================================================
+
+
+sensor:
+# martydingo version
+  # - platform: axp192
+  #   model: M5CORE2
+  #   address: 0x34
+  #   i2c_id: bus_internal
+  #   id: axp192_id
+  #   update_interval: 30s
+  #   battery_level:
+  #     name: "Battery Level"
+  #     id: battery_percent
+  #     on_value:
+  #       - script.execute: check_charge_level
+
+#suphammer version
+  # - platform: axp192
+  #   axp192_id: axp
+  #   name: "Battery Level"
+  #   id: battery_percent
+  #   on_value:
+  #     - script.execute: check_charge_level
+  # - platform: template
+  #   name: "Battery Level"
+  #   id: battery_percent
+  #   on_value:
+  #     - script.execute: check_charge_level
+
+
+
+  # - platform: mpu6886
+  #   address: 0x68
+  #   update_interval: 1s
+  #   accel_x:
+  #     name: "MPU6886 Accel X"
+  #   accel_y:
+  #     name: "MPU6886 Accel Y"
+  #   accel_z:
+  #     name: "MPU6886 Accel Z"
+  #   gyro_x:
+  #     name: "MPU6886 Gyro X"
+  #   gyro_y:
+  #     name: "MPU6886 Gyro Y"
+  #   gyro_z:
+  #     name: "MPU6886 Gyro Z"
+  #   temperature:
+  #     name: "MPU6886 Temperature"
+
+# sensor:
+# # PMU
+#   - platform: axp2101
+#     id: axp2101_sensor
+#     # battery_voltage:
+#     #   name: "Battery Voltage"
+#     axp_temperature:
+#       name: "AXP2101 Temperature"
+#     battery_charging:
+#       id: charger_connected
+#       name: "Battery Charging"
+#       entity_category: "diagnostic"
+#       on_state: #When value changes update LVGL display
+#       - script.execute: check_charger
+#     battery_level:
+#       name: "Battery Level"
+#       id: battery_percent
+#       on_value:
+#         - script.execute: check_charge_level
+
+lvgl:
+  theme:
+    label:
+      text_font: montserrat_18 # set all your labels to use your custom defined font
+    button:
+      bg_color: 0x2F8CD8
+      bg_grad_color: 0x005782
+      bg_grad_dir: VER
+      bg_opa: COVER
+      border_color: 0x0077b3
+      border_width: 2
+      text_color: 0xFFFFFF
+      pressed: # set some button colors to be different in pressed state
+        bg_color: 0x006699
+        bg_grad_color: 0x00334d
+      checked: # set some button colors to be different in checked state
+        bg_color: 0x1d5f96
+        bg_grad_color: 0x03324A
+        text_color: 0xfff300
+#       focused:
+# #        bg_color: 0x00cc00
+#         border_color: 0xff0000
+# #        bg_grad_dir: NONE
+#         border_width: 4
+    switch:
+      bg_color: 0xC0C0C0
+      bg_grad_color: 0xb0b0b0
+      bg_grad_dir: VER
+      bg_opa: COVER
+      # focused:
+      #   # bg_color: 0x00cc00
+      #   border_color: 0xff0000
+      #   # bg_grad_dir: NONE
+      #   border_width: 2
+      checked:
+        bg_color: 0x1d5f96
+        bg_grad_color: 0x03324A
+        bg_grad_dir: VER
+        bg_opa: COVER
+      knob:
+        bg_color: 0xFFFFFF
+        bg_grad_color: 0xC0C0C0
+        bg_grad_dir: VER
+        bg_opa: COVER
+    slider:
+      border_width: 1
+      border_opa: COVER
+      bg_color: 0xcccaca
+      bg_opa: COVER
+      pad_all: 0
+      pressed: #Occurs momentarily when changed value is accepted
+        border_color: 0xff0000
+        # bg_grad_dir: NONE
+        border_width: 4
+        border_opa: COVER
+        bg_color: 0x00cc00 #only affects the background not covered by indicator bar
+      # focused:
+      #   border_color: 0xff0000
+      #   # bg_grad_dir: NONE
+      #   border_width: 2
+      #   border_opa: COVER
+      indicator:
+        bg_color: 0x1d5f96
+        bg_grad_color: 0x03324A
+        bg_grad_dir: VER
+        bg_opa: COVER
+        focused:
+          # bg_color: 0x00cc00
+          border_color: 0xff0000
+          # bg_grad_dir: NONE
+          border_width: 2
+      knob:
+        bg_color: 0x2F8CD8
+        bg_grad_color: 0x005782
+        bg_grad_dir: VER
+        bg_opa: COVER
+        border_color: 0x0077b3
+        border_width: 1
+        text_color: 0xFFFFFF
+        # focused:
+        #   bg_color: 0x00cc00
+        #   border_color: 0xff0000
+        #   bg_grad_dir: NONE
+        #   border_width: 2
+#==========================================================================================================================
