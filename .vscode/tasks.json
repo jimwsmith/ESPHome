@@ -32,7 +32,25 @@
 			"type": "shell",
 			"problemMatcher": [],
 			"label": "ESPHome: Clean",
-			"command": "esphome clean ${file}"
+			"command": "esphome clean-all ${file}"
+		},
+		{
+			"type": "shell",
+			"problemMatcher": [],
+			"label": "ESPHome: Analyse Memory",
+			"command": "esphome analyze-memory ${file}"
+		},
+		{
+			"type": "shell",
+			"problemMatcher": [],
+			"label": "ESPHome: MQTT Discover Devices",
+			"command": "esphome discover ${file}"
+		},
+		{
+			"type": "shell",
+			"problemMatcher": [],
+			"label": "ESPHome: Logs",
+			"command": "esphome logs ${file}"
 		},
 		{
 			"type": "shell",

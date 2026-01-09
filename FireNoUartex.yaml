@@ -2,6 +2,103 @@
 # The main unit is connected to ATMega which is actually receiving teh sensor readings
 # Remember any lvgl label updaes need coding in both FireUartex.yaml and FireNoUartex.yaml versions
 #
+binary_sensor: 
+# A bunch of template sensors to decode status in this device and reduce the uartex sensors required
+  - platform: template
+    id: vc_multi_mains
+    name: "Multi Mains"
+    internal: True
+
+  - platform: template
+    id: vc_multi_inverter
+    name: "Multi Inverter"
+    internal: True
+
+  - platform: template
+    id: vc_multi_absorb
+    name: "Multi Absorb"
+    internal: True
+
+  - platform: template
+    id: vc_multi_bulk
+    name: "Multi Bulk"
+    internal: True
+
+  - platform: template
+    id: vc_multi_float
+    name: "Multi Float"
+    internal: True
+
+  - platform: template
+    id: vc_multi_overload
+    name: "Multi Overload"
+    internal: True
+
+  - platform: template
+    id: vc_multi_lowbatt
+    name: "Multi Low Battery"
+    internal: True
+
+  - platform: template
+    id: vc_multi_temp
+    name: "Multi Temperature"
+    internal: True
+
+  - platform: template
+    id: ve_mppt_fault
+    name: "MPPT Fault"
+    internal: True
+    on_press:
+      then:
+        - lvgl.label.update:
+            id: lbl_mppt_state
+            text: "Fault"
+            bg_color: 0xC30000 #Dark Red
+
+  - platform: template
+    id: ve_mppt_bulk
+    name: "MPPT Bulk"
+    internal: True
+    on_press:
+      then:
+        - lvgl.label.update:
+            id: lbl_mppt_state
+            text: "Bulk"
+            bg_color: 0x0010C3 #Dark Blue
+
+  - platform: template
+    id: ve_mppt_absorption
+    name: "MPPT Absorp"
+    internal: True
+    on_press:
+      then:
+        - lvgl.label.update:
+            id: lbl_mppt_state
+            text: "Absorption" 
+            bg_color: 0xC37600 #Dark Orange
+
+  - platform: template
+    id: ve_mppt_float
+    name: "MPPT Float"
+    internal: True
+    on_press:
+      then:
+        - lvgl.label.update:
+            id: lbl_mppt_state
+            text: "Float"
+            bg_color: 0x06840B #Dark Green
+
+  - platform: template
+    id: ve_mppt_starting
+    name: "MPPT Start"
+    internal: True
+    on_press:
+      then:
+        - lvgl.label.update:
+            id: lbl_mppt_state
+            text: "Starting"
+            bg_color: 0x9D0093 #Dark Purple
+
 sensor: 
   # - platform: uartex
   #   state: "H1"
@@ -35,7 +132,7 @@ sensor:
   #     precision: 0
   #     decode: "ascii"
   - platform: mqtt_subscribe
-    disabled_by_default: True #Hide device in Home Assistant
+    disabled_by_default: True #Hide device in Home Assistant front end as 
     topic: ${esphome_source}/sensor/atmega_button_counter/state #Monitor state of another device
     id: atmega_button_counter
     name: "ATMega Button Counter"
@@ -143,6 +240,7 @@ sensor:
   - platform: template
     id: vb_dc_power
     name: "DC Power"
+    internal: True
     device_class: "power"
     unit_of_measurement: "W"
     accuracy_decimals: 0
@@ -216,6 +314,7 @@ sensor:
   - platform: template
     id: vb_ac_power
     name: "AC Mains Power"
+    internal: True
     device_class: "power"
     unit_of_measurement: "W"
     accuracy_decimals: 0
@@ -311,6 +410,7 @@ sensor:
   - platform: template
     id: vb_ac_inverter_power
     name: "AC Inverter Power"
+    internal: True
     device_class: "power"
     unit_of_measurement: "W"
     accuracy_decimals: 0

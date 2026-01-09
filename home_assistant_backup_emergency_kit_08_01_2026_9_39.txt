@@ -1,0 +1,16 @@
+Home Assistant Backup Emergency Kit
+
+This emergency kit contains your backup encryption key. You need this key to be able to restore your Home Assistant backups.
+
+Date: 8 January 2026 at 09:39
+
+Instance:
+Home
+
+URL:
+https://ha.allsmiths.synology.me
+
+Encryption key:
+NH9N-TO3C-UABA-ZZ2A-L5NT-NL04-ZCMR
+
+For more information, visit https://www.home-assistant.io/more-info/backup-emergency-kit

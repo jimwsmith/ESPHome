@@ -2,6 +2,7 @@ esphome:
   name: ${esphome_name}
 
 mqtt:
+  id: mqtt_client #needed to be able to retrieve connection state in lambdas
   broker: allsmiths.synology.me
   port: 1883
   username: !secret mqtt_username

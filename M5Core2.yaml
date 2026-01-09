@@ -1,4 +1,4 @@
-#Specific setup to run code on a M5STack CoreS3 unit
+#Specific setup to run code on a M5STack Core2 V1 unit
 
 esphome:
   name: ${esphome_name}
@@ -34,17 +34,14 @@ psram:
   speed: 80MHz
 
 external_components:
-  # - source: github://m5stack/esphome-yaml/components
-  #   components: [axp2101, aw88298, aw9523b ]
-  # - source: github://martydingo/esphome-axp192
-  #   components: [axp192]
-  # - source:
-  #     type: git
-  #     url: https://github.com/suphammer/m5stack_core2_components.git
-  #   components: [axp192]
-  #   refresh: 0s
-  - source: github://jimwsmith/espcomponents
+  - source: C:\Users\jims9\OneDrive\Documents\ESPComponents\esphome-yaml\components
+  # - source: github://jimwsmith/esphome-yaml/components
     components: [ axp192 ]
+    refresh: 0s
+
+axp192:
+  id: axp192_pmu
+  i2c_id: bus_internal
 
 i2c:
   - id: bus_internal
@@ -56,31 +53,20 @@ spi:
   - id: spi_bus
     clk_pin: GPIO18
     mosi_pin: GPIO23
-    # miso_pin: GPIO19
+    miso_pin: GPIO38
 
 touchscreen:
   - platform: ft63x6
     id: touch
-    interrupt_pin: GPIO39
-
-axp192:
-  address: 0x34
-  i2c_id: bus_internal
-  update_interval: 30s
-  battery_level:
-    id: battery_percent
-    on_value:
-      - script.execute: check_charge_level
-  battery_charging:
-    id: charger_connected
-    name: "Battery Charging"
-    entity_category: "diagnostic"
-    on_state: #When value changes update LVGL display
-    - script.execute: check_charger
-  brightness: 
-    id: axp_brightness
-    name: "AXP Brightness"
-
+    # interrupt_pin: GPIO39
+    # reset_pin:
+    #   aw9523b: aw9523b_hub
+    #   number: 0
+    calibration:
+      x_min: 0
+      x_max: 320
+      y_min: 0
+      y_max: 240
 
 binary_sensor:
   # the virtual buttons--coordinates taken from
@@ -112,19 +98,97 @@ binary_sensor:
     y_max: 280
     use_raw: true
 
-  # - platform: template
-  #   id: charger_connected
-  #   name: "Battery Charging"
-  #   entity_category: "diagnostic"
-  #   on_state: #When value changes update LVGL display
-  #     - script.execute: check_charger
+sensor:
+# PMU
+  - platform: axp192
+    update_interval: ${sensor_update}
+    id: axp192_sensor
+    # Optional calibration settings for battery level calculation, suggest chart your own device battery voltage and charge current to configure these
+    battery_discharge_100pc_voltage: 3670 #Battery voltage level at which 100% charge is assumed (when not charging, or charging finished) in mV
+    battery_discharge_0pc_voltage: 3200 #Battery voltage level at which 0% charge is assumed (when not charging, or charging finished) in mV
+    battery_charge_100pc_current: 50 #Battery charge current at which 100% charge is assumed (when charging) in mA
+    battery_charge_0pc_current: 430 #Battery charge current at which 0% charge is assumed (when charging) in mA
+    battery_voltage:
+      name: "Battery Voltage"
+    usb_voltage:
+      name: "USB Voltage"
+    usb_current:
+      name: "USB Current"
+    vbus_voltage:
+      name: "VBus Voltage"
+    vbus_current:
+      name: "VBus Current"
+    internal_temperature:
+      name: "Int Temp"
+    battery_power:
+      name: "Battery Power"
+    battery_charge_current:
+      name: "Batt Charge I"
+    battery_discharge_current:
+      name: "Batt Discharge I"
+    aps_voltage:
+      name: "APS Voltage"
+    battery_charging:
+      id: charger_connected
+      name: "Battery Charging"
+      entity_category: "diagnostic"
+      on_state: #When value changes update LVGL display
+      - script.execute: check_charger
+    battery_level:
+      name: "Battery Level"
+      id: battery_percent
+      on_value:
+        - script.execute: check_charge_level
+      # battery_discharge_0pc_voltage: 3000 #Battery voltagelevel at which 0% charge is assumed (when not charging, or charging finished) in mV
+      # battery_discharge_100pc_voltage: 3670 #Battery voltage level at which 100% charge is assumed (when not charging, or charging finished) in mV
+      # battery_charge_100pc_current: 60 #Battery charge current at which 100% charge is assumed (when charging) in mA
+      # battery_charge_0pc_current: 420 #Battery charge current at which 0% charge is assumed (when charging) in mA
+    usb_present:
+      name: "USB Supply Present"
+    usb_valid:
+      name: "USB Supply Valid"
+    vbus_present:
+      name: "VBus Supply Present"
+    vbus_valid:
+      name: "VBus Supply Valid"
+    battery_discharging:
+      name: "Battery Discharging"
+    over_temperature:
+      name: "Over Temperature"
+    battery_connected:
+      name: "Battery Connected"
+    battery_in_active_mode:
+      name: "Battery in Active Mode"
+    low_charge_current:
+      name: "Charge current less than expected"
 
+output:
+  - platform: axp192
+    type: range
+    channel: DCDC3
+    id: lcd_backlight_output
+    min_voltage: 2100
+    max_voltage: 3500
+
+  - platform: axp192
+    channel: DLDO3
+    id: vibration_motor
+    voltage: 3300
+
+  - platform: axp192
+    channel: DLDO2
+    id: lcd_power
+    voltage: 3000
 
 display:
   - platform: mipi_spi
     model: M5CORE2
-    dc_pin: GPIO15
-    reset_pin: GPIO4
+    dc_pin:
+      number: GPIO15
+      ignore_strapping_warning: true
+#     reset_pin:
+#       aw9523b: aw9523b_hub
+#       number: 9
     cs_pin: 
       number: GPIO5
       ignore_strapping_warning: true
@@ -139,84 +203,25 @@ light:
     name: "LCD Backlight"
     icon: "mdi:television"
     entity_category: config
-    output: gpio_32_backlight_pwm
+    output: lcd_backlight_output
     restore_mode: ALWAYS_ON #Always want to have a backlight on when we boot up
     default_transition_length: 250ms
+  - platform: binary
+    name: "Vibration"
+    output: vibration_motor
+  - platform: binary
+    name: "LCD Power"
+    output: lcd_power
+    restore_mode: ALWAYS_ON #Always want to have a display on when we boot up
 
-output:
-  - platform: ledc # backlight output
-    pin: 27
-    id: gpio_32_backlight_pwm
+switch:
+  - platform: axp192
+    led_pwr:
+      name: "Green LED"
+    vibration_motor:
+      name: "Vibration Motor"
 
 #=========================================================================================================
-
-
-sensor:
-# martydingo version
-  # - platform: axp192
-  #   model: M5CORE2
-  #   address: 0x34
-  #   i2c_id: bus_internal
-  #   id: axp192_id
-  #   update_interval: 30s
-  #   battery_level:
-  #     name: "Battery Level"
-  #     id: battery_percent
-  #     on_value:
-  #       - script.execute: check_charge_level
-
-#suphammer version
-  # - platform: axp192
-  #   axp192_id: axp
-  #   name: "Battery Level"
-  #   id: battery_percent
-  #   on_value:
-  #     - script.execute: check_charge_level
-  # - platform: template
-  #   name: "Battery Level"
-  #   id: battery_percent
-  #   on_value:
-  #     - script.execute: check_charge_level
-
-
-
-  # - platform: mpu6886
-  #   address: 0x68
-  #   update_interval: 1s
-  #   accel_x:
-  #     name: "MPU6886 Accel X"
-  #   accel_y:
-  #     name: "MPU6886 Accel Y"
-  #   accel_z:
-  #     name: "MPU6886 Accel Z"
-  #   gyro_x:
-  #     name: "MPU6886 Gyro X"
-  #   gyro_y:
-  #     name: "MPU6886 Gyro Y"
-  #   gyro_z:
-  #     name: "MPU6886 Gyro Z"
-  #   temperature:
-  #     name: "MPU6886 Temperature"
-
-# sensor:
-# # PMU
-#   - platform: axp2101
-#     id: axp2101_sensor
-#     # battery_voltage:
-#     #   name: "Battery Voltage"
-#     axp_temperature:
-#       name: "AXP2101 Temperature"
-#     battery_charging:
-#       id: charger_connected
-#       name: "Battery Charging"
-#       entity_category: "diagnostic"
-#       on_state: #When value changes update LVGL display
-#       - script.execute: check_charger
-#     battery_level:
-#       name: "Battery Level"
-#       id: battery_percent
-#       on_value:
-#         - script.execute: check_charge_level
 
 lvgl:
   theme:

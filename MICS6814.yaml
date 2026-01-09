@@ -1,10 +1,12 @@
 esphome:
   name: ${esphome_name}
-  includes:
-    - mics6814.h
   libraries:
     - "Wire"
     - IOExpander_Library=https://github.com/ZodiusInfuser/IOExpander_Library
+  includes:
+    - ioexpander.h 
+    - gasbreakout.h
+    - mics6814.h
 
 sensor:
   - platform: custom

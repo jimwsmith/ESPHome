@@ -80,6 +80,7 @@ sensor:
                 args: [ 'id(wifi_signal_db).state' ]  
                 
   - platform: uptime
+    id: uptime_sensor
     name: ${esphome_name} Uptime
 
 text_sensor:

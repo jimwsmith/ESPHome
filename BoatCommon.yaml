@@ -11,7 +11,7 @@
 #
 substitutions:
   sensor_update: 300s #How often do we potentially send info back to Home Assistant via MQTT
-  update_interval_speed: 10s
+  update_interval_speed: 60s
   float_length : "16"
   uartex_length: "16" #Length of string sent from WiFi unit to Monitor unit - 14 plus CRLFL seems to be max
   temp_bar_scale: "3.0" #Scale factor to convert room temperature to 0-100 range for lvgl bar display
@@ -152,99 +152,6 @@ sensor:
     # psram:
     #   name: "Free PSRAM"
 
-binary_sensor: 
-# A bunch of template sensors to decode status in this device and reduce the uartex sensors required
-  - platform: template
-    id: vc_multi_mains
-    name: "Multi Mains"
-
-  - platform: template
-    id: vc_multi_inverter
-    name: "Multi Inverter"
-
-  - platform: template
-    id: vc_multi_absorb
-    name: "Multi Absorb"
-
-  - platform: template
-    id: vc_multi_bulk
-    name: "Multi Bulk"
-
-  - platform: template
-    id: vc_multi_float
-    name: "Multi Float"
-
-  - platform: template
-    id: vc_multi_overload
-    name: "Multi Overload"
-
-  - platform: template
-    id: vc_multi_lowbatt
-    name: "Multi Low Battery"
-
-  - platform: template
-    id: vc_multi_temp
-    name: "Multi Temperature"
-
-  - platform: template
-    id: ve_mppt_fault
-    name: "MPPT Fault"
-    on_press:
-      then:
-        - lvgl.label.update:
-            id: lbl_mppt_state
-            text: "Fault"
-            bg_color: 0xC30000 #Dark Red
-
-  - platform: template
-    id: ve_mppt_bulk
-    name: "MPPT Bulk"
-    on_press:
-      then:
-        - lvgl.label.update:
-            id: lbl_mppt_state
-            text: "Bulk"
-            bg_color: 0x0010C3 #Dark Blue
-
-  - platform: template
-    id: ve_mppt_absorption
-    name: "MPPT Absorp"
-    on_press:
-      then:
-        - lvgl.label.update:
-            id: lbl_mppt_state
-            text: "Absorption" 
-            bg_color: 0xC37600 #Dark Orange
-
-  - platform: template
-    id: ve_mppt_float
-    name: "MPPT Float"
-    on_press:
-      then:
-        - lvgl.label.update:
-            id: lbl_mppt_state
-            text: "Float"
-            bg_color: 0x06840B #Dark Green
-
-  - platform: template
-    id: ve_mppt_starting
-    name: "MPPT Start"
-    on_press:
-      then:
-        - lvgl.label.update:
-            id: lbl_mppt_state
-            text: "Starting"
-            bg_color: 0x9D0093 #Dark Purple
-
-light:
-  - platform: rgb #Individual control of RGB elemenst of LED strip driven from AT Mega via this unit
-    name: "ATMega RGB Light"
-    id: ainsley_rgb_light
-    red: output_red
-    green: output_green
-    blue: output_blue
-    default_transition_length: 0s #instant change of colour as we cannot cope with transitions
-    restore_mode: RESTORE_DEFAULT_OFF
 
 output:
 # Consider adding \r\n at start of each command if issues arise with LED control

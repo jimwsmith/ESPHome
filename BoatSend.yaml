@@ -56,6 +56,15 @@ number:
       then:
         - script.execute: soc_check_alarm
 
+light:
+  - platform: rgb #Individual control of RGB elemenst of LED strip driven from AT Mega via this unit
+    name: "ATMega RGB Light"
+    id: ainsley_rgb_light
+    red: output_red
+    green: output_green
+    blue: output_blue
+    default_transition_length: 0s #instant change of colour as we cannot cope with transitions
+    restore_mode: RESTORE_DEFAULT_OFF
 
 switch: 
   - platform: template

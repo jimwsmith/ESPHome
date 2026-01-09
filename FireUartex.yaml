@@ -2,6 +2,91 @@
 # These are sent by ATMega unit that is actually monitoring the various sensors
 # Remember any lvgl label updaes need coding in both FireUartex.yaml and FireNoUartex.yaml versions
 #
+# Sensors in this file we want displayed in HA front end, theh equivalent sensors in the monitoring units we want hidden or at least not displayed in HA
+binary_sensor: 
+# A bunch of template sensors to decode status in this device and reduce the uartex sensors required
+  - platform: template
+    id: vc_multi_mains
+    name: "Multi Mains"
+
+  - platform: template
+    id: vc_multi_inverter
+    name: "Multi Inverter"
+
+  - platform: template
+    id: vc_multi_absorb
+    name: "Multi Absorb"
+
+  - platform: template
+    id: vc_multi_bulk
+    name: "Multi Bulk"
+
+  - platform: template
+    id: vc_multi_float
+    name: "Multi Float"
+
+  - platform: template
+    id: vc_multi_overload
+    name: "Multi Overload"
+
+  - platform: template
+    id: vc_multi_lowbatt
+    name: "Multi Low Battery"
+
+  - platform: template
+    id: vc_multi_temp
+    name: "Multi Temperature"
+
+  - platform: template
+    id: ve_mppt_fault
+    name: "MPPT Fault"
+    on_press:
+      then:
+        - lvgl.label.update:
+            id: lbl_mppt_state
+            text: "Fault"
+            bg_color: 0xC30000 #Dark Red
+
+  - platform: template
+    id: ve_mppt_bulk
+    name: "MPPT Bulk"
+    on_press:
+      then:
+        - lvgl.label.update:
+            id: lbl_mppt_state
+            text: "Bulk"
+            bg_color: 0x0010C3 #Dark Blue
+
+  - platform: template
+    id: ve_mppt_absorption
+    name: "MPPT Absorp"
+    on_press:
+      then:
+        - lvgl.label.update:
+            id: lbl_mppt_state
+            text: "Absorption" 
+            bg_color: 0xC37600 #Dark Orange
+
+  - platform: template
+    id: ve_mppt_float
+    name: "MPPT Float"
+    on_press:
+      then:
+        - lvgl.label.update:
+            id: lbl_mppt_state
+            text: "Float"
+            bg_color: 0x06840B #Dark Green
+
+  - platform: template
+    id: ve_mppt_starting
+    name: "MPPT Start"
+    on_press:
+      then:
+        - lvgl.label.update:
+            id: lbl_mppt_state
+            text: "Starting"
+            bg_color: 0x9D0093 #Dark Purple
+
 sensor: 
   - platform: uartex
     id: atmega_uptime

@@ -34,15 +34,46 @@ number:
     on_value: 
       then:
         - script.execute: soc_check_alarm
+  - platform: template
+    id: update_interval_gps
+    name: "GPS Update Interval"
+    optimistic: true  
+    min_value: 5 #seconds
+    max_value: 600
+    initial_value: 60
+    unit_of_measurement: "s"
+    step: 5
+    mode: slider
+    on_value: 
+      then:
+        - lambda: |- 
+            if (id(mqtt_client)->is_connected()) {
+              int update_interval = id(update_interval_gps).state;
+              if (update_interval < 2) {
+                update_interval = 2; //Minimum interval of 5 seconds as a safety precaution
+              }
+              update_interval = update_interval * 1000; //Convert to milliseconds !!!!
+              id(gps_receiver).set_update_interval(update_interval);
+              id(gps_receiver).call_setup(); //Force immediate update with new interval
+            }
 
 #Only fit GPS unit to the receiver Fire unit
 gps:
+  id: gps_receiver
   latitude:
     id: gps_latitude
     name: "Latitude"
+    filters: #noisy signal so average it out
+      - sliding_window_moving_average:
+          window_size: 5
+          send_every: 5
   longitude:
     id: gps_longitude
     name: "Longitude"
+    filters: #noisy signal so average it out
+      - sliding_window_moving_average:
+          window_size: 5
+          send_every: 5
   altitude:
     id: gps_altitude
     name: "Altitude"
@@ -53,11 +84,12 @@ gps:
   speed:
     id: gps_speed_kmh
     name: "Speed"
+    internal: true
   course:
     id: gps_course
     name: "Course"
   satellites:
-    id: pgs_satelites
+    id: gps_satelites
     name: "Satellites"
   hdop:
     id: gps_hdop
@@ -96,136 +128,23 @@ sensor:
               args: [ 'id(speed_mph).state' ]
 
 
-# text_sensor:
-# # Receive messages from Boat relay switches (including retained state) and use to update this unit's relay switches as a mirror
-#   - platform: mqtt_subscribe
-#     name: "relay 1 sender"
-#     id: relay_1_sender
-#     topic: ${esphome_source}/switch/atmega_relay_1/state   
-#     on_value:
-#     # #debug code remove later
-#     #   - logger.log:
-#     #       format: "received State from Boat Relay 1 %s"
-#     #       args: [ 'id(relay_1_sender).state.c_str()' ]
-#       - if:
-#           condition:
-#             lambda: 'return (id(relay_1_sender).state == "ON");'
-#           then:
-#             - switch.turn_on:
-#                   id: relay_1
-#       - if:
-#           condition:
-#             lambda: 'return (id(relay_1_sender).state == "OFF");'
-#           then:
-#             - switch.turn_off:
-#                   id: relay_1
-#   - platform: mqtt_subscribe
-#     name: "relay 2 sender"
-#     id: relay_2_sender
-#     topic: ${esphome_source}/switch/atmega_relay_2/state   
-#     on_value:
-#       # - logger.log:
-#       #     format: "State from Boat Relay 2 %s"
-#       #     args: [ 'id(relay_2_state).state.c_str()' ]
-#       - if:
-#           condition:
-#             lambda: 'return (id(relay_2_sender).state == "ON");'
-#           then:
-#             - switch.turn_on:
-#                   id: relay_2
-#       - if:
-#           condition:
-#             lambda: 'return (id(relay_2_sender).state == "OFF");'
-#           then:
-#             - switch.turn_off:
-#                   id: relay_2
-#   - platform: mqtt_subscribe
-#     name: "relay 3 sender"
-#     id: relay_3_sender
-#     topic: ${esphome_source}/switch/atmega_relay_3/state   
-#     on_value:
-#       # - logger.log:
-#       #     format: "State from Boat Relay 3 %s"
-#       #     args: [ 'id(relay_3_state).state.c_str()' ]
-#       - if:
-#           condition:
-#             lambda: 'return (id(relay_3_sender).state == "ON");'
-#           then:
-#             - switch.turn_on:
-#                   id: relay_3
-#       - if:
-#           condition:
-#             lambda: 'return (id(relay_3_sender).state == "OFF");'
-#           then:
-#             - switch.turn_off:
-#                   id: relay_3
-#   - platform: mqtt_subscribe
-#     name: "relay 4 sender"
-#     id: relay_4_sender
-#     topic: ${esphome_source}/switch/atmega_relay_4/state   
-#     on_value:
-#       # - logger.log:
-#       #     format: "State from Boat Relay 4 %s"
-#       #     args: [ 'id(relay_4_state).state.c_str()' ]
-#       - if:
-#           condition:
-#             lambda: 'return (id(relay_4_sender).state == "ON");'
-#           then:
-#             - switch.turn_on:
-#                   id: relay_4
-#       - if:
-#           condition:
-#             lambda: 'return (id(relay_4_sender).state == "OFF");'
-#           then:
-#             - switch.turn_off:
-#                   id: relay_4
-#   - platform: mqtt_subscribe
-#     name: "relay 5 sender"
-#     id: relay_5_sender
-#     topic: ${esphome_source}/switch/atmega_relay_5/state   
-#     on_value:
-#       # - logger.log:
-#       #     format: "State from Boat Relay 5 %s"
-#       #     args: [ 'id(relay_5_state).state.c_str()' ]
-#       - if:
-#           condition:
-#             lambda: 'return (id(relay_5_sender).state == "ON");'
-#           then:
-#             - switch.turn_on:
-#                   id: relay_5
-#       - if:
-#           condition:
-#             lambda: 'return (id(relay_5_sender).state == "OFF");'
-#           then:
-#             - switch.turn_off:
-#                   id: relay_5
-#   - platform: mqtt_subscribe
-#     name: "relay 6 sender"
-#     id: relay_6_sender
-#     topic: ${esphome_source}/switch/atmega_relay_6/state   
-#     on_value:
-#       # - logger.log:
-#       #     format: "State from Boat Relay 6 %s"
-#       #     args: [ 'id(relay_6_state).state.c_str()' ]
-#       - if:
-#           condition:
-#             lambda: 'return (id(relay_6_sender).state == "ON");'
-#           then:
-#             - switch.turn_on:
-#                   id: relay_6
-#       - if:
-#           condition:
-#             lambda: 'return (id(relay_6_sender).state == "OFF");'
-#           then:
-#             - switch.turn_off:
-#                   id: relay_6
+light:
+  - platform: rgb #Individual control of RGB elemenst of LED strip driven from AT Mega via this unit
+    name: "ATMega RGB Light"
+    id: ainsley_rgb_light
+    internal: true #Don't want this in HA as controlled by main unit
+    red: output_red
+    green: output_green
+    blue: output_blue
+    default_transition_length: 0s #instant change of colour as we cannot cope with transitions
+    restore_mode: RESTORE_DEFAULT_OFF
 
 # Same code as main unit really but adds a MQTT publish simulating main unit if buttons checked on lvgl screen
 switch: 
   - platform: template
     id: relay_1
     name: "ATMega Relay 1"
-    internal: True
+    disabled_by_default: True #Hide device in Home Assistant as nternal does't work for MQTT
     command_topic: ${esphome_source}/switch/atmega_relay_1/state
     turn_on_action:
       - uart.write: [0x52, 0x31, 0x31, 0x0A, 0x0D] #Send Relay state to AT Mega R21\r\n
@@ -250,7 +169,7 @@ switch:
   - platform: template
     id: relay_2
     name: "ATMega Relay 2"
-    internal: True
+    disabled_by_default: True #Hide device in Home Assistant as nternal does't work for MQTT
     command_topic: ${esphome_source}/switch/atmega_relay_2/state
     turn_on_action:
       - uart.write: [0x52, 0x32, 0x31, 0x0A, 0x0D] #Send Relay state to AT Mega R21\r\n
@@ -275,7 +194,7 @@ switch:
   - platform: template
     id: relay_3
     name: "ATMega Relay 3"
-    internal: True
+    disabled_by_default: True #Hide device in Home Assistant as nternal does't work for MQTT
     command_topic: ${esphome_source}/switch/atmega_relay_3/state
     turn_on_action:
       - uart.write: [0x52, 0x33, 0x31, 0x0A, 0x0D] #Send Relay state to AT Mega R21\r\n
@@ -300,7 +219,7 @@ switch:
   - platform: template
     id: relay_4
     name: "ATMega Relay 4"
-    internal: True
+    disabled_by_default: True #Hide device in Home Assistant as nternal does't work for MQTT
     command_topic: ${esphome_source}/switch/atmega_relay_4/state
     turn_on_action:
       - uart.write: [0x52, 0x34, 0x31, 0x0A, 0x0D] #Send Relay state to AT Mega R21\r\n
@@ -325,7 +244,7 @@ switch:
   - platform: template
     id: relay_5
     name: "ATMega Relay 5"
-    internal: True
+    disabled_by_default: True #Hide device in Home Assistant as nternal does't work for MQTT
     command_topic: ${esphome_source}/switch/atmega_relay_5/state
     turn_on_action:
       - uart.write: [0x52, 0x35, 0x31, 0x0A, 0x0D] #Send Relay state to AT Mega R21\r\n
@@ -350,7 +269,7 @@ switch:
   - platform: template
     id: relay_6
     name: "ATMega Relay 6"
-    internal: True
+    disabled_by_default: True #Hide device in Home Assistant as nternal does't work for MQTT
     command_topic: ${esphome_source}/switch/atmega_relay_6/state
     turn_on_action:
       - uart.write: [0x52, 0x36, 0x31, 0x0A, 0x0D] #Send Relay state to AT Mega R21\r\n

@@ -22,7 +22,7 @@ packages:
   lvglcommon: !include lvglcommon.yaml
   bme68x: !include BME68x.yaml
   pmsa003i: !include pmsa003i.yaml
-  # mics6814: !include MICS6814.yaml
+  mics6814: !include MICS6814.yaml
   scd30: !include scd30.yaml
 # mqtt:
 #   on_message: 
