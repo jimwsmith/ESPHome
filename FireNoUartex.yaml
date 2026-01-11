@@ -480,21 +480,7 @@ sensor:
     accuracy_decimals: 1
     on_value:
       then:
-        - lvgl.label.update:
-            id: lbl_bmv_soc
-            text:
-              format: "SoC: %.1f%%"
-              args: [ 'id(ve_bmv_soc).state' ]
-        - lvgl.label.update:
-            id: lbl_speed_lbl_soc
-            text:
-              format: "SoC:\n%.1f%%"
-              args: [ 'id(ve_bmv_soc).state' ]
-        - lvgl.label.update:
-            id: lbl_rpm_lbl_soc
-            text:
-              format: "SoC:\n%.1f%%"
-              args: [ 'id(ve_bmv_soc).state' ]
+        - script.execute: bmv_soc_update
         - script.execute: soc_check_alarm
 
   # - platform: uartex
@@ -579,22 +565,7 @@ sensor:
     accuracy_decimals: 2
     on_value:
       then:
-        - lvgl.label.update:
-            id: lbl_bmv_current
-            text:
-              format: "Bat Curr: %.1fA"
-              args: [ 'id(ve_bmv_current).state' ]
-        - lvgl.label.update:
-            id: lbl_rpm_bmv_current
-            text:
-              format: "Batt I:\n %.1fA"
-              args: [ 'id(ve_bmv_current).state' ]
-        - lvgl.label.update:
-            id: lbl_speed_bmv_current
-            text:
-              format: "Batt I:\n %.1fA"
-              args: [ 'id(ve_bmv_current).state' ]
-
+        - script.execute: bmv_current_update
   # - platform: uartex
   #   state: "VE06"
   #   state_number:
@@ -793,19 +764,7 @@ sensor:
     accuracy_decimals: 0
     on_value:
       then:
-        - lvgl.indicator.update:
-            id: rpm_needle
-            value: !lambda 'return (id(vt_engine_rpm).state);'
-        - lvgl.label.update:
-            id: lbl_rpm_dial
-            text:
-              format: "%.0f"
-              args: [ 'id(vt_engine_rpm).state' ]
-        - lvgl.label.update:
-            id: lbl_speed_lbl_rpm
-            text:
-              format: "rpm\n%.0f"
-              args: [ 'id(vt_engine_rpm).state' ]
+        - script.execute: engine_rpm_update
 
   # - platform: uartex
   #   state: "VT03"
@@ -1073,24 +1032,7 @@ sensor:
     accuracy_decimals: 1
     on_value:
       then:
-        - lvgl.label.update:
-            id: lbl_temp1
-            text:
-              format: "Cyl Top: %.1f°C"
-              args: [ 'id(vt_temp1).state' ]
-        - lvgl.label.update:
-            id: lbl_rpm_lbl_temp1
-            text:
-              format: "Cyl Tmp:\n%.1f°C"
-              args: [ 'id(vt_temp1).state' ]
-        - lvgl.label.update:
-            id: lbl_speed_lbl_temp1
-            text:
-              format: "Cyl Tmp:\n%.1f°C"
-              args: [ 'id(vt_temp1).state' ]
-        - lvgl.bar.update:
-            id: bar_temp1
-            value: !lambda 'return (id(vt_temp1).state) * $hot_temp_bar_scale;'
+        - script.execute: temp1_update 
   
   # - platform: uartex
   #   state: "VT14"

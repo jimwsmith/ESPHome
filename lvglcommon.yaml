@@ -203,6 +203,26 @@ lvgl:
           position: 0
         - color: blue
           position: 255
+    - id: green_yellow_red_bar
+      direction: hor
+      dither: none
+      stops:
+        - color: green
+          position: 0
+        - color: yellow
+          position: 127 
+        - color: red
+          position: 255
+    - id: red_yellow_green_bar
+      direction: hor
+      dither: none
+      stops:
+        - color: red
+          position: 0
+        - color: yellow
+          position: 127 
+        - color: green
+          position: 255
 
 #==========================================================================================================================
   style_definitions:
@@ -247,6 +267,11 @@ lvgl:
       text_color: WHITE
       bg_color: BLACK
       bg_opa: TRANSP
+    - id: indicator_speed_rpm
+      bg_grad: green_yellow_red_bar
+      bg_opa: 70%
+      align: BOTTOM_MID #CENTER
+      bg_color: BLACK
 
   top_layer:
     text_color: YELLOW

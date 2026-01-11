@@ -109,24 +109,27 @@ sensor:
     accuracy_decimals: 1
     update_interval: ${update_interval_speed}
     lambda: |-
+      if (isnan(id(gps_speed_kmh).state )) return 0; //Ignore invalid speeds so bars display correctly
       if (id(gps_speed_kmh).state < 0.4) return 0; //Ignore low speeds as these are just noise
       return id(gps_speed_kmh).state * 0.621371;
     on_value:
       then:
-        - lvgl.indicator.update:
-            id: speed_needle
-            value: !lambda 'return (id(speed_mph).state)*100; //Scale value as meter only copes with integers' 
-        - lvgl.label.update:
-            id: lbl_speed_dial
-            text:
-              format: "%.1f"
-              args: [ 'id(speed_mph).state' ]
-        - lvgl.label.update:
-            id: lbl_rpm_lbl_speed
-            text:
-              format: "mph:\n%.1f"
-              args: [ 'id(speed_mph).state' ]
+        - script.execute: speed_mph_update
 
+  - platform: template
+    name: "Fuel Efficiency"
+    id: fuel_efficiency
+    unit_of_measurement: "mpg"
+    device_class: energy
+    accuracy_decimals: 1
+    update_interval: ${update_interval_speed}
+    lambda: |-
+      if (isnan(id(gps_speed_kmh).state )) return 0; //Ignore invalid speeds so bars display correctly
+      if (id(gps_speed_kmh).state < 0.4) return 0; //Ignore low speeds as these are just noise
+      return (id(gps_speed_kmh).state * 0.621371) * ${scale_fuel_efficiency} / (id(vt_engine_rpm).state); //Convert km/h to mph and rpm to gallons per hour
+    on_value:
+      then:
+        - script.execute: fuel_efficiency_update
 
 light:
   - platform: rgb #Individual control of RGB elemenst of LED strip driven from AT Mega via this unit

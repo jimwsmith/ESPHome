@@ -1,8 +1,291 @@
 esphome:
   name: ${esphome_name}
 #==========================================================================================================================
+#==========================================================================================================================
+# Scripts to update various displays of values.  Done here via script so we don't have to keep going and finding all the places to edit when we add a new page
+script: 
+  - id: bmv_current_update 
+    then:
+      - lvgl.label.update:
+          id: lbl_bmv_current
+          text:
+              format: "Bat Curr: %.1fA"
+              args: [ 'id(ve_bmv_current).state' ]
+      - lvgl.label.update:
+          id: lbl_rpm_bmv_current
+          text:
+              format: "Batt I:\n %.1fA"
+              args: [ 'id(ve_bmv_current).state' ]
+      - lvgl.label.update:
+          id: lbl_speed_bmv_current
+          text:
+              format: "Batt I:\n %.1fA"
+              args: [ 'id(ve_bmv_current).state' ]
+      - lvgl.label.update:
+          id: lbl_rpm_speed_bmv_current
+          text:
+              format: "Batt I:\n %.1fA"
+              args: [ 'id(ve_bmv_current).state' ]
+
+  - id: temp1_update #Water Cyl Top temperature
+    then:
+      - lvgl.label.update:
+          id: lbl_temp1
+          text:
+            format: "Cyl Top: %.1f°C"
+            args: [ 'id(vt_temp1).state' ]
+      - lvgl.label.update:
+          id: lbl_rpm_lbl_temp1
+          text:
+            format: "Cyl Tmp:\n%.1f°C"
+            args: [ 'id(vt_temp1).state' ]
+      - lvgl.label.update:
+          id: lbl_speed_lbl_temp1
+          text:
+            format: "Cyl Tmp:\n%.1f°C"
+            args: [ 'id(vt_temp1).state' ]
+      - lvgl.label.update:
+          id: lbl_rpm_speed_lbl_temp1
+          text:
+            format: "Cyl Tmp:\n%.1f°C"
+            args: [ 'id(vt_temp1).state' ]
+      - lvgl.bar.update:
+          id: bar_temp1
+          value: !lambda 'return (id(vt_temp1).state) * $hot_temp_bar_scale;'
+
+  - id: bmv_soc_update #
+    then:
+      - lvgl.label.update:
+          id: lbl_bmv_soc
+          text:
+            format: "SoC: %.1f%%"
+            args: [ 'id(ve_bmv_soc).state' ]
+      - lvgl.label.update:
+          id: lbl_speed_lbl_soc
+          text:
+            format: "SoC:\n%.1f%%"
+            args: [ 'id(ve_bmv_soc).state' ]
+      - lvgl.label.update:
+          id: lbl_rpm_lbl_soc
+          text:
+            format: "SoC:\n%.1f%%"
+            args: [ 'id(ve_bmv_soc).state' ]
+      - lvgl.label.update:
+          id: lbl_rpm_speed_lbl_soc
+          text:
+            format: "SoC:\n%.1f%%"
+            args: [ 'id(ve_bmv_soc).state' ]
+
+  - id: engine_rpm_update #
+    then:
+      - lvgl.indicator.update:
+          id: rpm_needle
+          value: !lambda 'return (id(vt_engine_rpm).state);'
+      - lvgl.label.update:
+          id: lbl_rpm_dial
+          text:
+            format: "%.0f"
+            args: [ 'id(vt_engine_rpm).state' ]
+      - lvgl.label.update:
+          id: lbl_speed_lbl_rpm
+          text:
+            format: "rpm\n%.0f"
+            args: [ 'id(vt_engine_rpm).state' ]
+      - lvgl.label.update:
+          id: lbl_rpm_speed_current_rpm
+          text:
+            format: "%.0f"
+            args: [ 'id(vt_engine_rpm).state' ]
+      - lvgl.bar.update:
+          id: bar_rpm_speed_current_rpm
+          value: !lambda 'return (id(vt_engine_rpm).state) / $rpm_bar_scale;'
+
+  - id: speed_mph_update #
+    then:
+      - lvgl.indicator.update:
+          id: speed_needle
+          value: !lambda 'return (id(speed_mph).state)*100; //Scale value as meter only copes with integers' 
+      - lvgl.label.update:
+          id: lbl_speed_dial
+          text:
+            format: "%.1f"
+            args: [ 'id(speed_mph).state' ]
+      - lvgl.label.update:
+          id: lbl_rpm_lbl_speed
+          text:
+            format: "mph:\n%.1f"
+            args: [ 'id(speed_mph).state' ]
+      - lvgl.label.update:
+          id: lbl_rpm_speed_current_speed
+          text:
+            format: "%.1f"
+            args: [ 'id(speed_mph).state' ]
+      - lvgl.bar.update:
+          id: bar_rpm_speed_current_speed
+          value: !lambda 'return (id(speed_mph).state) * $speed_mph_bar_scale;'
+
+  - id: fuel_efficiency_update #
+    then:
+      - lvgl.label.update:
+          id: lbl_rpm_speed_current_efficiency
+          text:
+            format: "%.2f mi/ltr"
+            args: [ 'id(fuel_efficiency).state' ]
+      - lvgl.bar.update:
+          id: bar_rpm_speed_current_efficiency
+          value: !lambda 'return (id(fuel_efficiency).state) * $fuel_efficiency_bar_scale ;'
+
+#==========================================================================================================================
 lvgl:
   pages:
+    - id: rpm_speed_page
+      bg_color: BLACK
+      bg_opa: COVER
+      widgets:
+        - obj:
+            align: TOP_MID
+            styles: header_footer
+            # outline_width: 0
+            # border_width: 0
+            # shadow_width: 0
+            # shadow_spread: 0
+            widgets:
+              - label:
+                  text: "Speed and rpm"
+                  align: CENTER
+                  text_align: CENTER
+                  text_color: WHITE
+        - obj: # a properly placed coontainer object for all the displays
+            text_color: 0xFFFFFF
+            align: CENTER
+            width: 320
+            height: 180 #240-(2*30) #Display area less header & footer
+            pad_all: 0
+            bg_opa: TRANSP
+            border_opa: TRANSP
+            outline_width: 0 #debug
+            scrollbar_mode: "OFF"
+            layout: # enable the GRID layout for the children widgets
+              type: GRID # split the rows and the columns proportionally
+              grid_columns: [FR(1), FR(4), FR(1)] # two small sides to main area
+              grid_rows: [FR(2), FR(1), FR(2)] # three rows
+              pad_row: 2
+              pad_column: 4
+              multiple_widgets_per_cell: true  #Flag to overcome bug introduced when ESPHome started checking for overlaid widgets
+            widgets:
+              #Draw bars before labels so that label will be on top of bars
+              - bar:
+                  grid_cell_column_pos: 1 # place the widget in
+                  grid_cell_row_pos: 0 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: bar_rpm_speed_current_speed
+                  value: 100
+                  styles: bar_temperature
+                  indicator: 
+                    styles: indicator_speed_rpm
+              - label: #List this after bar widget so label is on top
+                  grid_cell_column_pos: 1 # place the widget in
+                  grid_cell_row_pos: 0 # the corresponding cell
+                  grid_cell_x_align: CENTER
+                  grid_cell_y_align: CENTER
+                  id: lbl_rpm_speed_current_speed
+                  text_align: CENTER
+                  text_color: WHITE
+                  text: mph
+                  text_font: font_roboto_medium80
+              - label: #smaller label to show units
+                  grid_cell_column_pos: 1 # place the widget in
+                  grid_cell_row_pos: 0 # the corresponding cell
+                  grid_cell_x_align: END
+                  grid_cell_y_align: END
+                  # align_to: 
+                  #   id: lbl_rpm_speed_current_speed
+                  #   align: OUT_RIGHT_BOTTOM
+                  text_align: LEFT
+                  text_color: YELLOW
+                  text: mph
+                  text_font: font_roboto_medium22
+              - bar:
+                  grid_cell_column_pos: 1 # place the widget in
+                  grid_cell_row_pos: 1 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: bar_rpm_speed_current_efficiency
+                  value: 100
+                  styles: bar_temperature
+                  indicator: 
+                    styles: indicator_speed_rpm
+              - label: #List this after bar widget so label is on top
+                  grid_cell_column_pos: 1 # place the widget in
+                  grid_cell_row_pos: 1 # the corresponding cell
+                  grid_cell_x_align: CENTER
+                  grid_cell_y_align: CENTER
+                  id: lbl_rpm_speed_current_efficiency
+                  text_align: CENTER
+                  text_color: YELLOW
+                  text: eff 
+                  text_font: font_roboto_medium22
+              - bar:
+                  grid_cell_column_pos: 1 # place the widget in
+                  grid_cell_row_pos: 2 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: bar_rpm_speed_current_rpm
+                  value: 100
+                  styles: bar_temperature
+                  indicator: 
+                    styles: indicator_speed_rpm
+              - label: #List this after bar widget so label is on top
+                  grid_cell_column_pos: 1 # place the widget in
+                  grid_cell_row_pos: 2 # the corresponding cell
+                  grid_cell_x_align: CENTER
+                  grid_cell_y_align: CENTER
+                  id: lbl_rpm_speed_current_rpm
+                  text_align: CENTER
+                  text_color: WHITE
+                  text: rpm
+                  text_font: font_roboto_medium80
+              - label: #smaller label to show units
+                  grid_cell_column_pos: 1 # place the widget in
+                  grid_cell_row_pos: 2 # the corresponding cell
+                  grid_cell_x_align: END
+                  grid_cell_y_align: END
+                  # align_to: 
+                  #   id: lbl_rpm_speed_current_rpm
+                  #   align: OUT_RIGHT_BOTTOM
+                  text_align: LEFT
+                  text_color: YELLOW
+                  text: rpm
+                  text_font: font_roboto_medium22
+              - label:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 0 # the corresponding cell
+                  grid_cell_x_align: START
+                  grid_cell_y_align: START
+                  id: lbl_rpm_speed_bmv_current
+                  text: "Batt I"
+                  text_color: YELLOW
+              - label: 
+                  grid_cell_column_pos: 2 # place the widget in
+                  grid_cell_row_pos: 0 # the corresponding cell
+                  grid_cell_x_align: END
+                  grid_cell_y_align: START
+                  id: lbl_rpm_speed_lbl_temp1
+                  text_align: RIGHT
+                  text: "Cyl Tmp"
+                  text_color: YELLOW
+              - label: 
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 2 # the corresponding cell
+                  grid_cell_x_align: START
+                  grid_cell_y_align: END
+                  id: lbl_rpm_speed_lbl_soc
+                  align: BOTTOM_LEFT
+                  text_align: LEFT
+                  text: "SoC"
+                  text_color: YELLOW
+#==========================================================================================================================
     - id: speed_page
       bg_color: BLACK
       bg_opa: COVER
@@ -36,34 +319,34 @@ lvgl:
                   align: TOP_LEFT
                   y: 0
                   text: "Batt I"
-                  text_color: WHITE
+                  text_color: YELLOW
               - label: 
                   id: lbl_speed_lbl_temp1
                   align: TOP_RIGHT
                   text_align: RIGHT
                   y: 0
                   text: "Cyl Tmp"
-                  text_color: WHITE
+                  text_color: YELLOW
               - label: 
                   id: lbl_speed_lbl_soc
                   align: BOTTOM_LEFT
                   text_align: LEFT
                   y: 0
                   text: "SoC"
-                  text_color: WHITE
+                  text_color: YELLOW
               - label: 
                   id: lbl_speed_lbl_rpm
                   align: BOTTOM_RIGHT
                   text_align: RIGHT
                   y: 0
                   text: "rpm"
-                  text_color: WHITE
+                  text_color: YELLOW
               - label: 
                   align: CENTER
                   text_align: CENTER
                   y: 70
                   text: mph
-                  text_color: WHITE
+                  text_color: YELLOW
               - meter:
                   align: CENTER
                   # x: 35
@@ -151,35 +434,35 @@ lvgl:
                   align: TOP_LEFT
                   y: 0
                   text: "Batt I"
-                  text_color: WHITE
+                  text_color: YELLOW
               - label: 
                   id: lbl_rpm_lbl_temp1
                   align: TOP_RIGHT
                   text_align: RIGHT
                   y: 0
                   text: "Cyl Tmp"
-                  text_color: WHITE
+                  text_color: YELLOW
               - label: 
                   id: lbl_rpm_lbl_soc
                   align: BOTTOM_LEFT
                   text_align: LEFT
                   y: 0
                   text: "SoC"
-                  text_color: WHITE
+                  text_color: YELLOW
               - label: 
                   id: lbl_rpm_lbl_speed
                   align: BOTTOM_RIGHT
                   text_align: RIGHT
                   y: 0
                   text: "mph"
-                  text_color: WHITE
+                  text_color: YELLOW
               - label: 
                   align: CENTER
                   text_align: CENTER
                   # # x: 145
                   # y: 180
                   y: 70
-                  text_color: WHITE
+                  text_color: YELLOW
                   text: rpm
               - meter:
                   align: CENTER

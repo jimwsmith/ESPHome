@@ -16,6 +16,10 @@ substitutions:
   uartex_length: "16" #Length of string sent from WiFi unit to Monitor unit - 14 plus CRLFL seems to be max
   temp_bar_scale: "3.0" #Scale factor to convert room temperature to 0-100 range for lvgl bar display
   hot_temp_bar_scale: "1.5" #Scale factor to convert coolant & heater temperature to 0-100 range for lvgl bar display
+  speed_mph_bar_scale: "20" #scale factor so max speed 5mph -> 100 on bar display
+  rpm_bar_scale: "30" #scale factor so max rpm 3000 -> 100 on bar display
+  scale_fuel_efficiency: "1000" #Scale factor to convert rpm to ltr per hour for engine fuel efficiency display (estimate 1000rpm = 1ltr/hr)
+  fuel_efficiency_bar_scale: "10" #Scale factor so max fuel efficiency 10ltr/hr -> 100 on bar display
   tx_pin: GPIO26 #TXD2 M5Stack Fire
   rx_pin: GPIO36 #GPIO36 #RXD2 on M5Stack Fire
   led_strbuf_size: "16"
@@ -39,6 +43,11 @@ packages:
   mqtt: !include mqtt.yaml
   lvgl: !include lvglboat.yaml
   lvglcommon: !include lvglcommon.yaml
+
+external_components:
+  - source: github://pr#12147
+    components: [lvgl]
+    refresh: 1h
 
 uart:
   id: uart_bus

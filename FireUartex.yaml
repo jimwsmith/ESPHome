@@ -4,6 +4,24 @@
 #
 # Sensors in this file we want displayed in HA front end, theh equivalent sensors in the monitoring units we want hidden or at least not displayed in HA
 binary_sensor: 
+  - platform: uartex
+    id: atmega_button
+    name: "ATMega Button"
+    state: "B1"
+    state_on:
+      offset: 2
+      data: [0x31] # ASCII '1'
+    state_off:
+      offset: 2
+      data: [0x30] # ASCII '0'
+    on_state:
+      then:
+        - lvgl.label.update: #Overwrite Firmware version info with button state
+            id: lbl_app_name #lbl_button_state
+            text:
+              format: "Button State:\n%s"
+              args: [ 'id(atmega_button).state ? "Pressed" : "Released"' ]
+
 # A bunch of template sensors to decode status in this device and reduce the uartex sensors required
   - platform: template
     id: vc_multi_mains
@@ -453,21 +471,7 @@ sensor:
       return n.has_value() ? n.value() : NAN;
     on_value:
       then:
-        - lvgl.label.update:
-            id: lbl_bmv_soc
-            text:
-              format: "SOC: %.1f%%"
-              args: [ 'id(ve_bmv_soc).state' ]
-        - lvgl.label.update:
-            id: lbl_speed_lbl_soc
-            text:
-              format: "SoC:\n%.1f%%"
-              args: [ 'id(ve_bmv_soc).state' ]
-        - lvgl.label.update:
-            id: lbl_rpm_lbl_soc
-            text:
-              format: "SoC:\n%.1f%%"
-              args: [ 'id(ve_bmv_soc).state' ]
+        - script.execute: bmv_soc_update
         - script.execute: soc_check_alarm
 
   - platform: uartex
@@ -552,16 +556,7 @@ sensor:
       return n.has_value() ? n.value() : NAN;
     on_value:
       then:
-        - lvgl.label.update:
-            id: lbl_bmv_current
-            text:
-              format: "Bat Curr: %.1fA"
-              args: [ 'id(ve_bmv_current).state' ]
-        - lvgl.label.update:
-            id: lbl_rpm_bmv_current
-            text:
-              format: "Batt I:\n %.1fA"
-              args: [ 'id(ve_bmv_current).state' ]
+        - script.execute: bmv_current_update
 
   - platform: uartex
     id: ve_bmv_alarm
@@ -758,19 +753,7 @@ sensor:
       return n.has_value() ? n.value() : NAN;
     on_value:
       then:
-        - lvgl.indicator.update:
-            id: rpm_needle
-            value: !lambda 'return (id(vt_engine_rpm).state);'
-        - lvgl.label.update:
-            id: lbl_rpm_dial
-            text:
-              format: "%.0f"
-              args: [ 'id(vt_engine_rpm).state' ]
-        - lvgl.label.update:
-            id: lbl_speed_lbl_rpm
-            text:
-              format: "rpm\n%.0f"
-              args: [ 'id(vt_engine_rpm).state' ]
+        - script.execute: engine_rpm_update
 
   - platform: uartex
     id: vt_dht1_temp
@@ -1038,20 +1021,8 @@ sensor:
       return n.has_value() ? n.value() : NAN;
     on_value:
       then:
-        - lvgl.label.update:
-            id: lbl_temp1
-            text:
-              format: "Cyl Top: %.1f°C"
-              args: [ 'id(vt_temp1).state' ]
-        - lvgl.label.update:
-            id: lbl_rpm_lbl_temp1
-            text:
-              format: "Cyl Tmp:\n%.1f°C"
-              args: [ 'id(vt_temp1).state' ]
-        - lvgl.bar.update:
-            id: bar_temp1
-            value: !lambda 'return (id(vt_temp1).state) * $hot_temp_bar_scale;'
-  
+        - script.execute: temp1_update 
+
   - platform: uartex
     id: vt_temp2
     name: "Water Cyl Bottom"
@@ -1369,21 +1340,3 @@ text_sensor:
     lambda: |-
       return std::string(reinterpret_cast<const char*>(data+2), len-2); // Simply return the received string excluding first 2 chars
 
-binary_sensor:
-  - platform: uartex
-    id: atmega_button
-    name: "ATMega Button"
-    state: "B1"
-    state_on:
-      offset: 2
-      data: [0x31] # ASCII '1'
-    state_off:
-      offset: 2
-      data: [0x30] # ASCII '0'
-    on_state:
-      then:
-        - lvgl.label.update:
-            id: lbl_app_name #lbl_button_state
-            text:
-              format: "Button State:\n%s"
-              args: [ 'id(atmega_button).state ? "Pressed" : "Released"' ]

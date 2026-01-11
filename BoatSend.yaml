@@ -189,24 +189,23 @@ climate:
 sensor: 
   - platform: mqtt_subscribe #copy in the speed from the receiver Fire unit
     topic: ${esphome_monitor}/sensor/speed_mph/state #Monitor state of another device
+    disabled_by_default: True
     name: "Speed mph copy"
     id: speed_mph
     unit_of_measurement: "mph"
     device_class: speed
     accuracy_decimals: 1
-    internal: true #don't want this in HA as the real sensor is there
     on_value:
       then:
-        - lvgl.indicator.update:
-            id: speed_needle
-            value: !lambda 'return (id(speed_mph).state)*100; //Scale value as meter only copes with integers' 
-        - lvgl.label.update:
-            id: lbl_speed_dial
-            text:
-              format: "%.1f"
-              args: [ 'id(speed_mph).state' ]
-        - lvgl.label.update:
-            id: lbl_rpm_lbl_speed
-            text:
-              format: "mph:\n%.1f"
-              args: [ 'id(speed_mph).state' ]
+        - script.execute: speed_mph_update 
+
+  - platform: mqtt_subscribe #copy in the efficiency from the receiver Fire unit
+    topic: ${esphome_monitor}/sensor/fuel_efficiency/state #Monitor state of another device
+    name: "Fuel Efficiency copy"
+    id: fuel_efficiency
+    unit_of_measurement: "mpg"
+    device_class: energy
+    accuracy_decimals: 1
+    on_value:
+      then:
+        - script.execute: fuel_efficiency_update
