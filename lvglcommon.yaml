@@ -20,7 +20,7 @@ number:
     id: display_timeout
     name: "Screen Timeout" # Needs a name otherwise will never appear in the HA front end
     unit_of_measurement: "s"
-    initial_value: 0
+    initial_value: 30 #Default value 30 seconds as otherwise on OTA we will have displays always on
     restore_value: true
     min_value: 0 # Zero will be interpreted as no timeout (well 1 day actually)
     max_value: 300
@@ -269,6 +269,11 @@ lvgl:
       bg_opa: TRANSP
     - id: indicator_speed_rpm
       bg_grad: green_yellow_red_bar
+      bg_opa: 70%
+      align: BOTTOM_MID #CENTER
+      bg_color: BLACK
+    - id: indicator_efficiency
+      bg_grad: red_yellow_green_bar
       bg_opa: 70%
       align: BOTTOM_MID #CENTER
       bg_color: BLACK

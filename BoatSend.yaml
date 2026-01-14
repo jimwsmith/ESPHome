@@ -188,7 +188,7 @@ climate:
 
 sensor: 
   - platform: mqtt_subscribe #copy in the speed from the receiver Fire unit
-    topic: ${esphome_monitor}/sensor/speed_mph/state #Monitor state of another device
+    topic: ${esphome_gpsmonitor}/sensor/speed_mph/state #Monitor state of another device
     disabled_by_default: True
     name: "Speed mph copy"
     id: speed_mph
@@ -200,7 +200,7 @@ sensor:
         - script.execute: speed_mph_update 
 
   - platform: mqtt_subscribe #copy in the efficiency from the receiver Fire unit
-    topic: ${esphome_monitor}/sensor/fuel_efficiency/state #Monitor state of another device
+    topic: ${esphome_gpsmonitor}/sensor/fuel_efficiency/state #Monitor state of another device
     name: "Fuel Efficiency copy"
     id: fuel_efficiency
     unit_of_measurement: "mpg"
@@ -209,3 +209,21 @@ sensor:
     on_value:
       then:
         - script.execute: fuel_efficiency_update
+
+  - platform: mqtt_subscribe #copy in the # satellites from the gpsreceiver Fire unit
+    topic: ${esphome_gpsmonitor}/sensor/satellites/state #Monitor state of another device
+    id: gps_satellites
+    name: "Satellites Copy"
+    on_value:
+      then:
+        - script.execute: satellites_update
+
+  - platform: mqtt_subscribe #copy in the HDOP from the gpsreceiver Fire unit
+    topic: ${esphome_gpsmonitor}/sensor/hdop/state #Monitor state of another device
+    id: gps_hdop
+    name: "HDOP Copy"
+    device_class: distance
+    unit_of_measurement: "m"
+    on_value:
+      then:
+        - script.execute: hdop_update

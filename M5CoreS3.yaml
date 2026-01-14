@@ -40,6 +40,7 @@ i2c:
   - id: bus_internal
     sda: GPIO12
     scl: GPIO11
+    scan: true
 
 spi:
   - id: spi_bus
@@ -49,6 +50,7 @@ spi:
 axp2101:
   id: axp2101_pmu
   i2c_id: bus_internal
+  setup_priority: 800 # very early setup sequence
 
 # IO Expander
 aw9523b:
@@ -64,11 +66,20 @@ output:
     max_voltage: 3300
 
   - platform: axp2101
-    channel: ALDO1
+    channel: ALDO1 #VDD_1V8
     voltage: 1800
 
-  - platform: axp2101
+  - platform: axp2101 #VDDA_3V3
     channel: ALDO2
+    voltage: 3300
+
+  - platform: axp2101 #VDDCAM_3V3
+    channel: ALDO3
+    voltage: 3300
+
+
+  - platform: axp2101 #VDD_3V3_SD
+    channel: ALDO4
     voltage: 3300
 
   - platform: axp2101
@@ -184,6 +195,36 @@ sensor:
       on_value:
         - script.execute: check_charge_level
 
+  - platform: ltr_als_ps
+    address: 0x23
+    update_interval: 10s
+    auto_mode: false
+    type: ALS_PS  # or ALS or PS
+    ambient_light: "Ambient light"
+    infrared_counts: 
+      name: "Infrared counts"
+      id: ir_counts
+      unit_of_measurement: "units" #lx works with illuminance
+      device_class: "" #None
+    full_spectrum_counts: 
+      name: "Full spectrum counts"
+      id: fs_counts
+      unit_of_measurement: "units"
+      device_class: "" #None
+    actual_gain: "Actual Gain"
+    actual_integration_time: "Actual Integration Time"
+    # PS only section
+    ps_cooldown: 5 s
+    ps_high_threshold: 500
+    on_ps_high_threshold:
+      then:
+        - logger.log: "ALS-PS Threshold reached" # do something - light up the screen for example
+    ps_counts: 
+      name: "Proximity counts"
+      id: ps_counts
+      device_class: "" #None
+      unit_of_measurement: "units"
+#=========================================================================================================
 lvgl:
   theme:
     label:

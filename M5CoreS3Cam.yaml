@@ -1,0 +1,46 @@
+# Code to test M5CoresS3 Camera module
+esphome:
+  name: ${esphome_name} 
+
+external_components:
+  - source: github://pr#9496
+    components: [esp32_camera]
+    refresh: 1h
+
+esp32_camera:
+  setup_priority: -100 # delay after GPIO18 was set to low
+  name: "Camera"
+  i2c_id: bus_internal
+    # address: 0x21
+  pixel_clock_pin: GPIO45 # PCLK
+  vsync_pin: GPIO46 # VSYNC
+  href_pin: GPIO38 # HREF
+  external_clock: 
+    pin: GPIO6 # XCLK NA as dire3ct drive but we specify a dummy GPIO pin 6, 7, 5, 8, 10
+  data_pins: [GPIO39, GPIO40, GPIO41, GPIO42, GPIO15, GPIO16, GPIO48, GPIO47] # Y2-9
+  reset_pin:
+    aw9523b: aw9523b_hub
+    number: 8
+    # power_down: NA as via io expander
+  max_framerate: 15.0 fps
+  resolution: 320x240
+  frame_buffer_count: 1
+  pixel_format: RGB565
+  jpeg_quality: 6
+  agc_mode: manual
+  vertical_flip: true
+  horizontal_mirror: false
+
+switch:
+  - platform: gpio
+    name: "Active"
+    pin:
+      number: GPIO18
+      inverted: true
+    restore_mode: ALWAYS_ON
+
+# i2c:
+#   - id: camera_i2c
+#     sda: GPIO12 # CAM_SDA
+#     scl: GPIO9 # CAM_SCL
+

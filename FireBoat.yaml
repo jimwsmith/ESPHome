@@ -3,7 +3,7 @@
 substitutions:
   friendly_name: "Boat" #Main unit onboard AINSLEY - other units act as monitors following status of this device
   esphome_name: "fireboat"
-  esphome_monitor: "fireboat2" #The Fire unit that is sending speed info
+  esphome_gpsmonitor: "fireboat3" #The Fire unit that is sending gps (speed) info to the main Fire unit connected to ATMega via Uart (for display purposes)
 
 esphome:
   name: ${esphome_name}
@@ -14,3 +14,14 @@ packages:
   boat: !include BoatSend.yaml
   uart: !include FireUartex.yaml
   m5stackfire: !include M5StackFire.yaml
+
+# Need to specify Uart settings per device as they now change for different GPS units
+uart:
+  id: uart_bus
+  baud_rate: 9600 # 115200 for M5Stack GPS V2.1 or 9600 for M5Stack GPS V1 or ATMega Unit
+  data_bits: 8
+  parity: NONE
+  stop_bits: 1
+  tx_pin: GPIO26 #TXD2 M5Stack Fire
+  rx_pin: GPIO36 #GPIO36 #RXD2 on M5Stack Fire
+

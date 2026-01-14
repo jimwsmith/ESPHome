@@ -12,3 +12,13 @@ packages:
   boat: !include BoatReceive.yaml
   uart: !include FireNoUartex.yaml
   m5stackfire: !include M5StackFire.yaml
+
+# Need to specify Uart settings per device as they now change for different GPS units
+uart:
+  id: uart_bus
+  baud_rate: 115200 # for M5Stack GPS V2.1 # 9600 for M5Stack GPS V1
+  data_bits: 8
+  parity: NONE
+  stop_bits: 1
+  tx_pin: GPIO26 #TXD2 M5Stack Fire
+  rx_pin: GPIO36 #GPIO36 #RXD2 on M5Stack Fire

@@ -20,8 +20,6 @@ substitutions:
   rpm_bar_scale: "30" #scale factor so max rpm 3000 -> 100 on bar display
   scale_fuel_efficiency: "1000" #Scale factor to convert rpm to ltr per hour for engine fuel efficiency display (estimate 1000rpm = 1ltr/hr)
   fuel_efficiency_bar_scale: "10" #Scale factor so max fuel efficiency 10ltr/hr -> 100 on bar display
-  tx_pin: GPIO26 #TXD2 M5Stack Fire
-  rx_pin: GPIO36 #GPIO36 #RXD2 on M5Stack Fire
   led_strbuf_size: "16"
 
 esphome:
@@ -49,22 +47,12 @@ external_components:
     components: [lvgl]
     refresh: 1h
 
-uart:
-  id: uart_bus
-  baud_rate: 9600
-  data_bits: 8
-  parity: NONE
-  stop_bits: 1
-  tx_pin: $tx_pin
-  rx_pin: $rx_pin
-  # rx_buffer_size: 512 #Keep 256 to reduce RAM usage
 
 # Enable logging
 logger:
   logs:
     component: DEBUG #Supress excessive warnings about display writing
-  tx_buffer_size: 256 #Try and reduce RAM usage (default 512)
-#  task_log_buffer_size: 512 # (default 768) - requires later ESPHome version
+  # tx_buffer_size: 256 #Try and reduce RAM usage (default 512)
   
 number:
   - platform: template
@@ -106,6 +94,9 @@ time:
           - script.execute: time_update #Updates time in top_level lvgl display once a minute
     on_time_sync:
       - script.execute: time_update
+
+  # - platform: gps
+  #   id: gps_time
 
 script:
   - id: soc_check_alarm # Script to check alarm status - needs calling if thresholds or value changes

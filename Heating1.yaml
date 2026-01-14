@@ -11,3 +11,4 @@ esphome:
 packages:
   boat: !include M5CoreHeating.yaml
   m5cores3: !include M5CoreS3.yaml
+  # camera: !include M5CoreS3Cam.yaml

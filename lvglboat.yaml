@@ -135,6 +135,23 @@ script:
           id: bar_rpm_speed_current_efficiency
           value: !lambda 'return (id(fuel_efficiency).state) * $fuel_efficiency_bar_scale ;'
 
+
+  - id: satellites_update #
+    then:
+      - lvgl.label.update:
+          id: lbl_rpm_speed_lbl_satellites
+          text:
+            format: "Sat:\n%.0f\n%.2f"
+            args: [ 'id(gps_satellites).state', 'id(gps_hdop).state' ]
+
+  - id: hdop_update #
+    then:
+      - lvgl.label.update:
+          id: lbl_rpm_speed_lbl_satellites
+          text:
+            format: "Sat:\n%.0f\n%.2f"
+            args: [ 'id(gps_satellites).state', 'id(gps_hdop).state' ]
+
 #==========================================================================================================================
 lvgl:
   pages:
@@ -205,7 +222,7 @@ lvgl:
                   text_align: LEFT
                   text_color: YELLOW
                   text: mph
-                  text_font: font_roboto_medium22
+                #   text_font: font_roboto_medium22
               - bar:
                   grid_cell_column_pos: 1 # place the widget in
                   grid_cell_row_pos: 1 # the corresponding cell
@@ -215,7 +232,7 @@ lvgl:
                   value: 100
                   styles: bar_temperature
                   indicator: 
-                    styles: indicator_speed_rpm
+                    styles: indicator_efficiency
               - label: #List this after bar widget so label is on top
                   grid_cell_column_pos: 1 # place the widget in
                   grid_cell_row_pos: 1 # the corresponding cell
@@ -257,7 +274,7 @@ lvgl:
                   text_align: LEFT
                   text_color: YELLOW
                   text: rpm
-                  text_font: font_roboto_medium22
+                #   text_font: font_roboto_medium22
               - label:
                   grid_cell_column_pos: 0 # place the widget in
                   grid_cell_row_pos: 0 # the corresponding cell
@@ -284,6 +301,16 @@ lvgl:
                   align: BOTTOM_LEFT
                   text_align: LEFT
                   text: "SoC"
+                  text_color: YELLOW
+              - label: 
+                  grid_cell_column_pos: 2 # place the widget in
+                  grid_cell_row_pos: 2 # the corresponding cell
+                  grid_cell_x_align: END
+                  grid_cell_y_align: END
+                  id: lbl_rpm_speed_lbl_satellites
+                  align: BOTTOM_RIGHT
+                  text_align: RIGHT
+                  text: "Sat"
                   text_color: YELLOW
 #==========================================================================================================================
     - id: speed_page

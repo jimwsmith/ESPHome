@@ -1,0 +1,41 @@
+# Code to interface with M5Strack PM2.5 module
+esphome:
+  name: ${esphome_name}
+
+uart: 
+  - id: uart_aqi
+    tx_pin: GPIO14 #TXD2
+    rx_pin: GPIO13 #RXD2
+    baud_rate: 9600
+
+# Example configuration entry
+sensor:
+  - platform: pmsx003
+    type: PMSX003
+    uart_id: uart_aqi
+    pm_1_0:
+      name: "PMI <1.0µm"
+    pm_2_5:
+      name: "PMI <2.5µm"
+    pm_10_0:
+      name: "PMI <10.0µm"
+
+  - platform: htu21d
+    model: SHT21
+    temperature:
+      name: "Temperature"
+    humidity:
+      name: "Humidity"
+    heater:
+      name: "Heater"
+
+output:
+  - platform: gpio
+    pin: GPIO19
+    id: aqi_control
+
+switch:
+  - platform: output
+    output: aqi_control
+    name: "AQI Sensor Control"
+    restore_mode: ALWAYS_ON

@@ -55,6 +55,8 @@ number:
               update_interval = update_interval * 1000; //Convert to milliseconds !!!!
               id(gps_receiver).set_update_interval(update_interval);
               id(gps_receiver).call_setup(); //Force immediate update with new interval
+              id(speed_mph).set_update_interval(update_interval);
+              id(speed_mph).call_setup(); //Force immediate update with new interval
             }
 
 #Only fit GPS unit to the receiver Fire unit
@@ -83,19 +85,26 @@ gps:
           send_every: 10
   speed:
     id: gps_speed_kmh
-    name: "Speed"
-    internal: true
+    name: "Speed kmh"
+    # internal: true
   course:
     id: gps_course
     name: "Course"
   satellites:
-    id: gps_satelites
-    name: "Satellites"
+    id: gps_satellites
+    name: "satellites"
+    on_value:
+      then:
+        - script.execute: satellites_update
   hdop:
     id: gps_hdop
     name: "HDOP"
     device_class: distance
     unit_of_measurement: "m"
+    on_value:
+      then:
+        - script.execute: hdop_update
+
   update_interval: ${update_interval_speed}
   uart_id: uart_bus
 # Note in HA these are combined into a position sensor using a template sensor with multiple attributes
