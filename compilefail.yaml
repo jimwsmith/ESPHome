@@ -1,0 +1,29 @@
+substitutions:
+  esphome_name: "axp192test"
+
+esphome:
+  name: ${esphome_name}
+  build_path: C:/EsphomeTemp/${esphome_name}
+
+esp32:
+  board: m5stack-core2
+  framework:
+    type: esp-idf
+  flash_size: 16MB # Need to manually override defaults so M5STACK FIRE memory is correct
+
+psram: #Need to include this so logs will display PSRAM detected, note only 4MB detected even though 8MB exists (probably because himem not implemented)
+  mode: quad
+  speed: 80MHz
+
+# For sharing example configs
+api:
+
+wifi:
+  networks:
+    - ssid: !secret wifi_comp_ssid
+      password: !secret wifi_comp_password
+
+external_components:
+  - source: github://pr#14381
+    components: [binary_sensor, number, sensor, switch, text_sensor]
+    refresh: 1h
