@@ -459,7 +459,7 @@ lvgl:
 
 #==========================================================================================================================
     - id: climate_clock_page
-      # bg_color: 0x000000
+      bg_color: BLACK
       # text_color: 0xFFFFFF
       widgets:
         - obj:
@@ -470,13 +470,33 @@ lvgl:
                   text: "Climate Clock"
                   align: CENTER
                   text_align: CENTER
-        - label:
+        # - label:
+        #     x: 0
+        #     y: 50
+        #     width: 320
+        #     text_font: font_roboto_medium22 # Bigger text
+        #     text_color: 0x00FFFF
+        #     id: lbl_scrolling_news
+        #     long_mode: SCROLL_CIRCULAR
+        #     text: "News ticker"
+        - obj:
+            id: text_container
+            bg_color: BLACK
             x: 0
-            y: 50
+            y: 30
+            pad_all: 0
+            layout:
+              type: flex
+              flex_flow: COLUMN_WRAP
             width: 320
-            text_font: font_roboto_medium22 # Bigger text
-            text_color: 0x00FFFF
-            id: lbl_scrolling_news
-            long_mode: SCROLL_CIRCULAR
-            text: "News ticker"
+            height: 180 #240-(2*30) #Display area less header & footer  
+            widgets:
+              - label:
+                  width: 320
+                  text_font: font_roboto_medium16 # Smaller text so all 10 rows fit in container
+                  text_color: 0x00FFFF
+                  id: lbl_scrolling_news
+                  long_mode: SCROLL_CIRCULAR
+                  text: "News ticker"
+
         

@@ -11,3 +11,8 @@ esphome:
 packages:
   fireaqi: !include FireAQI.yaml
   m5stackfire: !include M5StackFire.yaml
+
+external_components:
+  - source: github://pr#14381
+    components: [binary_sensor, number, sensor, switch, text_sensor]
+    refresh: 1h
