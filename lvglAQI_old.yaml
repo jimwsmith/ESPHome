@@ -1,27 +1,6 @@
 esphome:
   name: ${esphome_name}
 
-globals:
-  - id: news_ticker_y
-    type: int
-    restore_value: no
-    initial_value: '0'
-
-interval:
-  - interval: 120ms
-    then:
-      - lambda: |-
-          lv_obj_t *stack = id(news_stack);
-          lv_obj_t *container = id(text_container);
-          if (stack == nullptr || container == nullptr) return;
-
-          const int stack_h = lv_obj_get_height(stack);
-          id(news_ticker_y) -= 2;  // 2x speed vs previous 1px step
-          if (id(news_ticker_y) < -stack_h) {
-            id(news_ticker_y) = lv_obj_get_content_height(container);  // Re-enter smoothly from bottom
-          }
-          lv_obj_set_y(stack, id(news_ticker_y));
-
 #==========================================================================================================================
 # Scripts to update bar displays so that either new thresholds or new values trigger the same code
 
@@ -506,91 +485,18 @@ lvgl:
             x: 0
             y: 30
             pad_all: 0
+            layout:
+              type: flex
+              flex_flow: COLUMN_WRAP
             width: 320
             height: 180 #240-(2*30) #Display area less header & footer  
             widgets:
-              - obj:
-                  id: news_stack
-                  x: 0
-                  y: 0
+              - label:
                   width: 320
-                  height: SIZE_CONTENT
-                  pad_all: 0
-                  border_opa: TRANSP
-                  bg_opa: TRANSP
-                  layout:
-                    type: flex
-                    flex_flow: COLUMN
-                  widgets:
-                    - label:
-                        width: 320
-                        text_font: font_roboto_medium18
-                        text_color: 0x66CCFF
-                        id: lbl_scrolling_news_0
-                        long_mode: WRAP
-                        text: "1:"
-                    - label:
-                        width: 320
-                        text_font: font_roboto_medium18
-                        text_color: 0xCC66CC
-                        id: lbl_scrolling_news_1
-                        long_mode: WRAP
-                        text: "2:"
-                    - label:
-                        width: 320
-                        text_font: font_roboto_medium18
-                        text_color: 0x66CCFF
-                        id: lbl_scrolling_news_2
-                        long_mode: WRAP
-                        text: "3:"
-                    - label:
-                        width: 320
-                        text_font: font_roboto_medium18
-                        text_color: 0xCC66CC
-                        id: lbl_scrolling_news_3
-                        long_mode: WRAP
-                        text: "4:"
-                    - label:
-                        width: 320
-                        text_font: font_roboto_medium18
-                        text_color: 0x66CCFF
-                        id: lbl_scrolling_news_4
-                        long_mode: WRAP
-                        text: "5:"
-                    - label:
-                        width: 320
-                        text_font: font_roboto_medium18
-                        text_color: 0xCC66CC
-                        id: lbl_scrolling_news_5
-                        long_mode: WRAP
-                        text: "6:"
-                    - label:
-                        width: 320
-                        text_font: font_roboto_medium18
-                        text_color: 0x66CCFF
-                        id: lbl_scrolling_news_6
-                        long_mode: WRAP
-                        text: "7:"
-                    - label:
-                        width: 320
-                        text_font: font_roboto_medium18
-                        text_color: 0xCC66CC
-                        id: lbl_scrolling_news_7
-                        long_mode: WRAP
-                        text: "8:"
-                    - label:
-                        width: 320
-                        text_font: font_roboto_medium18
-                        text_color: 0x66CCFF
-                        id: lbl_scrolling_news_8
-                        long_mode: WRAP
-                        text: "9:"
-                    - label:
-                        width: 320
-                        text_font: font_roboto_medium18
-                        text_color: 0xCC66CC
-                        id: lbl_scrolling_news_9
-                        long_mode: WRAP
-                        text: "10:"
+                  text_font: font_roboto_medium16 # Smaller text so all 10 rows fit in container
+                  text_color: 0x00FFFF
+                  id: lbl_scrolling_news
+                  long_mode: SCROLL_CIRCULAR
+                  text: "News ticker"
 
         
