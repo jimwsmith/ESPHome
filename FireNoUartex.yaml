@@ -1,5 +1,5 @@
-# Uses MQTT sesnors to copy teh information from the main unit so it can be displayed on this mirror unit
-# The main unit is connected to ATMega which is actually receiving teh sensor readings
+# Uses MQTT sesnors to copy the information from the main unit so it can be displayed on this mirror unit
+# The main unit is connected to ATMega which is actually receiving the sensor readings
 # Remember any lvgl label updaes need coding in both FireUartex.yaml and FireNoUartex.yaml versions
 #
 binary_sensor: 
@@ -764,8 +764,35 @@ sensor:
     accuracy_decimals: 0
     on_value:
       then:
+        - if:
+            condition:
+              lambda: 'return x >= ${engine_off_rpm_threshold};'
+            then: #If engine running, update GPS more frequently to track boat movement. If not running, GPS can be updated less frequently to save power
+              - logger.log: "Engine Assumed ON"
+              - number.set: 
+                  id: update_interval_gps
+                  value: ${engine_on_gps_update_interval} #Update every 5 seconds
+              - number.set:
+                  id: display_timeout
+                  value: 0 #Display always on when engine running
+              - light.turn_on: display_backlight
+              - if:
+                  condition: lvgl.is_paused
+                  then:
+                    - logger.log: "LVGL resuming from idle"
+                    - lvgl.resume:
+                    - lvgl.widget.redraw:
+            else:
+              - logger.log: "Engine Assumed OFF"
+              - number.set: 
+                  id: update_interval_gps
+                  value: ${engine_off_gps_update_interval} #Update every 10mins
+              - number.set:
+                  id: display_timeout
+                  value: 60 #Display off 60sec when engine off
+              # - light.turn_off: display_backlight #and force display off now
         - script.execute: engine_rpm_update
-
+  
   # - platform: uartex
   #   state: "VT03"
   #   state_number:

@@ -20,6 +20,7 @@ number:
     on_value: 
       then:
         - script.execute: soc_check_alarm
+
   - platform: template
     disabled_by_default: True #Hide device in Home Assistant
     command_topic: ${esphome_source}/number/soc_alarm_level/command #Monitor state of another device
@@ -34,6 +35,7 @@ number:
     on_value: 
       then:
         - script.execute: soc_check_alarm
+        
   - platform: template
     id: update_interval_gps
     name: "GPS Update Interval"
@@ -49,8 +51,8 @@ number:
         - lambda: |- 
             if (id(mqtt_client)->is_connected()) {
               int update_interval = id(update_interval_gps).state;
-              if (update_interval < 2) {
-                update_interval = 2; //Minimum interval of 5 seconds as a safety precaution
+              if (update_interval < 5) {
+                update_interval = 5; //Minimum interval of 5 seconds as a safety precaution
               }
               update_interval = update_interval * 1000; //Convert to milliseconds !!!!
               id(gps_receiver).set_update_interval(update_interval);

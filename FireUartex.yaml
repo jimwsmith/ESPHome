@@ -753,6 +753,27 @@ sensor:
       return n.has_value() ? n.value() : NAN;
     on_value:
       then:
+        - if:
+            condition:
+              lambda: 'return x >= ${engine_off_rpm_threshold};'
+            then: #If engine running, update GPS more frequently to track boat movement. If not running, GPS can be updated less frequently to save power
+              - logger.log: "Engine Assumed ON"
+              - number.set:
+                  id: display_timeout
+                  value: 0 #Display always on when engine running
+              - light.turn_on: display_backlight
+              - if:
+                  condition: lvgl.is_paused
+                  then:
+                    - logger.log: "LVGL resuming from idle"
+                    - lvgl.resume:
+                    - lvgl.widget.redraw:
+            else:
+              - logger.log: "Engine Assumed OFF"
+              - number.set:
+                  id: display_timeout
+                  value: 60 #Display off 60sec when engine off
+              # - light.turn_off: display_backlight #and force display off now
         - script.execute: engine_rpm_update
 
   - platform: uartex
