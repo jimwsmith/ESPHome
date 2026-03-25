@@ -10,6 +10,10 @@ button:
       then:
         - scd30.force_recalibration_with_reference:
             value: !lambda 'return id(scd30_calibration_level).state;'
+        - logger.log:
+            level: INFO
+            format: "SCD30 Manual calibration with reference value: %.0f ppm"
+            args: [ 'id(scd30_calibration_level).state' ]
 
 sensor:
   - platform: scd30 #Absolute CO2, temp, humidity

@@ -1,0 +1,99 @@
+esphome:
+  name: ${esphome_name}
+
+globals:
+  - id: no2_offset
+    type: float
+    restore_value: yes
+    initial_value: '0.0'
+  - id: co_offset
+    type: float
+    restore_value: yes
+    initial_value: '0.0'
+  - id: tvoc_offset
+    type: float
+    restore_value: yes
+    initial_value: '0.0'
+  - id: ethanol_offset
+    type: float
+    restore_value: yes
+    initial_value: '0.0'
+  - id: no2_raw
+    type: float
+    restore_value: no
+    initial_value: '0.0'
+  - id: co_raw
+    type: float
+    restore_value: no
+    initial_value: '0.0'
+  - id: tvoc_raw
+    type: float
+    restore_value: no
+    initial_value: '0.0'
+  - id: ethanol_raw
+    type: float
+    restore_value: no
+    initial_value: '0.0'
+
+sensor:
+  - platform: grove_gas_mc_v2
+    nitrogen_dioxide:
+      name: "Nitrogen Dioxide"
+      id: no2
+      filters:
+        - lambda: |-
+            id(no2_raw) = x;
+            return x - id(no2_offset); 
+      on_value: #When value changes update LVGL display
+        - script.execute: update_bar_no2
+    ethanol:
+      name: "Ethanol"
+      id: ethanol
+      filters:
+        - lambda: |-
+            id(ethanol_raw) = x;
+            return x - id(ethanol_offset);
+    carbon_monoxide:
+      name: "Carbon Monoxide"
+      id: co
+      filters:
+        - lambda: |-
+            id(co_raw) = x;
+            return x - id(co_offset); 
+      on_value: #When value changes update LVGL display
+        - script.execute: update_bar_co
+    tvoc:
+      name: "Volatile Organic Compounds"
+      id: tvoc
+      filters:
+        - lambda: |-
+            id(tvoc_raw) = x;
+            return x - id(tvoc_offset);
+
+button:
+  - platform: template
+    name: "4ch Gas Manual calibration"
+    id: gas4ch_calibrate
+    entity_category: "config"
+    on_press:
+      then:
+        # store current raw values as sensor offsets for calibration
+        - globals.set:
+            id: no2_offset
+            value: !lambda return id(no2_raw);
+        # - logger.log:
+        #     level: INFO
+        #     format: "NO2 offset set to %.2f"
+        #     args: [id(no2_offset)]
+        - globals.set:
+            id: co_offset
+            value: !lambda return id(co_raw);
+        - globals.set:
+            id: tvoc_offset
+            value: !lambda return id(tvoc_raw);
+        - globals.set:
+            id: ethanol_offset
+            value: !lambda return id(ethanol_raw);
+        # Then force update of sensors to reflect new calibration
+        # - component.update: co
+

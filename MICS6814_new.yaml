@@ -1,0 +1,291 @@
+esphome:
+  name: ${esphome_name}
+  libraries:
+    - "Wire"
+    - "ZodiusInfuser/IOExpander_Library"
+
+external_components:
+  - source: ./mics6814_component
+    # version: "1.0.0"
+    components: [mics6814]
+    refresh: 0s
+
+
+
+sensor:
+  - platform: mics6814
+    id: mics6814_sensor
+    update_interval: 60s
+    address: 0x19
+    i2c_id: bus_a
+
+    reducing_resistance:
+      name: "Red Res Sensor"
+      entity_category: diagnostic
+      unit_of_measurement: Ohm
+      accuracy_decimals: 0
+      icon: "mdi:gauge"
+      on_value:
+        - lvgl.label.update:
+            id: lbl_6814_red_res_sensor
+            text:
+              format: "Reducing\n %.0f ohm"
+              args: [ 'x' ]
+
+    nh3_resistance:
+      name: "NH3 Res Sensor"
+      entity_category: diagnostic
+      unit_of_measurement: Ohm
+      accuracy_decimals: 0
+      icon: "mdi:gauge"
+      on_value:
+        - lvgl.label.update:
+            id: lbl_6814_nh3_res_sensor
+            text:
+              format: "NH3\n %.0f ohm"
+              args: [ 'x' ]
+
+    oxidising_resistance:
+      name: "Ox Res Sensor"
+      entity_category: diagnostic
+      unit_of_measurement: Ohm
+      accuracy_decimals: 0
+      icon: "mdi:gauge"
+      on_value:
+        - lvgl.label.update:
+            id: lbl_6814_ox_res_sensor
+            text:
+              format: "Oxidising\n %.0f ohm"
+              args: [ 'x' ]
+
+    carbon_monoxide:
+      name: "CO Sensor"
+      id: co
+      accuracy_decimals: 0
+      unit_of_measurement: 'ppm'
+      icon: "mdi:test-tube"
+      on_value:
+        - script.execute: update_bar_co
+
+    nitrogen_dioxide:
+      name: "NO2 Sensor"
+      id: no2
+      accuracy_decimals: 0
+      unit_of_measurement: 'ppm'
+      icon: "mdi:test-tube"
+      on_value:
+        - script.execute: update_bar_no2
+
+    ammonia:
+      name: "NH3 Sensor"
+      id: nh3
+      accuracy_decimals: 0
+      unit_of_measurement: 'µg/m³'
+      icon: "mdi:test-tube"
+      on_value:
+        - script.execute: update_bar_nh3
+
+    propane:
+      name: "C3H8 Sensor"
+      accuracy_decimals: 0
+      unit_of_measurement: 'ppm'
+      icon: "mdi:test-tube"
+      on_value:
+        - lvgl.label.update:
+            id: lbl_6814_c3h8_sensor
+            text:
+              format: "C3H8\n %.0f ppm"
+              args: [ 'x' ]
+
+    iso_butane:
+      name: "C4H10 Sensor"
+      accuracy_decimals: 0
+      unit_of_measurement: 'ppm'
+      icon: "mdi:test-tube"
+      on_value:
+        - lvgl.label.update:
+            id: lbl_6814_c4h10_sensor
+            text:
+              format: "C4H10\n %.0f ppm"
+              args: [ 'x' ]
+
+    methane:
+      name: "CH4 Sensor"
+      accuracy_decimals: 0
+      unit_of_measurement: 'ppm'
+      icon: "mdi:test-tube"
+      on_value:
+        - lvgl.label.update:
+            id: lbl_6814_ch4_sensor
+            text:
+              format: "CH4\n %.0f ppm"
+              args: [ 'x' ]
+
+    hydrogen:
+      name: "H2 Sensor"
+      accuracy_decimals: 0
+      unit_of_measurement: 'ppm'
+      icon: "mdi:test-tube"
+      on_value:
+        - lvgl.label.update:
+            id: lbl_6814_h2_sensor
+            text:
+              format: "H2\n %.0f ppm"
+              args: [ 'x' ]
+
+    ethanol:
+      name: "C2H5OH Sensor"
+      accuracy_decimals: 0
+      unit_of_measurement: 'ppm'
+      icon: "mdi:test-tube"
+      on_value:
+        - lvgl.label.update:
+            id: lbl_6814_c2h5oh_sensor
+            text:
+              format: "C2H5OH\n %.0f ppm"
+              args: [ 'x' ]
+
+switch:
+  - platform: mics6814
+    mics6814_id: mics6814_sensor
+
+    heater:
+      id: heater_override
+      name: "Heater Override"
+      entity_category: config
+      restore_mode: RESTORE_DEFAULT_OFF
+
+    calibration:
+      id: calibration_switch
+      name: "Store Calibration"
+      entity_category: config
+      restore_mode: RESTORE_DEFAULT_OFF
+      on_turn_on:
+        - lvgl.widget.update:
+            id: butt_6814_calibrate
+            state:
+              checked: !lambda return id(calibration_switch).state;
+      on_turn_off:
+        - lvgl.widget.update:
+            id: butt_6814_calibrate
+            state:
+              checked: !lambda return id(calibration_switch).state;
+
+#==========================================================================================================================
+lvgl:
+  pages:
+    - id: mics6814_page
+      widgets:
+        - obj:
+            align: TOP_MID
+            styles: header_footer
+            widgets:
+              - label:
+                  text: "MICS6814 Gas Sensor"
+                  align: CENTER
+                  text_align: CENTER
+                  text_color: 0xFFFFFF
+        - obj: # a properly placed coontainer object for all these controls
+            align: CENTER
+            width: 320
+            height: 180 #240-(2*30) #Display area less header & footer
+            pad_all: 6
+            bg_opa: TRANSP
+            border_opa: TRANSP
+            outline_width: 1 #debug
+            layout: # enable the GRID layout for the children widgets
+              type: GRID # split the rows and the columns proportionally
+              grid_columns: [FR(1), FR(1), FR(1)] # equal
+              grid_rows: [FR(1), FR(1), FR(1), FR(1)] # like percents
+              pad_row: 6
+              pad_column: 8
+            widgets:
+              - label:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 0 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_6814_co_sensor
+                  text: "CO"
+              - label: # gauge numeric indicator
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 1 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_6814_no2_sensor
+                  text: "NO2"
+              - label: # gauge numeric indicator
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 2 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_6814_nh3_sensor
+                  text: "NH3"
+              - label:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 3 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_6814_c3h8_sensor
+                  text: "C3H8"
+              - label:
+                  grid_cell_column_pos: 1 # place the widget in
+                  grid_cell_row_pos: 0 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_6814_c4h10_sensor
+                  text: "C4H10"
+              - label:
+                  grid_cell_column_pos: 1 # place the widget in
+                  grid_cell_row_pos: 1 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_6814_ch4_sensor
+                  text: "CH4"
+              - label:
+                  grid_cell_column_pos: 1 # place the widget in
+                  grid_cell_row_pos: 2 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_6814_h2_sensor
+                  text: "H2"
+              - label:
+                  grid_cell_column_pos: 1 # place the widget in
+                  grid_cell_row_pos: 3 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_6814_c2h5oh_sensor
+                  text: "C2H5OH"
+              - label:
+                  grid_cell_column_pos: 2 # place the widget in
+                  grid_cell_row_pos: 0 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_6814_red_res_sensor
+                  text: "Red Res"
+              - label:
+                  grid_cell_column_pos: 2 # place the widget in
+                  grid_cell_row_pos: 1 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_6814_nh3_res_sensor
+                  text: "NH3 Res"
+              - label:
+                  grid_cell_column_pos: 2 # place the widget in
+                  grid_cell_row_pos: 2 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_6814_ox_res_sensor
+                  text: "Ox Res"
+              - button:
+                  grid_cell_column_pos: 2 # place the widget in
+                  grid_cell_row_pos: 3 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: butt_6814_calibrate
+                  widgets:
+                    - label:
+                        align: CENTER
+                        text: "Calibrate"
+                  on_click:
+                    switch.toggle: calibration_switch

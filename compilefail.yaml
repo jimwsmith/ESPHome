@@ -23,7 +23,294 @@ wifi:
     - ssid: !secret wifi_comp_ssid
       password: !secret wifi_comp_password
 
-external_components:
-  - source: github://pr#14381
-    components: [binary_sensor, number, sensor, switch, text_sensor]
-    refresh: 1h
+# external_components:
+#   - source: github://pr#14381
+#     components: [binary_sensor, number, sensor, switch, text_sensor]
+#     refresh: 1h
+
+
+spi:
+  clk_pin: 18
+  mosi_pin: 23
+  miso_pin: 19
+
+
+display:
+  - platform: ili9xxx
+    id: m5stack_display #320x240 pixels
+    model: ili9342
+    cs_pin: GPIO5
+    dc_pin: GPIO15
+    invert_colors: true
+    show_test_card: true
+    auto_clear_enabled: false
+    dimensions:
+      width: 320
+      height: 240
+    transform:
+      mirror_x: false # must be explicitly included, otherwise it defaults to true with the ili9342
+
+lvgl:
+  displays:
+    - m5stack_display
+  resume_on_input: true #resume from pause on button press (encoder rotate)
+  id: lv_id #Only reqd so that ota can force updates to lvgl display even when main loop not running
+  bg_color: BLACK
+  text_color: WHITE
+
+  style_definitions:
+    - id: header_footer
+      bg_color: BLACK # 0x2F8CD8
+      # bg_grad_color: 0x005782
+      # bg_grad_dir: VER
+      # bg_opa: COVER #TRANSP
+      # radius: 0
+      pad_all: 0
+      # border_width: 0 # jws 1
+      border_color:  0x0077b3
+      border_opa: COVER
+      text_color: YELLOW
+      width: 100%
+      height: 30
+      scrollbar_mode: "OFF" #Never show scrollbars which otherwise appear if we make an object to big for parent container
+
+
+  top_layer:
+    text_color: YELLOW
+    widgets:
+      - label:
+          id: lbl_battery_status
+          align: TOP_RIGHT
+          y: 3
+          x: -22
+          text_font: battery_icons_20
+          text: "\U000F0091" # start with mdi-battery-unknown      - label:
+      - animimg:
+          image_recolor: YELLOW # to set colour of binary image
+          image_recolor_opa: COVER # defaults to TRANSP so needs explicit define
+          hidden: True
+          id: ani_battery_charging
+          align: TOP_RIGHT
+          y: 4
+          x: -24
+          src: [
+            batt_charging_empty,
+            batt_charging_10,
+            batt_charging_20,
+            batt_charging_30,
+            batt_charging_40,
+            batt_charging_50,
+            batt_charging_60,
+            batt_charging_70,
+            batt_charging_80,
+            batt_charging_90,
+            batt_charging_full
+            ]
+          duration: 2200ms
+      - label:
+          text: "\uF1EB" #WIFi symbol (will be overlaid by LEDs anyway)
+          id: lbl_hastatus
+          align: top_right
+          x: 0 #-2
+          y: 2 #6
+          text_align: right
+      - led:
+          id: led_wifi
+          align: top_right
+          x: -5
+          y: 2
+          width: 12
+          height: 12
+          color: YELLOW
+          brightness: 100%
+          border_color: BLACK
+          border_width: 1
+          border_opa: COVER
+      - led:
+          id: led_mqtt
+          align: top_right
+          x: -5
+          y: 16
+          width: 12
+          height: 12
+          color: YELLOW
+          brightness: 100%
+          outline_color: BLACK
+          outline_width: 1
+          outline_opa: COVER
+      - label:
+          text: "Time" # Will be overwritten by the time update script
+          id: lbl_time
+          align: top_left
+          x: 4
+          y: 5
+          text_align: left
+      - obj:
+          # styles: header_footer
+          bg_color: BLACK # 0x2F8CD8
+          pad_all: 0
+          border_width: 0 # jws 1
+          width: 100%
+          height: 30
+          align: BOTTOM_MID
+          layout:
+            type: GRID
+            grid_columns: [FR(1), FR(1), FR(1)] # equal
+            grid_rows: [FR(1)] # like percents
+          widgets: 
+            - button:
+                grid_cell_column_pos: 0 # place the widget in
+                grid_cell_row_pos: 0 # the corresponding cell
+                grid_cell_x_align: STRETCH
+                grid_cell_y_align: STRETCH
+                align: CENTER
+                id: btn_focus_next
+                on_press:
+                  then:
+                    - lvgl.page.previous:
+                    - logger.log: "Left pressed"
+                widgets:
+                  - label:
+                      text_color: YELLOW
+                      text: "\uF053"
+                      align: CENTER
+            - button:
+                grid_cell_column_pos: 1 # place the widget in
+                grid_cell_row_pos: 0 # the corresponding cell
+                grid_cell_x_align: STRETCH
+                grid_cell_y_align: STRETCH
+                align: CENTER
+                id: btn_page_home
+                on_press:
+                  then:
+                    - logger.log: "Home pressed"
+                    - lvgl.page.show: main_page
+                widgets:
+                  - label:
+                      text_color: YELLOW
+                      text: "\uF015"
+                      align: CENTER
+            - button:
+                grid_cell_column_pos: 2 # place the widget in
+                grid_cell_row_pos: 0 # the corresponding cell
+                grid_cell_x_align: STRETCH
+                grid_cell_y_align: STRETCH
+                align: CENTER
+                id: btn_page_next
+                on_press:
+                  then:
+                    - logger.log: "Next P pressed"
+                    - lvgl.page.next:
+                widgets:
+                  - label:
+                      text_color: YELLOW
+                      text: "\uF054"
+                      align: CENTER
+
+      - obj:
+          id: boot_screen
+          x: 0
+          y: 0
+          width: 100%
+          height: 100%
+          bg_color: 0xffffff
+          bg_opa: COVER
+          radius: 0
+          pad_all: 0
+          border_width: 0
+          widgets:
+            - image:
+                align: CENTER
+                src: boot_logo
+                y: -40
+            - spinner:
+                align: CENTER
+                y: 95
+                height: 50
+                width: 50
+                spin_time: 1s
+                arc_length: 60deg
+                arc_width: 8
+                indicator:
+                  arc_color: 0x18bcf2
+                  arc_width: 8
+            - label: 
+                align: CENTER
+                y: 60
+                text_align: CENTER
+                text: "Booting"
+          on_press:
+            - logger.log: "Boot pressed"
+            - lvgl.widget.hide: boot_screen
+#==========================================================================================================================
+  pages:
+    - id: main_page
+      # on_load:
+      #   - lvgl.widget.focus: top_layer # focus_next
+      # bg_color: BLACK
+      widgets:
+        - obj: # Title block
+            align: TOP_MID
+            styles: header_footer
+            widgets:
+              - label:
+                  text: "${friendly_name}"
+                  align: CENTER
+                  text_align: CENTER
+        - obj: # a properly placed coontainer object for all these controls
+            text_color: WHITE
+            align: CENTER
+            width: 320
+            height: 160 #240-(2*30) #Display area less header & footer
+            pad_all: 6
+            bg_opa: TRANSP
+            border_opa: TRANSP
+            outline_width: 1 #debug
+            layout: # enable the GRID layout for the children widgets
+              type: GRID # split the rows and the columns proportionally
+              grid_columns: [FR(1), FR(1)] # equal
+              grid_rows: [FR(1), FR(1), FR(1), FR(1), FR(1)] # like percents
+              pad_row: 6
+              pad_column: 8
+            widgets:
+              - label:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 0 # the corresponding cell
+                  grid_cell_column_span: 2 #Span 2 columns as firmware version is a long string
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_esphome_name
+                  text: ${esphome_name}
+              - label:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 1 # the corresponding cell
+                  grid_cell_column_span: 2 #Span 2 columns as firmware version is a long string
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_app_name
+                  text: "Version"
+              - label:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 2 # the corresponding cell
+                  grid_cell_column_span: 2 #Span 2 columns as firmware version is a long string
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_wifi_strength
+                  text: wifi
+              - label:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 3 # the corresponding cell
+                  grid_cell_column_span: 2 #Span 2 columns as firmware version is a long string
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_wifi_ssid
+                  text: ssid
+              - label:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 4 # the corresponding cell
+                  grid_cell_column_span: 2 #Span 2 columns as firmware version is a long string
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_wifi_ip
+                  text: ip addr
+#

@@ -22,7 +22,8 @@ packages:
   lvglcommon: !include lvglcommon.yaml
   bme68x: !include BME68x.yaml
   pmsa003i: !include pmsa003i.yaml
-  # mics6814: !include MICS6814.yaml
+  # mics6814: !include MICS6814_new.yaml
+  grove4ch: !include grove4ch.yaml
   scd30: !include scd30.yaml
 # mqtt:
 #   on_message: 
@@ -304,4 +305,8 @@ sensor:
     internal: true # Mark this sensor as only for use within this code - we don't nee to feed it back out to Home Assistant since it came from there!
     id: scd30_calibration_level
     topic: homeassistant/scd30_calibration/level
-
+    on_value:
+      - logger.log:
+          level: INFO
+          format: "SCD30 calibration level updated to: %.0f ppm"
+          args: [ 'x' ] 

@@ -1,0 +1,13 @@
+name: "mics6814"
+description: "MiCS-6814 multi-gas sensor component for ESPHome"
+dependencies:
+  - i2c
+includes:
+  - mics6814_component.h
+sources:
+  - mics6814_component.cpp
+libraries:
+  - "ZodiusInfuser/IOExpander_Library"
+authors:
+  - "@user"
+version: "1.0.0"
