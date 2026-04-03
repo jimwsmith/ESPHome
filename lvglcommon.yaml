@@ -35,46 +35,49 @@ font:
       fonts/Roboto-Medium.ttf
     id: font_roboto_medium22
     size: 22
-    glyphs: '!"%()+,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz/³µŋ'
-    glyphsets:
-      - GF_Latin_Core
-      - GF_Latin_Plus
-      - GF_Greek_Core
+    glyphs: "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz !\"%&'()*+,-./:;<=>?@[\\]^_`{|}~°µ³"
+    # glyphs: '!"%()+,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz/³µŋ'
+    # glyphsets:
+    #   - GF_Latin_Core
+    #   - GF_Latin_Plus
+    #   - GF_Greek_Core
       # - GF_Cyrillic_Core
 
   - file: 
       fonts/Roboto-Medium.ttf
     id: font_roboto_medium18
     size: 18
-    glyphs: '!"%()+,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz/³µŋ'
-    glyphsets:
-      - GF_Latin_Core
-      - GF_Latin_Plus
-      - GF_Greek_Core
+    glyphs: "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz !\"%&'()*+,-./:;<=>?@[\\]^_`{|}~°µ³"
+    # glyphs: '!"%()+,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz/³µŋ'
+    # glyphsets:
+    #   - GF_Latin_Core
+    #   - GF_Latin_Plus
+    #   - GF_Greek_Core
       # - GF_Cyrillic_Core
 
   - file: 
       fonts/Roboto-Medium.ttf
     id: font_roboto_medium16
     size: 16
-    glyphs: '!"%()+,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz/³µŋ'
-    glyphsets:
-      - GF_Latin_Core
-      - GF_Latin_Plus
-      - GF_Greek_Core
+    glyphs: "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz !\"%&'()*+,-./:;<=>?@[\\]^_`{|}~°µ³"
+    # glyphs: '!"%()+,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz/³µŋ'
+    # glyphsets:
+    #   - GF_Latin_Core
+    #   - GF_Latin_Plus
+    #   - GF_Greek_Core
       # - GF_Cyrillic_Core
 
   - file: 
       fonts/Roboto-Medium.ttf
     id: font_roboto_medium80
     size: 80
-    glyphs: [
-      '!"%()+,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz/³µŋ',
-      ]
-    glyphsets:
-      - GF_Latin_Core
-      - GF_Latin_Plus
-      - GF_Greek_Core
+    glyphs: "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz !\"%&'()*+,-./:;<=>?@[\\]^_`{|}~°µ³"
+    # glyphs: '!"%()+,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz/³µŋ'
+    # glyphsets:
+    #   - GF_Latin_Core
+    #   - GF_Latin_Plus
+    #   - GF_Greek_Core
+      # - GF_Cyrillic_Core
 
 # Battery icons
   - file: "fonts/materialdesignicons-webfont.ttf"

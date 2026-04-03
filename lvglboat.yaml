@@ -3,7 +3,12 @@ esphome:
 #==========================================================================================================================
 #==========================================================================================================================
 # Scripts to update various displays of values.  Done here via script so we don't have to keep going and finding all the places to edit when we add a new page
-script: 
+script:
+  - id: led_eng_rad_update
+    then:
+      - lvgl.led.update: #On = RED, Off = BLUE
+          id: led_rpm_speed_eng_rad
+          color: !lambda 'return (id(relay_1).state) ? lv_color_hex(0xFF0000): lv_color_hex(0x0000FF);'
   - id: bmv_current_update 
     then:
       - lvgl.label.update:
@@ -240,7 +245,7 @@ lvgl:
                   grid_cell_y_align: CENTER
                   id: lbl_rpm_speed_current_efficiency
                   text_align: CENTER
-                  text_color: YELLOW
+                  text_color: WHITE
                   text: eff 
                   text_font: font_roboto_medium22
               - bar:
@@ -312,6 +317,21 @@ lvgl:
                   text_align: RIGHT
                   text: "Sat"
                   text_color: YELLOW
+              - led: #Used to display status of engine to radiator cooling circuit (relay_1)
+                  grid_cell_column_pos: 2 # place the widget in
+                  grid_cell_row_pos: 0 # the corresponding cell
+                  id: led_rpm_speed_eng_rad
+                  # x and y position don't work in grid layouts
+                  grid_cell_x_align: END
+                  grid_cell_y_align: END
+                  width: 12
+                  height: 12
+                  color: YELLOW
+                  brightness: 100%
+                  outline_color: BLACK
+                  outline_width: 1
+                  outline_opa: COVER
+
 #==========================================================================================================================
     - id: speed_page
       bg_color: BLACK

@@ -59,6 +59,8 @@ number:
               id(gps_receiver).call_setup(); //Force immediate update with new interval
               id(speed_mph).set_update_interval(update_interval);
               id(speed_mph).call_setup(); //Force immediate update with new interval
+              id(fuel_efficiency).set_update_interval(update_interval);
+              id(fuel_efficiency).call_setup(); //Force immediate update with new interval
             }
 
 #Only fit GPS unit to the receiver Fire unit
@@ -121,7 +123,7 @@ sensor:
     update_interval: ${update_interval_speed}
     lambda: |-
       if (isnan(id(gps_speed_kmh).state )) return 0; //Ignore invalid speeds so bars display correctly
-      if (id(gps_speed_kmh).state < 0.4) return 0; //Ignore low speeds as these are just noise
+      if (id(gps_speed_kmh).state < 0.3) return 0; //Ignore low speeds as these are just noise
       return id(gps_speed_kmh).state * 0.621371;
     on_value:
       then:
@@ -131,12 +133,12 @@ sensor:
     name: "Fuel Efficiency"
     id: fuel_efficiency
     unit_of_measurement: "mpg"
-    device_class: energy
+    # device_class: energy
     accuracy_decimals: 1
     update_interval: ${update_interval_speed}
     lambda: |-
       if (isnan(id(gps_speed_kmh).state )) return 0; //Ignore invalid speeds so bars display correctly
-      if (id(gps_speed_kmh).state < 0.4) return 0; //Ignore low speeds as these are just noise
+      if (id(gps_speed_kmh).state < 0.3) return 0; //Ignore low speeds as these are just noise
       return (id(gps_speed_kmh).state * 0.621371) * ${scale_fuel_efficiency} / (id(vt_engine_rpm).state); //Convert km/h to mph and rpm to gallons per hour
     on_value:
       then:
@@ -168,7 +170,7 @@ switch:
             checked: True
       - mqtt.publish:
           topic: ${esphome_source}/switch/atmega_relay_1/command
-          payload: "ON"      
+          payload: "ON"  
     turn_off_action:
       - uart.write: [0x52, 0x31, 0x30, 0x0A, 0x0D] #Send Relay state to AT Mega R20\r\n
       - lvgl.widget.update:
@@ -178,6 +180,9 @@ switch:
       - mqtt.publish:
           topic: ${esphome_source}/switch/atmega_relay_1/command
           payload: "OFF"      
+    on_state:
+      then:
+        - script.execute: led_eng_rad_update #Update LED colour to reflect relay state change
     optimistic: true #Required so that state change gets registered even though there is no actual comms back to ack the relay change
 
   - platform: template
@@ -193,7 +198,7 @@ switch:
             checked: True
       - mqtt.publish:
           topic: ${esphome_source}/switch/atmega_relay_2/command
-          payload: "ON"      
+          payload: "ON"    
     turn_off_action:
       - uart.write: [0x52, 0x32, 0x30, 0x0A, 0x0D] #Send Relay state to AT Mega R20\r\n
       - lvgl.widget.update:
