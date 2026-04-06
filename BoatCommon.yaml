@@ -56,26 +56,6 @@ logger:
   logs:
     component: DEBUG #Supress excessive warnings about display writing
   # tx_buffer_size: 256 #Try and reduce RAM usage (default 512)
-  
-number:
-  - platform: template
-    id: wifi_error_count
-    name: "WiFi Error Count"
-    unit_of_measurement: "errors"
-    entity_category: "diagnostic"
-    max_value: 1000000
-    min_value: 0  
-    step: 1
-    optimistic: true  
-  - platform: template
-    id: mqtt_error_count
-    name: "MQTT Error Count"
-    entity_category: "diagnostic"
-    unit_of_measurement: "errors"
-    max_value: 1000000
-    min_value: 0  
-    step: 1
-    optimistic: true  
 
 time:
   - platform: sntp 

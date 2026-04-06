@@ -2,6 +2,13 @@
 esphome:
   name: ${esphome_name}
 
+#Globals to remember counts of WiFi drops between reboots
+globals:
+  - id: wifi_error_global
+    type: int
+    restore_value: yes
+    initial_value: '0'
+
 http_request: 
   verify_ssl: false #ESP32 cannot manage SSL connections
   buffer_size_rx: 1024 #Needed to specify to allow ota to work, which it only does on esp-idf framework now.
@@ -58,12 +65,21 @@ wifi:
       - lvgl.led.update:
           id: led_wifi
           color: GREEN
+      - number.set:
+          id: wifi_error_count
+          value: !lambda "return id(wifi_error_global);"
   on_disconnect:
     then:
       - lvgl.led.update:
           id: led_wifi
           color: RED
     # - lvgl.widget.hide: lbl_hastatus
+    # Increment count of WiFi dropouts
+      - lambda: |-
+          id(wifi_error_global) += 1;
+      - number.set:
+          id: wifi_error_count
+          value: !lambda "return id(wifi_error_global);"
 
 sensor:
   - platform: wifi_signal # Reports the WiFi signal strength/RSSI in dB
@@ -132,3 +148,14 @@ text_sensor:
   #     name: ESP Mac Wifi Address
   #   scan_results:
   #     name: ESP Latest Scan Results
+
+number:
+  - platform: template
+    id: wifi_error_count
+    name: "WiFi Error Count"
+    unit_of_measurement: "errors"
+    entity_category: "diagnostic"
+    max_value: 1000000
+    min_value: 0  
+    step: 1
+    optimistic: true  
