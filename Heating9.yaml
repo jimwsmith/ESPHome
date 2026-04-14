@@ -13,7 +13,7 @@ packages:
   m5cores3: !include M5Core2.yaml
   # aqi: !include Core2AQI.yaml
 
-external_components:
-  - source: github://pr#14381
-    components: [binary_sensor, number, sensor, switch, text_sensor]
-    refresh: 1h
+# external_components:
+#   - source: github://pr#14381
+#     components: [binary_sensor, number, sensor, switch, text_sensor]
+#     refresh: 1h

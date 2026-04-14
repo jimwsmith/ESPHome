@@ -46,7 +46,8 @@ switch:
     internal: True
     id: heating_pump
     # state_topic: homeassistant/switch/heating_pump_switch_1/state #No state topic to avoid boot confusion and cycling
-    command_topic: homeassistant/switch/heating_pump_switch_1/state #We use external state to control this switch
+#    command_topic: homeassistant/switch/heating_pump/state #We use external state to control this switch
+#    state_topic: zigbee2mqtt/Heating Pump/set #We use external state to control this switch
     # restore_mode: RESTORE_DEFAULT_OFF
     turn_on_action:
       - lvgl.widget.update:
@@ -65,6 +66,30 @@ switch:
           topic: homeassistant/switch/heating_pump_switch_1/command
           payload: "OFF"      
     optimistic: true #Required so that state change gets registered even though there is no actual comms back to ack the relay change
+
+# Then a section to monitor for MQTT messages from HA about the state of the pump (in case it is changed by another controller or by a physical switch) and update the display button state accordingly
+mqtt:
+  on_message:
+    - topic: zigbee2mqtt/Heating Pump/set
+      payload: "ON"
+      then:
+        - logger.log:
+            format: "Heating Pump mqtt ON"
+        - lvgl.widget.update:
+            id: btn_heating_pump
+            state:
+              checked: True
+
+    - topic: zigbee2mqtt/Heating Pump/set
+      payload: "OFF"
+      then:
+        - logger.log:
+            format: "Heating Pump mqtt OFF"
+        - lvgl.widget.update:
+            id: btn_heating_pump
+            state:
+              checked: False
+
 
 #=========================================================================================================
 sensor:

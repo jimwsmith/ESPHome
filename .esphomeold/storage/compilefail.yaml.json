@@ -1,0 +1,36 @@
+{
+  "storage_version": 1,
+  "name": "axp192test",
+  "friendly_name": null,
+  "comment": null,
+  "esphome_version": "2026.3.0",
+  "src_version": 1,
+  "address": "axp192test.local",
+  "web_port": null,
+  "esp_platform": "ESP32",
+  "build_path": "C:\\EsphomeTemp\\axp192test",
+  "firmware_bin_path": "C:\\EsphomeTemp\\axp192test\\.pioenvs\\axp192test\\firmware.bin",
+  "loaded_integrations": [
+    "api",
+    "display",
+    "esp32",
+    "esphome",
+    "ili9xxx",
+    "key_provider",
+    "lvgl",
+    "mdns",
+    "network",
+    "preferences",
+    "psram",
+    "socket",
+    "spi",
+    "substitutions",
+    "wifi"
+  ],
+  "loaded_platforms": [
+    "display/ili9xxx"
+  ],
+  "no_mdns": false,
+  "framework": "esp-idf",
+  "core_platform": "esp32"
+}
