@@ -63,7 +63,7 @@ sensor:
 
             lgPPM = (log10(ratio) * + 1.9) - 0.2; //+2 -0.3
             PPM = pow(10,lgPPM);
-            ESP_LOGI("NO2", "Raw: %.2f, Volt: %.2f, RS_gas: %.2f, Ratio: %.2f, PPM: %.2f", x, Gas_Volt, RS_gas, ratio, PPM);
+            // ESP_LOGI("NO2", "Raw: %.2f, Volt: %.2f, RS_gas: %.2f, Ratio: %.2f, PPM: %.2f", x, Gas_Volt, RS_gas, ratio, PPM);
             return PPM;
 
       on_value: #When value changes update LVGL display
@@ -91,7 +91,7 @@ sensor:
 
             lgPPM = (log10(ratio) * + 1.9) - 0.2; //+2 -0.3
             PPM = pow(10,lgPPM);
-            ESP_LOGI("Ethanol", "Raw: %.2f, Volt: %.2f, RS_gas: %.2f, Ratio: %.2f, PPM: %.2f", x, Gas_Volt, RS_gas, ratio, PPM);
+            // ESP_LOGI("Ethanol", "Raw: %.2f, Volt: %.2f, RS_gas: %.2f, Ratio: %.2f, PPM: %.2f", x, Gas_Volt, RS_gas, ratio, PPM);
             return PPM;
 
     carbon_monoxide:
@@ -118,7 +118,7 @@ sensor:
 
             lgPPM = (log10(ratio) * - 2.82) - 0.12; //- 3.82) - 0.66; - default - 2.82) - 0.12; - best for range up to 150 ppm
             PPM = pow(10,lgPPM);
-            ESP_LOGI("CO", "Raw: %.2f, Volt: %.2f, RS_gas: %.2f, Ratio: %.2f, PPM: %.2f", x, Gas_Volt, RS_gas, ratio, PPM);
+            // ESP_LOGI("CO", "Raw: %.2f, Volt: %.2f, RS_gas: %.2f, Ratio: %.2f, PPM: %.2f", x, Gas_Volt, RS_gas, ratio, PPM);
             return PPM;
 
       on_value: #When value changes update LVGL display
@@ -148,9 +148,8 @@ sensor:
 
             lgPPM = (log10(ratio) * + 1.9) - 0.2; //+2 -0.3 - 2.82) - 0.12; - best for range up to 150 ppm
             PPM = pow(10,lgPPM);
-            ESP_LOGI("VOC", "Raw: %.2f, Volt: %.2f, RS_gas: %.2f, Ratio: %.2f, PPM: %.2f", x, Gas_Volt, RS_gas, ratio, PPM);
+            // ESP_LOGI("VOC", "Raw: %.2f, Volt: %.2f, RS_gas: %.2f, Ratio: %.2f, PPM: %.2f", x, Gas_Volt, RS_gas, ratio, PPM);
             return PPM;
-
 
 button:
   - platform: template
@@ -158,24 +157,41 @@ button:
     id: gas4ch_calibrate
     entity_category: "config"
     on_press:
+      # Recalcuate R0 for each gas based on current raw value, which should be the value in clean air. This is a manual calibration step that can be triggered by the user when they know the sensor is in clean air conditions. It will update the R0 values used in the calculations for each gas.
       then:
-        # store current raw values as sensor offsets for calibration
         - globals.set:
             id: no2_R0
-            value: !lambda return id(no2_raw);
-        # - logger.log:
-        #     level: INFO
-        #     format: "NO2 offset set to %.2f"
-        #     args: [id(no2_offset)]
+            value: !lambda |-
+              float Gas_Volt;
+              float R0_gas;
+              Gas_Volt = (id(no2_raw)/1024)*3.3;
+              R0_gas = (3.3-Gas_Volt)/Gas_Volt;
+              ESP_LOGI("no2_R0", "Old: %.2f, New: %.2f", id(no2_R0), R0_gas);
+              return R0_gas;
         - globals.set:
             id: co_R0
-            value: !lambda return id(co_raw);
+            value: !lambda |-
+              float Gas_Volt;
+              float R0_gas;
+              Gas_Volt = (id(co_raw)/1024)*3.3;
+              R0_gas = (3.3-Gas_Volt)/Gas_Volt;
+              ESP_LOGI("co_R0", "Old: %.2f, New: %.2f", id(co_R0), R0_gas);
+              return R0_gas;
         - globals.set:
             id: tvoc_R0
-            value: !lambda return id(tvoc_raw);
+            value: !lambda |-
+              float Gas_Volt;
+              float R0_gas;
+              Gas_Volt = (id(tvoc_raw)/1024)*3.3;
+              R0_gas = (3.3-Gas_Volt)/Gas_Volt;
+              ESP_LOGI("tvoc_R0", "Old: %.2f, New: %.2f", id(tvoc_R0), R0_gas);
+              return R0_gas;
         - globals.set:
             id: ethanol_R0
-            value: !lambda return id(ethanol_raw);
-        # Then force update of sensors to reflect new calibration
-        # - component.update: co
-
+            value: !lambda |-
+              float Gas_Volt;
+              float R0_gas;
+              Gas_Volt = (id(ethanol_raw)/1024)*3.3;
+              R0_gas = (3.3-Gas_Volt)/Gas_Volt;
+              ESP_LOGI("ethanol_R0", "Old: %.2f, New: %.2f", id(ethanol_R0), R0_gas);
+              return R0_gas;
