@@ -2,22 +2,22 @@ esphome:
   name: ${esphome_name}
 
 globals:
-  - id: no2_offset
+  - id: no2_R0
     type: float
     restore_value: yes
-    initial_value: '0.0'
-  - id: co_offset
+    initial_value: '1.07'
+  - id: co_R0
     type: float
     restore_value: yes
-    initial_value: '0.0'
-  - id: tvoc_offset
+    initial_value: '3.21'
+  - id: tvoc_R0
     type: float
     restore_value: yes
-    initial_value: '0.0'
-  - id: ethanol_offset
+    initial_value: '1.0'
+  - id: ethanol_R0
     type: float
     restore_value: yes
-    initial_value: '0.0'
+    initial_value: '1.0'
   - id: no2_raw
     type: float
     restore_value: no
@@ -57,7 +57,7 @@ sensor:
             Gas_Volt = (x/1024)*3.3;
             RS_gas = (3.3-Gas_Volt)/Gas_Volt;
 
-            R0 = 1.07; //measured on ambient air
+            R0 = id(no2_R0); //measured on ambient air
             ratio = RS_gas/R0;
             //ratio = 4.7; //for tests of the calibration curve
 
@@ -85,7 +85,7 @@ sensor:
             Gas_Volt = (x/1024)*3.3;
             RS_gas = (3.3-Gas_Volt)/Gas_Volt;
 
-            R0 = 1.00; //measured on ambient air
+            R0 = id(ethanol_R0); //measured on ambient air
             ratio = RS_gas/R0;
             //ratio = 4.7; //for tests of the calibration curve
 
@@ -112,7 +112,7 @@ sensor:
             Gas_Volt = (x/1024)*3.3;
             RS_gas = (3.3-Gas_Volt)/Gas_Volt;
 
-            R0 = 3.21; //measured on ambient air
+            R0 = id(co_R0); //measured on ambient air
             ratio = RS_gas/R0;
             //ratio = 4.7; //for tests of the calibration curve
 
@@ -142,7 +142,7 @@ sensor:
             Gas_Volt = (x/1024)*3.3;
             RS_gas = (3.3-Gas_Volt)/Gas_Volt;
 
-            R0 = 1.00; //measured on ambient air
+            R0 = id(tvoc_R0); //measured on ambient air
             ratio = RS_gas/R0;
             //ratio = 4.7; //for tests of the calibration curve
 
@@ -161,20 +161,20 @@ button:
       then:
         # store current raw values as sensor offsets for calibration
         - globals.set:
-            id: no2_offset
+            id: no2_R0
             value: !lambda return id(no2_raw);
         # - logger.log:
         #     level: INFO
         #     format: "NO2 offset set to %.2f"
         #     args: [id(no2_offset)]
         - globals.set:
-            id: co_offset
+            id: co_R0
             value: !lambda return id(co_raw);
         - globals.set:
-            id: tvoc_offset
+            id: tvoc_R0
             value: !lambda return id(tvoc_raw);
         - globals.set:
-            id: ethanol_offset
+            id: ethanol_R0
             value: !lambda return id(ethanol_raw);
         # Then force update of sensors to reflect new calibration
         # - component.update: co
