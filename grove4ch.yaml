@@ -40,10 +40,32 @@ sensor:
     nitrogen_dioxide:
       name: "Nitrogen Dioxide"
       id: no2
+      unit_of_measurement: "ppm"
+      device_class: "carbon_monoxide" #fudge to get ppm to display
+      accuracy_decimals: 2
       filters:
         - lambda: |-
+            float Gas_Volt;
+            float RS_gas;
+            float R0;
+            float ratio;
+            float lgPPM;
+            float PPM;
+
             id(no2_raw) = x;
-            return x - id(no2_offset); 
+            // return x - id(no2_offset);
+            Gas_Volt = (x/1024)*3.3;
+            RS_gas = (3.3-Gas_Volt)/Gas_Volt;
+
+            R0 = 1.07; //measured on ambient air
+            ratio = RS_gas/R0;
+            //ratio = 4.7; //for tests of the calibration curve
+
+            lgPPM = (log10(ratio) * + 1.9) - 0.2; //+2 -0.3
+            PPM = pow(10,lgPPM);
+            ESP_LOGI("NO2", "Raw: %.2f, Volt: %.2f, RS_gas: %.2f, Ratio: %.2f, PPM: %.2f", x, Gas_Volt, RS_gas, ratio, PPM);
+            return PPM;
+
       on_value: #When value changes update LVGL display
         - script.execute: update_bar_no2
     ethanol:
@@ -52,23 +74,83 @@ sensor:
       filters:
         - lambda: |-
             id(ethanol_raw) = x;
-            return x - id(ethanol_offset);
+            // return x - id(ethanol_offset);
+            float Gas_Volt;
+            float RS_gas;
+            float R0;
+            float ratio;
+            float lgPPM;
+            float PPM;
+
+            Gas_Volt = (x/1024)*3.3;
+            RS_gas = (3.3-Gas_Volt)/Gas_Volt;
+
+            R0 = 1.00; //measured on ambient air
+            ratio = RS_gas/R0;
+            //ratio = 4.7; //for tests of the calibration curve
+
+            lgPPM = (log10(ratio) * + 1.9) - 0.2; //+2 -0.3
+            PPM = pow(10,lgPPM);
+            ESP_LOGI("Ethanol", "Raw: %.2f, Volt: %.2f, RS_gas: %.2f, Ratio: %.2f, PPM: %.2f", x, Gas_Volt, RS_gas, ratio, PPM);
+            return PPM;
+
     carbon_monoxide:
       name: "Carbon Monoxide"
       id: co
+      accuracy_decimals: 2
       filters:
         - lambda: |-
             id(co_raw) = x;
-            return x - id(co_offset); 
+            // return x - id(co_offset); 
+            float Gas_Volt;
+            float RS_gas;
+            float R0;
+            float ratio;
+            float lgPPM;
+            float PPM;
+
+            Gas_Volt = (x/1024)*3.3;
+            RS_gas = (3.3-Gas_Volt)/Gas_Volt;
+
+            R0 = 3.21; //measured on ambient air
+            ratio = RS_gas/R0;
+            //ratio = 4.7; //for tests of the calibration curve
+
+            lgPPM = (log10(ratio) * - 2.82) - 0.12; //- 3.82) - 0.66; - default - 2.82) - 0.12; - best for range up to 150 ppm
+            PPM = pow(10,lgPPM);
+            ESP_LOGI("CO", "Raw: %.2f, Volt: %.2f, RS_gas: %.2f, Ratio: %.2f, PPM: %.2f", x, Gas_Volt, RS_gas, ratio, PPM);
+            return PPM;
+
       on_value: #When value changes update LVGL display
         - script.execute: update_bar_co
     tvoc:
       name: "Volatile Organic Compounds"
       id: tvoc
+      unit_of_measurement: "ppm"
+      device_class: "volatile_organic_compounds_parts"
       filters:
         - lambda: |-
             id(tvoc_raw) = x;
-            return x - id(tvoc_offset);
+            // return x - id(tvoc_offset);
+            float Gas_Volt;
+            float RS_gas;
+            float R0;
+            float ratio;
+            float lgPPM;
+            float PPM;
+
+            Gas_Volt = (x/1024)*3.3;
+            RS_gas = (3.3-Gas_Volt)/Gas_Volt;
+
+            R0 = 1.00; //measured on ambient air
+            ratio = RS_gas/R0;
+            //ratio = 4.7; //for tests of the calibration curve
+
+            lgPPM = (log10(ratio) * + 1.9) - 0.2; //+2 -0.3 - 2.82) - 0.12; - best for range up to 150 ppm
+            PPM = pow(10,lgPPM);
+            ESP_LOGI("VOC", "Raw: %.2f, Volt: %.2f, RS_gas: %.2f, Ratio: %.2f, PPM: %.2f", x, Gas_Volt, RS_gas, ratio, PPM);
+            return PPM;
+
 
 button:
   - platform: template

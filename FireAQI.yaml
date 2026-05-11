@@ -180,6 +180,8 @@ sensor:
   - platform: debug
     free:
       name: "Heap Free"
+    min_free:
+      name: "Heap Min Free"
     loop_time:
       name: "Loop Time"
     # psram:
