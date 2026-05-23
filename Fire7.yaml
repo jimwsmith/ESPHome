@@ -11,3 +11,4 @@ esphome:
 packages:
   fireaqi: !include FireAQI.yaml
   m5stackfire: !include M5StackFire.yaml
+  loRa: !include FireLoRa.yaml

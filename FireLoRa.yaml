@@ -1,0 +1,131 @@
+esphome:
+  name: ${esphome_name}
+  on_boot:
+    - priority: -200 #Ensure this runs after uart is initialised
+      then:
+        - delay: 7s #reduced booting screen display so we get to see wifi connect and then mqtt connect
+        - logger.log:
+            format: "Initialising LoRa Radio with AT commands"
+        - uart.write: "AT+XXX" #Wakeup LoRa radio
+        - delay: 100ms #Delay to ensure M5Stack LoRaWAN unit is fully awake before sending AT commands, note that the first command can sometimes be garbled if sent too quickly after booting
+        - uart.write: "AT+LoraSet=868000000,18,12,0,1,8,1,0,0" #define LoRa settings on boot, note these are not saved to flash on the M5Stack LoRaWAN unit so need to be set each time
+        - delay: 100ms
+        - uart.write: "AT+LORAWAN=0" #Set to LoRa mode (not LoRaWAN) on boot, note this is not saved to flash on the M5Stack LoRaWAN unit so need to be set each time
+        - delay: 100ms
+        - uart.write: "AT+AutoLPM=0" #Disable auto power down mode
+        - delay: 100ms
+        - uart.write: "AT+PrintMode=0" #Receive characters in raw format rather than hex format which is easier to work with in ESPHome
+        # - delay: 100ms
+        # - uart.write: "AT+SendStr=LoRaBoot"
+        - delay: 100ms
+        - uart.write: "AT+RX=0" #Set to continuous Rx mode to ensure we receive the next message    
+
+interval:
+  - interval: 1min
+    then:
+      - script.execute: lora_rx_mode #Set to continuous Rx mode to ensure we receive messages, this is needed periodically as the M5Stack LoRaWAN unit can sometimes exit Rx mode after receiving a message
+
+uart:
+  id: uart_bus
+  baud_rate: 115200 # for M5Stack LoRaWAN
+  data_bits: 8
+  parity: NONE
+  stop_bits: 1
+  tx_pin: GPIO0 #IIS_WS M5Stack Fire
+  rx_pin: GPIO05 #GPIO05 on M5Stack Fire
+  # temporary code to track whats going on with uart comms
+  debug:
+    # 'both' logs RX and TX; use 'rx' or 'tx' for one direction
+    direction: both
+    dummy_receiver: true
+    # Trigger logging after a timeout or when a delimiter is found
+    after:
+    #   timeout: 100ms
+      delimiter: "\r\n"
+    sequence:
+      # Log raw bytes as hex
+#      - lambda: UARTDebug::log_hex(direction, bytes, ' ');
+      # Or log as ASCII string if readable
+      - lambda: |-
+          static char rx_bytes[100]; // Buffer to hold received bytes, adjust size as needed
+          static int rx_state=0;
+          int rssi, snr, size; //Variables to hold parsed message content
+          char rx_msg[100]; //Buffer to hold the message content extracted from the received string
+          int i; //loop counter
+
+          UARTDebug::log_string(direction, bytes);
+          std::string str(bytes.begin(), bytes.end());
+          if (rx_state==0) {
+            for (i=0; (i< bytes.size())&&(i<100); i++) {
+                rx_bytes[i]=bytes[i]; //Copy bytes to static buffer
+            }
+            rx_bytes[i]='\0'; //Null terminate the string
+            if (bytes[0]=='R' && bytes[1]=='e' && bytes[2]=='c' && bytes[3]=='e'&& bytes[4]=='i' && bytes[5]=='v') rx_state=1; //"Received String: ....."
+            if (bytes[0]=='R' && bytes[1]=='X' && bytes[2]==' ' && bytes[3]=='E'&& bytes[4]=='r' && bytes[5]=='r') id(lora_rx_mode).execute(); //Error so just wait for next message
+            if (bytes[0]=='T' && bytes[1]=='X' && bytes[2]==' ' && bytes[3]=='d'&& bytes[4]=='o' && bytes[5]=='n') id(lora_rx_mode).execute(); //TX done so just wait for next message
+          } else {
+            if (rx_state==1) {
+                if (sscanf(str.c_str(), "RSSI: %d, SNR:%d, Size:%d", &rssi, &snr, &size) == 3){
+                    for (i=0; (i<size)&&(i<100); i++) {
+                        rx_msg[i]=rx_bytes[i+16]; //Copy bytes from previous message static buffer but offset 'Received String:'
+                    }
+                    rx_msg[i]='\0'; //Null terminate the message string
+                    ESP_LOGD("uart", "Parsed message content - RSSI: %d, SNR: %d, Size: %d, String: %s, Message: %s", rssi, snr, size, (char *)rx_bytes, (char *)rx_msg);
+                    id(lora_msg_received).publish_state((char *)rx_msg); //Publish received message to ESPHome text sensor for use in automations
+                    id(lora_rssi).publish_state(rssi); //Publish RSSI to ESPHome sensor for diagnostics
+                    id(lora_snr).publish_state(snr); //Publish SNR to ESPHome sensor for diagnostics
+                }
+                id(lora_rx_mode).execute(); //Set to continuous Rx mode to ensure we receive the next message
+                rx_state=0;
+            }
+          }
+
+
+text_sensor:
+  - platform: template
+    id: lora_msg_received
+    name: "Message Received"
+    entity_category: "diagnostic"
+
+sensor:
+  - platform: template
+    id: lora_rssi
+    name: "LoRa RSSI"
+    unit_of_measurement: "dBm"
+    entity_category: "diagnostic"   
+  - platform: template
+    id: lora_snr 
+    name: "LoRa SNR"
+    unit_of_measurement: "dB"
+    entity_category: "diagnostic"
+
+script:
+    - id: lora_rx_mode
+      then:
+        - uart.write: "AT+RX=0" #Set to continuous Rx mode to ensure we receive the next message    
+
+button:
+  - platform: template
+    name: "Test Button 0"
+    on_press:
+      - uart.write: "AT+XXX"
+  - platform: template
+    name: "Test Button 1"
+    on_press:
+      - uart.write: "AT+AutoLPM=0" #Disable auto power down mode
+  - platform: template
+    name: "Test Button 2"
+    on_press:
+      - uart.write: "AT+LoraSet=?"
+  - platform: template
+    name: "Test Button 3"
+    on_press:
+      - uart.write: "AT+RX=0" #Set to continuous Rx mode"
+  - platform: template
+    name: "Test Button 4"
+    on_press:
+      - uart.write: "AT+SendStr=Hello World"
+  - platform: template
+    name: "Test Button 5"
+    on_press:
+      - uart.write: "AT+SendStr=other msg"

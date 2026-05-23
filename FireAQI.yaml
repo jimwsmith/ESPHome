@@ -180,10 +180,13 @@ sensor:
   - platform: debug
     free:
       name: "Heap Free"
+      state_class: "measurement"
     min_free:
       name: "Heap Min Free"
+      state_class: "measurement"
     loop_time:
       name: "Loop Time"
+      state_class: "measurement"
     # psram:
     #   name: "Free PSRAM"
 
