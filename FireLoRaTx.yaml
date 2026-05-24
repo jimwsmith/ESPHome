@@ -52,6 +52,7 @@ uart:
           int rssi, snr, size; //Variables to hold parsed message content
           char rx_msg[100]; //Buffer to hold the message content extracted from the received string
           int i; //loop counter
+          bool waiting_for_tx_done = false; //Flag to indicate if we are waiting for TX done message
 
           UARTDebug::log_string(direction, bytes);
           std::string str(bytes.begin(), bytes.end());
@@ -60,9 +61,9 @@ uart:
                 rx_bytes[i]=bytes[i]; //Copy bytes to static buffer
             }
             rx_bytes[i]='\0'; //Null terminate the string
-            if (bytes[0]=='R' && bytes[1]=='e' && bytes[2]=='c' && bytes[3]=='e'&& bytes[4]=='i' && bytes[5]=='v') rx_state=1; //"Received String: ....."
+            if (bytes[0]=='R' && bytes[1]=='e' && bytes[2]=='c' && bytes[3]=='e'&& bytes[4]=='i' && bytes[5]=='v') rx_state=1; //"Received String: .....", then need to wait for second part of info
             if (bytes[0]=='R' && bytes[1]=='X' && bytes[2]==' ' && bytes[3]=='E'&& bytes[4]=='r' && bytes[5]=='r') id(lora_rx_mode).execute(); //Error so just wait for next message
-            if (bytes[0]=='T' && bytes[1]=='X' && bytes[2]==' ' && bytes[3]=='d'&& bytes[4]=='o' && bytes[5]=='n') id(lora_rx_mode).execute(); //TX done so just wait for next message
+            if (bytes[0]=='T' && bytes[1]=='X' && bytes[2]==' ' && bytes[3]=='d'&& bytes[4]=='o' && bytes[5]=='n') id(lora_tx_done).execute(); //TX done so just wait for next message
           } else {
             if (rx_state==1) {
                 if (sscanf(str.c_str(), "RSSI: %d, SNR:%d, Size:%d", &rssi, &snr, &size) == 3){
@@ -70,19 +71,31 @@ uart:
                         rx_msg[i]=rx_bytes[i+16]; //Copy bytes from previous message static buffer but offset 'Received String:'
                     }
                     rx_msg[i]='\0'; //Null terminate the message string
-                    ESP_LOGD("uart", "Parsed message content - RSSI: %d, SNR: %d, Size: %d, String: %s, Message: %s", rssi, snr, size, (char *)rx_bytes, (char *)rx_msg);
+                    ESP_LOGD("uart", "Parsed message content - RSSI: %d, SNR: %d, Size: %d, Message: %s", rssi, snr, size, (char *)rx_msg);
                     id(lora_msg_received).publish_state((char *)rx_msg); //Publish received message to ESPHome text sensor for use in automations
                     id(lora_rssi).publish_state(rssi); //Publish RSSI to ESPHome sensor for diagnostics
                     id(lora_snr).publish_state(snr); //Publish SNR to ESPHome sensor for diagnostics
 
                     // Next actually process the received message
+                    id(lora_rx_msg)->execute(rx_msg); //Update LVGL display with received message
+                    id(lora_rx_rssi)->execute(rssi); //Update LVGL display with received RSSI
+                    id(lora_rx_snr)->execute(snr); //Update LVGL display with received SNR
                     if (strcmp(rx_msg, "Hello World")==0) {
-                        uart.write("AT+SendStr=Hello Back");
-                    } else if (strcmp(rx_msg, "other msg")==0) {
-                        uart.write("AT+SendStr=other response");
+                      id(lora_tx_msg)->execute("Hello Back"); //Send response message back to sender
+                      waiting_for_tx_done = true; //Set flag to indicate we are waiting for TX done message
+                    }
+                    if (strcmp(rx_msg, "Button 1")==0) {
+                      id(lora_tx_msg)->execute("Butt 1 ACK"); //Send response message back to sender
+                      waiting_for_tx_done = true; //Set flag to indicate we are waiting for TX done message
+                    }
+                    if (strcmp(rx_msg, "Button 2")==0) {
+                      id(lora_tx_msg)->execute("Butt 2 ACK"); //Send response message back to sender
+                      waiting_for_tx_done = true; //Set flag to indicate we are waiting for TX done message
                     }
                 }
-                id(lora_rx_mode).execute(); //Set to continuous Rx mode to ensure we receive the next message
+                if (!waiting_for_tx_done) {
+                    id(lora_rx_mode).execute(); //Set to continuous Rx mode to ensure we receive the next message
+                } 
                 rx_state=0;
             }
           }
@@ -107,9 +120,53 @@ sensor:
     entity_category: "diagnostic"
 
 script:
-    - id: lora_rx_mode
-      then:
-        - uart.write: "AT+RX=0" #Set to continuous Rx mode to ensure we receive the next message    
+  - id: lora_rx_mode
+    then:
+      - uart.write: "AT+RX=0" #Set to continuous Rx mode to ensure we receive the next message    
+
+  - id: lora_rx_msg
+    parameters:
+      msg: string
+    then:
+      - lvgl.label.update:
+          id: lbl_rx_msg
+          text: !lambda 'return msg.c_str();' #Update LVGL display with received message  
+
+  - id: lora_rx_rssi
+    parameters:
+      rssi: int
+    then:
+      - lvgl.label.update:
+          id: lbl_rssi
+          text: !lambda 'return std::to_string(rssi).c_str();' #Update LVGL display with received RSSI
+
+  - id: lora_rx_snr
+    parameters:
+      snr: int
+    then:
+      - lvgl.label.update:
+          id: lbl_snr
+          text: !lambda 'return std::to_string(snr).c_str();' #Update LVGL display with received SNR
+
+  - id: lora_tx_msg
+    parameters:
+      msg: string
+    then:
+      - lvgl.label.update:
+          id: lbl_tx_status
+          text: "?"  # Set indicator that we are waiting for Tx done 
+      - uart.write: "AT+SendStr="
+      - uart.write: !lambda 'return std::vector<uint8_t>(msg.begin(), msg.end());'
+      - lvgl.label.update:
+          id: lbl_tx_msg
+          text: !lambda 'return msg.c_str();' #Update LVGL display with received message  
+
+  - id: lora_tx_done
+    then: 
+      - lvgl.label.update:
+          id: lbl_tx_status
+          text: "Sent"  # Update LVGL display to indicate message was sent  
+      - script.execute: lora_rx_mode #Set to continuous Rx mode to ensure we receive messages, this is needed periodically as the M5Stack LoRaWAN unit can sometimes exit Rx mode after sending a message
 
 button:
   - platform: template
@@ -131,8 +188,12 @@ button:
   - platform: template
     name: "Test Button 4"
     on_press:
-      - uart.write: "AT+SendStr=Hello World"
+      - script.execute:
+          id: lora_tx_msg
+          msg: "Batt state 1"
   - platform: template
     name: "Test Button 5"
     on_press:
-      - uart.write: "AT+SendStr=other msg"
+      - script.execute:
+          id: lora_tx_msg
+          msg: "Batt state 2"

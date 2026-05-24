@@ -11,4 +11,5 @@ esphome:
 packages:
   fireaqi: !include FireAQI.yaml
   m5stackfire: !include M5StackFire.yaml
-  loRa: !include FireLoRa.yaml
+  loRa: !include FireLoRaTx.yaml
+  battmon: !include lvglBattMon.yaml # additional page to monitor LoRa Communications

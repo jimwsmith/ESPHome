@@ -9,6 +9,6 @@ esphome:
   build_path: C:/EsphomeTemp/${esphome_name}
 
 packages:
-  fireaqi: !include FireAQI.yaml
+  fireaqi: !include FireBattMon.yaml
   m5stackfire: !include M5StackFire.yaml
-  loRa: !include FireLoRa.yaml
+  loRa: !include FireLoRaTx.yaml

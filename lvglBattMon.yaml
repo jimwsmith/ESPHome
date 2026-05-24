@@ -1,0 +1,104 @@
+esphome:
+  name: ${esphome_name}
+
+#==========================================================================================================================
+lvgl:
+  pages:
+    - id: lora_page # Should be the first page after power-up
+      bg_color: 0x000000
+      text_color: 0xFFFFFF
+      widgets:
+        - obj:
+            align: TOP_MID
+            styles: header_footer
+            widgets:
+              - label:
+                  text: "LoRa Communications"
+                  align: CENTER
+                  text_align: CENTER
+        - obj: # a properly placed coontainer object for all these controls
+            text_color: 0xFFFFFF
+            align: CENTER
+            width: 320
+            height: 180 #240-(2*30) #Display area less header & footer
+            pad_all: 2
+            bg_opa: TRANSP
+            border_opa: TRANSP
+            outline_width: 0 #debug
+            scrollbar_mode: "OFF" #we don't want scrollbars displayed
+            layout: # enable the GRID layout for the children widgets
+              type: GRID # split the rows and the columns proportionally
+              grid_columns: [FR(10), FR(35), FR(10)] # equal
+              grid_rows: [FR(1), FR(1), FR(1), FR(1), FR(1), FR(1)] # like percents
+              pad_row: 4
+              pad_column: 2
+            widgets:
+            #-----------------------------------------------------
+              - label:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 0 # the corresponding cell
+                  grid_cell_y_align: CENTER
+                  text: "TX"
+              - label:
+                  grid_cell_column_pos: 1 # place the widget in
+                  grid_cell_row_pos: 0 # the corresponding cell
+                  grid_cell_y_align: CENTER
+                  id: lbl_tx_msg
+                  text: "....."
+              - label:
+                  grid_cell_column_pos: 2 # place the widget in
+                  grid_cell_row_pos: 0 # the corresponding cell
+                  grid_cell_y_align: CENTER
+                  id: lbl_tx_status
+                  text: "."
+              - label:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 1 # the corresponding cell
+                  grid_cell_y_align: CENTER
+                  text: "RX"
+              - label:
+                  grid_cell_column_pos: 1 # place the widget in
+                  grid_cell_row_pos: 1 # the corresponding cell
+                  grid_cell_y_align: CENTER
+                  id: lbl_rx_msg
+                  text: "....."
+              - label:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 2 # the corresponding cell
+                  grid_cell_y_align: CENTER
+                  text: "RSSI"
+              - label:
+                  grid_cell_column_pos: 1 # place the widget in
+                  grid_cell_row_pos: 2 # the corresponding cell
+                  grid_cell_y_align: CENTER
+                  id: lbl_rssi
+                  text: "?"
+              - label:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 3 # the corresponding cell
+                  grid_cell_y_align: CENTER
+                  text: "SNR"
+              - label:
+                  grid_cell_column_pos: 1 # place the widget in
+                  grid_cell_row_pos: 3 # the corresponding cell
+                  grid_cell_y_align: CENTER
+                  id: lbl_snr
+                  text: "?"
+              - button:
+                  grid_cell_column_pos: 1 # place the widget in
+                  grid_cell_row_pos: 4 # the corresponding cell
+                  grid_cell_y_align: CENTER
+                  text: "Button 1"
+                  on_press:
+                    - script.execute:
+                        id: lora_tx_msg
+                        msg: "Button 1"
+              - button:
+                  grid_cell_column_pos: 1 # place the widget in
+                  grid_cell_row_pos: 5 # the corresponding cell
+                  grid_cell_y_align: CENTER
+                  text: "Button 2"
+                  on_press:
+                    - script.execute:
+                        id: lora_tx_msg
+                        msg: "Button 2"
