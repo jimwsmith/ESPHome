@@ -53,6 +53,7 @@ uart:
           char rx_msg[100]; //Buffer to hold the message content extracted from the received string
           int i; //loop counter
           bool waiting_for_tx_done = false; //Flag to indicate if we are waiting for TX done message
+          float voltage, current, power, shunt_voltage; //Variables to hold parsed INA219 values from received message
 
           UARTDebug::log_string(direction, bytes);
           std::string str(bytes.begin(), bytes.end());
@@ -71,7 +72,7 @@ uart:
                         rx_msg[i]=rx_bytes[i+16]; //Copy bytes from previous message static buffer but offset 'Received String:'
                     }
                     rx_msg[i]='\0'; //Null terminate the message string
-                    ESP_LOGD("uart", "Parsed message content - RSSI: %d, SNR: %d, Size: %d, Message: %s", rssi, snr, size, (char *)rx_msg);
+                    // ESP_LOGD("uart", "Parsed message content - RSSI: %d, SNR: %d, Size: %d, Message: %s", rssi, snr, size, (char *)rx_msg);
                     id(lora_msg_received).publish_state((char *)rx_msg); //Publish received message to ESPHome text sensor for use in automations
                     id(lora_rssi).publish_state(rssi); //Publish RSSI to ESPHome sensor for diagnostics
                     id(lora_snr).publish_state(snr); //Publish SNR to ESPHome sensor for diagnostics
@@ -92,9 +93,21 @@ uart:
                       id(lora_tx_msg)->execute("Butt 2 ACK"); //Send response message back to sender
                       waiting_for_tx_done = true; //Set flag to indicate we are waiting for TX done message
                     }
+                    // Note sscanf doesn't allow precision specifiers for float
+                    if (sscanf(rx_msg, "@V= %f, I= %f, P= %f, ShntmV= %f", &voltage, &current, &power, &shunt_voltage) == 4){ //If message starts with @V then assume this is a message with voltage, current, power and shunt voltage info from the INA219 sensor on the other device and update the LVGL display accordingly
+                      //Message format is expected to be @V=xx.xx, I=xx.xxx, P=xx.xx, ShntV=xx.xx
+                      // ESP_LOGD("uart", "Parsed data message V:%0.2f, I:%0.3f, P:%0.2f, ShntmV:%0.2f", voltage, current, power, shunt_voltage);
+                      id(lora_voltage).publish_state(voltage); //Publish voltage to ESPHome sensor
+                      id(lora_current).publish_state(current); //Publish current to ESPHome sensor  
+                      id(lora_power).publish_state(power); //Publish power to ESPHome sensor
+                      id(lora_shunt_voltage).publish_state(shunt_voltage); //Publish shunt voltage to ESPHome sensor
+                      id(lora_tx_msg)->execute("Data ACK"); //Send response message back to sender
+                      waiting_for_tx_done = true; //Set flag to indicate we are waiting for TX done message
+                    }
                 }
                 if (!waiting_for_tx_done) {
                     id(lora_rx_mode).execute(); //Set to continuous Rx mode to ensure we receive the next message
+                    //Note if we are waiting for a TX to complete we should not set to Rx mode as the M5Stack LoRaWAN unit can sometimes exit Rx mode after sending a message so we will set back to Rx mode when we receive the TX done message, this is a bit hacky but seems to be needed to ensure we don't miss messages due to the M5Stack LoRaWAN unit exiting Rx mode unexpectedly
                 } 
                 rx_state=0;
             }
@@ -118,6 +131,26 @@ sensor:
     name: "LoRa SNR"
     unit_of_measurement: "dB"
     entity_category: "diagnostic"
+  - platform: template
+    id: lora_voltage
+    name: "LoRa Voltage"
+    unit_of_measurement: "V"
+    accuracy_decimals: 2
+  - platform: template
+    id: lora_current
+    name: "LoRa Current"
+    unit_of_measurement: "A"
+    accuracy_decimals: 3
+  - platform: template
+    id: lora_power  
+    name: "LoRa Power"
+    unit_of_measurement: "W"
+    accuracy_decimals: 2
+  - platform: template
+    id: lora_shunt_voltage
+    name: "LoRa Shunt Voltage"
+    unit_of_measurement: "mV"
+    accuracy_decimals: 2
 
 script:
   - id: lora_rx_mode
@@ -172,7 +205,7 @@ button:
   - platform: template
     name: "Test Button 0"
     on_press:
-      - uart.write: "AT+XXX"
+      - uart.write: "AT+LPM=1"
   - platform: template
     name: "Test Button 1"
     on_press:
@@ -184,7 +217,7 @@ button:
   - platform: template
     name: "Test Button 3"
     on_press:
-      - uart.write: "AT+RX=0" #Set to continuous Rx mode"
+      - uart.write: "AT+LoraSet=868000000,21,12,0,1,8,1,0,0" #Set to continuous Rx mode"
   - platform: template
     name: "Test Button 4"
     on_press:

@@ -12,3 +12,4 @@ packages:
   fireaqi: !include FireBattMon.yaml
   m5stackfire: !include M5StackFire.yaml
   loRa: !include FireLoRaTx.yaml
+  INA219: !include INA219.yaml

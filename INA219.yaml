@@ -1,0 +1,136 @@
+# Settings for INA219 current sensor
+
+esphome:
+  name: ${esphome_name}
+
+# Example configuration entry
+sensor:
+  - platform: ina219
+    address: 0x40
+    shunt_resistance: 0.05 ohm
+    current:
+      id: ina219_current
+      name: "INA219 Current"
+      unit_of_measurement: "A"
+      on_value:
+        then:
+          - lvgl.label.update:
+              id: lbl_batt_mon_i
+              text: !lambda 'return std::to_string(x).c_str();' #Update LVGL display with current
+    power:
+      id: ina219_power  
+      name: "INA219 Power"
+      unit_of_measurement: "W"
+      on_value:
+        then:
+          - lvgl.label.update:
+              id: lbl_batt_mon_pwr
+              text: !lambda 'return std::to_string(x).c_str();' #Update LVGL display with power
+    bus_voltage:    
+      id: ina219_bus_voltage
+      name: "INA219 Bus Voltage"
+      unit_of_measurement: "V"
+      on_value:
+        then:
+          - lvgl.label.update:
+              id: lbl_batt_mon_v
+              text: !lambda 'return std::to_string(x).c_str();' #Update LVGL display with voltage
+    shunt_voltage:
+      id: ina219_shunt_voltage
+      name: "INA219 Shunt Voltage"
+      filters:
+        - multiply: 1000 # convert to mV for display
+      unit_of_measurement: "mV"
+      on_value:
+        then:
+          - lvgl.label.update:
+              id: lbl_batt_mon_shnt
+              text: !lambda 'return std::to_string(x).c_str();' #Update LVGL display with shunt voltage
+        # Send all values when shunt  changes as one string to simplify Tx processing
+          - script.execute:
+              id: lora_tx_msg
+            #   msg: !lambda 'return "@V=" + std::to_string(id(ina219_bus_voltage).state) + ", I=" + std::to_string(id(ina219_current).state) + ", P=" + std::to_string(id(ina219_power).state) + ", ShntV=" + std::to_string(id(ina219_shunt_voltage).state);'
+              msg: !lambda 'return str_sprintf("@V= %0.2f, I= %0.3f, P= %0.2f, ShntmV= %0.2f", id(ina219_bus_voltage).state, id(ina219_current).state, id(ina219_power).state, id(ina219_shunt_voltage).state);'
+
+    max_voltage: 32.0V
+    max_current: 6.4A
+    update_interval: 300s
+
+
+#==========================================================================================================================
+lvgl:
+  pages:
+    - id: batt_mon_page # Should be the first page after power-up
+      bg_color: 0x000000
+      text_color: 0xFFFFFF
+      widgets:
+        - obj:
+            align: TOP_MID
+            styles: header_footer
+            widgets:
+              - label:
+                  text: "Battery Monitoring"
+                  align: CENTER
+                  text_align: CENTER
+        - obj: # a properly placed coontainer object for all these controls
+            text_color: 0xFFFFFF
+            align: CENTER
+            width: 320
+            height: 180 #240-(2*30) #Display area less header & footer
+            pad_all: 2
+            bg_opa: TRANSP
+            border_opa: TRANSP
+            outline_width: 0 #debug
+            scrollbar_mode: "OFF" #we don't want scrollbars displayed
+            layout: # enable the GRID layout for the children widgets
+              type: GRID # split the rows and the columns proportionally
+              grid_columns: [FR(10), FR(35), FR(10)] # equal
+              grid_rows: [FR(1), FR(1), FR(1), FR(1), FR(1), FR(1)] # like percents
+              pad_row: 4
+              pad_column: 2
+            widgets:
+            #-----------------------------------------------------
+              - label:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 0 # the corresponding cell
+                  grid_cell_y_align: CENTER
+                  text: "V"
+              - label:
+                  grid_cell_column_pos: 1 # place the widget in
+                  grid_cell_row_pos: 0 # the corresponding cell
+                  grid_cell_y_align: CENTER
+                  id: lbl_batt_mon_v
+                  text: "?"
+              - label:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 1 # the corresponding cell
+                  grid_cell_y_align: CENTER
+                  text: "I"
+              - label:
+                  grid_cell_column_pos: 1 # place the widget in
+                  grid_cell_row_pos: 1 # the corresponding cell
+                  grid_cell_y_align: CENTER
+                  id: lbl_batt_mon_i
+                  text: "?"
+              - label:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 2 # the corresponding cell
+                  grid_cell_y_align: CENTER
+                  text: "Pwr"
+              - label:
+                  grid_cell_column_pos: 1 # place the widget in
+                  grid_cell_row_pos: 2 # the corresponding cell
+                  grid_cell_y_align: CENTER
+                  id: lbl_batt_mon_pwr
+                  text: "?"
+              - label:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 3 # the corresponding cell
+                  grid_cell_y_align: CENTER
+                  text: "Shnt"
+              - label:
+                  grid_cell_column_pos: 1 # place the widget in
+                  grid_cell_row_pos: 3 # the corresponding cell
+                  grid_cell_y_align: CENTER
+                  id: lbl_batt_mon_shnt 
+                  text: "?"
