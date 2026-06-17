@@ -23,7 +23,7 @@ esphome:
 interval:
   - interval: 1min
     then:
-      - script.execute: lora_rx_mode #Set to continuous Rx mode to ensure we receive messages, this is needed periodically as the M5Stack LoRaWAN unit can sometimes exit Rx mode after receiving a message
+      # - script.execute: lora_rx_mode #Set to continuous Rx mode to ensure we receive messages, this is needed periodically as the M5Stack LoRaWAN unit can sometimes exit Rx mode after receiving a message
 
 uart:
   id: uart_bus
@@ -53,7 +53,7 @@ uart:
           char rx_msg[100]; //Buffer to hold the message content extracted from the received string
           int i; //loop counter
           bool waiting_for_tx_done = false; //Flag to indicate if we are waiting for TX done message
-          float voltage, current, power, shunt_voltage; //Variables to hold parsed INA219 values from received message
+          float voltage, current, power, load_power, pv_power; //Variables to hold parsed values from received message
 
           UARTDebug::log_string(direction, bytes);
           std::string str(bytes.begin(), bytes.end());
@@ -94,13 +94,14 @@ uart:
                       waiting_for_tx_done = true; //Set flag to indicate we are waiting for TX done message
                     }
                     // Note sscanf doesn't allow precision specifiers for float
-                    if (sscanf(rx_msg, "@V= %f, I= %f, P= %f, ShntmV= %f", &voltage, &current, &power, &shunt_voltage) == 4){ //If message starts with @V then assume this is a message with voltage, current, power and shunt voltage info from the INA219 sensor on the other device and update the LVGL display accordingly
+                    if (sscanf(rx_msg, "@V= %f, I= %f, P= %f, LP= %f, PVP= %f", &voltage, &current, &power, &load_power, &pv_power) == 5){ //If message starts with @V then assume this is a message with voltage, current, power and shunt voltage info from the INA219 sensor on the other device and update the LVGL display accordingly
                       //Message format is expected to be @V=xx.xx, I=xx.xxx, P=xx.xx, ShntV=xx.xx
                       // ESP_LOGD("uart", "Parsed data message V:%0.2f, I:%0.3f, P:%0.2f, ShntmV:%0.2f", voltage, current, power, shunt_voltage);
                       id(lora_voltage).publish_state(voltage); //Publish voltage to ESPHome sensor
                       id(lora_current).publish_state(current); //Publish current to ESPHome sensor  
                       id(lora_power).publish_state(power); //Publish power to ESPHome sensor
-                      id(lora_shunt_voltage).publish_state(shunt_voltage); //Publish shunt voltage to ESPHome sensor
+                      id(lora_load_power).publish_state(load_power); //Publish load power to ESPHome sensor
+                      id(lora_pv_power).publish_state(pv_power); //Publish PV power to ESPHome sensor
                       id(lora_tx_msg)->execute("Data ACK"); //Send response message back to sender
                       waiting_for_tx_done = true; //Set flag to indicate we are waiting for TX done message
                     }
@@ -125,32 +126,44 @@ sensor:
     id: lora_rssi
     name: "LoRa RSSI"
     unit_of_measurement: "dBm"
+    device_class: "signal_strength"
     entity_category: "diagnostic"   
   - platform: template
     id: lora_snr 
     name: "LoRa SNR"
     unit_of_measurement: "dB"
+    device_class: "signal_strength"
     entity_category: "diagnostic"
   - platform: template
     id: lora_voltage
     name: "LoRa Voltage"
     unit_of_measurement: "V"
+    device_class: "voltage"
     accuracy_decimals: 2
   - platform: template
     id: lora_current
     name: "LoRa Current"
     unit_of_measurement: "A"
-    accuracy_decimals: 3
+    device_class: "current"
+    accuracy_decimals: 2
   - platform: template
     id: lora_power  
     name: "LoRa Power"
     unit_of_measurement: "W"
-    accuracy_decimals: 2
+    device_class: "power"
+    accuracy_decimals: 1
   - platform: template
-    id: lora_shunt_voltage
-    name: "LoRa Shunt Voltage"
-    unit_of_measurement: "mV"
-    accuracy_decimals: 2
+    id: lora_load_power
+    name: "LoRa Load Power"
+    unit_of_measurement: "W"
+    device_class: "power"
+    accuracy_decimals: 0
+  - platform: template
+    id: lora_pv_power
+    name: "LoRa PV Power"
+    unit_of_measurement: "W"
+    device_class: "power"
+    accuracy_decimals: 0
 
 script:
   - id: lora_rx_mode
@@ -163,8 +176,12 @@ script:
     then:
       - lvgl.label.update:
           id: lbl_rx_msg
-          text: !lambda 'return msg.c_str();' #Update LVGL display with received message  
-
+          text: !lambda 'return msg.c_str();' #Update LVGL display with received message and timestamp
+      - lvgl.label.update:
+          id: lbl_rx_status
+          text: 
+            format: "%s"
+            args: [ 'id(sntp_time).now().strftime("%R:%S").c_str()' ]
   - id: lora_rx_rssi
     parameters:
       rssi: int
@@ -230,3 +247,111 @@ button:
       - script.execute:
           id: lora_tx_msg
           msg: "Batt state 2"
+
+#==========================================================================================================================
+lvgl:
+  pages:
+    - id: lora_page # Should be the first page after power-up
+      bg_color: 0x000000
+      text_color: 0xFFFFFF
+      widgets:
+        - obj:
+            align: TOP_MID
+            styles: header_footer
+            widgets:
+              - label:
+                  text: "LoRa Communications"
+                  align: CENTER
+                  text_align: CENTER
+        - obj: # a properly placed coontainer object for all these controls
+            text_color: 0xFFFFFF
+            align: CENTER
+            width: 320
+            height: 180 #240-(2*30) #Display area less header & footer
+            pad_all: 2
+            bg_opa: TRANSP
+            border_opa: TRANSP
+            outline_width: 0 #debug
+            scrollbar_mode: "OFF" #we don't want scrollbars displayed
+            layout: # enable the GRID layout for the children widgets
+              type: GRID # split the rows and the columns proportionally
+              grid_columns: [FR(10), FR(35), FR(10)] # equal
+              grid_rows: [FR(1), FR(1), FR(1), FR(1), FR(1), FR(1)] # like percents
+              pad_row: 4
+              pad_column: 2
+            widgets:
+            #-----------------------------------------------------
+              - label:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 0 # the corresponding cell
+                  grid_cell_y_align: CENTER
+                  text: "TX"
+              - label:
+                  grid_cell_column_pos: 1 # place the widget in
+                  grid_cell_row_pos: 0 # the corresponding cell
+                  grid_cell_y_align: CENTER
+                  id: lbl_tx_msg
+                  text: "....."
+              - label:
+                  grid_cell_column_pos: 2 # place the widget in
+                  grid_cell_row_pos: 0 # the corresponding cell
+                  grid_cell_y_align: CENTER
+                  id: lbl_tx_status
+                  text: "."
+              - label:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 1 # the corresponding cell
+                  grid_cell_y_align: CENTER
+                  text: "RX"
+              - label:
+                  grid_cell_column_pos: 1 # place the widget in
+                  grid_cell_row_pos: 1 # the corresponding cell
+                  grid_cell_y_align: CENTER
+                  id: lbl_rx_msg
+                  text: "....."
+              - label:
+                  grid_cell_column_pos: 2 # place the widget in
+                  grid_cell_row_pos: 1 # the corresponding cell   
+                  grid_cell_y_align: CENTER
+                  id: lbl_rx_status
+                  text: "."
+              - label:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 2 # the corresponding cell
+                  grid_cell_y_align: CENTER
+                  text: "RSSI"
+              - label:
+                  grid_cell_column_pos: 1 # place the widget in
+                  grid_cell_row_pos: 2 # the corresponding cell
+                  grid_cell_y_align: CENTER
+                  id: lbl_rssi
+                  text: "?"
+              - label:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 3 # the corresponding cell
+                  grid_cell_y_align: CENTER
+                  text: "SNR"
+              - label:
+                  grid_cell_column_pos: 1 # place the widget in
+                  grid_cell_row_pos: 3 # the corresponding cell
+                  grid_cell_y_align: CENTER
+                  id: lbl_snr
+                  text: "?"
+              - button:
+                  grid_cell_column_pos: 1 # place the widget in
+                  grid_cell_row_pos: 4 # the corresponding cell
+                  grid_cell_y_align: CENTER
+                  text: "Button 1"
+                  on_press:
+                    - script.execute:
+                        id: lora_tx_msg
+                        msg: "Button 1"
+              - button:
+                  grid_cell_column_pos: 1 # place the widget in
+                  grid_cell_row_pos: 5 # the corresponding cell
+                  grid_cell_y_align: CENTER
+                  text: "Button 2"
+                  on_press:
+                    - script.execute:
+                        id: lora_tx_msg
+                        msg: "Button 2"

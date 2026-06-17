@@ -1,0 +1,72 @@
+# Code to interface with a Victron Solar controller via VEBus.
+# Uses Port B as the PSRAM has usesd teh GPIO16/17 pins
+# Only needs Rx pin as controller dumps info every second
+# Note need level shift between Victron 3V and Fire 5V interfaces
+esphome:
+  name: ${esphome_name}
+
+uart:
+  id: uart_vebus
+  baud_rate: 19200
+  rx_buffer_size: 256
+  rx_pin: GPIO36 #GPIO36 on M5Stack Fire
+  # temporary code to track whats going on with uart comms
+#   debug:
+#     # 'both' logs RX and TX; use 'rx' or 'tx' for one direction
+#     direction: rx
+#     dummy_receiver: true
+#     # Trigger logging after a timeout or when a delimiter is found
+#     after:
+#     #   timeout: 100ms
+#       delimiter: "\r\n"
+#     sequence:
+#       # Log raw bytes as hex
+#     #   - lambda: UARTDebug::log_hex(direction, bytes, ' ');
+#       # Log the data as a string  
+#       - lambda: UARTDebug::log_string(direction, bytes);
+
+external_components:
+  - source: github://KinDR007/VictronMPPT-ESPHOME@main
+
+victron:
+  id: victron0
+  uart_id: uart_vebus
+
+sensor:
+  - platform: victron
+    victron_id: victron0
+    panel_voltage:
+      name: "Panel voltage"
+      id: panel_voltage
+      filters:
+        - throttle: 10s    
+      on_value:
+        then:
+          - lvgl.label.update:
+              id: lbl_batt_mon_shnt
+              text: !lambda 'return std::to_string(x).c_str();' #Update LVGL display with shunt voltage
+        # Send all values when panel changes as one string to simplify Tx processing
+          - script.execute:
+              id: lora_tx_msg
+            #   msg: !lambda 'return "@V=" + std::to_string(id(ina219_bus_voltage).state) + ", I=" + std::to_string(id(ina219_current).state) + ", P=" + std::to_string(id(ina219_power).state) + ", ShntV=" + std::to_string(id(ina219_shunt_voltage).state);'
+              msg: !lambda 'return str_sprintf("@V= %0.2f, I= %0.3f, P= %0.2f, ShntmV= %0.2f", id(battery_voltage).state, id(battery_current).state, id(ina219_power).state, id(panel_voltage).state);'
+    battery_voltage:
+      name: "Battery voltage"
+      id: battery_voltage
+      filters:
+        - throttle: 10s    
+      on_value:
+        then:
+          - lvgl.label.update:
+              id: lbl_batt_mon_v
+              text: !lambda 'return std::to_string(x).c_str();' #Update LVGL display with voltage
+    battery_current:
+      name: "Battery current"
+      id: battery_current
+      filters:
+        - throttle: 10s
+      on_value:
+        then:
+          - lvgl.label.update:
+              id: lbl_batt_mon_i
+              text: !lambda 'return std::to_string(x).c_str();' #Update LVGL display with current

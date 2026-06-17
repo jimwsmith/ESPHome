@@ -20,6 +20,12 @@ esp32:
   framework:
     # type: arduino
     type: esp-idf
+    # Trying to allow more MQTT subscribes at power up (didnt work)
+    sdkconfig_options:
+      COMPILER_OPTIMIZATION_SIZE: y
+      CONFIG_MQTT_USE_CUSTOM_CONFIG: y
+      CONFIG_MQTT_BUFFER_SIZE: "16384" # Set desired size (e.g., 16KB)
+
   flash_size: 16MB # Need to manually override defaults so M5STACK FIRE memory is correct
 
 psram: #Need to include this so logs will display PSRAM detected, note only 4MB detected even though 8MB exists (probably because himem not implemented)

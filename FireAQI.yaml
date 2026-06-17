@@ -77,7 +77,7 @@ text_sensor:
       name: "Reset Reason"
 
   - platform: mqtt_subscribe
-    internal: true # Mark this sensor as only for use within this code - we don't nee to feed it back out to Home Assistant since it came from there!
+    # internal: true # Mark this sensor as only for use within this code - we don't nee to feed it back out to Home Assistant since it came from there!
     id: climate_headline_0
     topic: homeassistant/climate_newsfeed/headline_0
   - platform: mqtt_subscribe

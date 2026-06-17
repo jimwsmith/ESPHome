@@ -17,29 +17,36 @@ esphome:
 packages:
   wifi: !include wifi.yaml
   mqtt: !include mqtt.yaml
-  lvgl: !include lvglBattMon.yaml
+  # lvgl: !include lvglBattMon.yaml
   lvglcommon: !include lvglcommon.yaml
+
+external_components:
+  - source: github://Fabian-Schmidt/esphome-victron_ble
+
+esp32_ble_tracker:
+
+victron_ble:
+  - id: MySmartSolar
+    mac_address: "c09017c637da"
+    bindkey: "dccd76293d1bd18c72b0a1756b4aee14"
+
+logger:
+  logs:
+    victron_ble: INFO #Supress excessive warnings about message rx
+    component: DEBUG #Supress excessive warnings about display writing
 
 mqtt:
   reboot_timeout: 0s   #Disable automatic reboot on MQTT connection failure as usually we won't be on WiFi
+  on_message: 
+    - topic: ${esphome_name}/lora
+      then:
+        - logger.log: 
+            format: "Lora msg %s"
+            args: [ x.c_str() ]
+        - uart.write: !lambda 'return std::vector<uint8_t>(x.begin(), x.end());'
   
 wifi:
   reboot_timeout: 0s   #Disable automatic reboot on WiFi connection failure as usually we won't be on WiFi
-
-#Note sure if this section is reqd
-external_components:
-  - source: #Restores functionality of Custom Components from ESPHome 2024.12.4
-      type: git
-      url: https://github.com/robertklep/esphome-custom-component
-    components: [ custom, custom_component ]
-  - source:
-      type: git
-      url: https://github.com/ssieb/custom_components #used Custom Components
-
-# Enable logging
-logger:
-  logs:
-    component: DEBUG #Supress excessive warnings about display writing
 
 time:
   - platform: sntp 
@@ -62,7 +69,35 @@ text_sensor:
     reset_reason:
       name: "Reset Reason"
 
-# Enable this sensor to track memory leak issues
+  - platform: victron_ble
+    victron_ble_id: MySmartSolar
+    name: "MPPT state"
+    type: DEVICE_STATE
+    filters: #Only update when state changes to avoid excessive updates of LVGL display which can cause performance issues
+      - lambda: |-
+          static std::string last;
+          if (x == last)
+            return {};
+          last = x;
+          return x;  
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: lbl_batt_mon_state
+            text: !lambda 'return x.c_str();' #Update LVGL display with state  
+
+  - platform: victron_ble
+    victron_ble_id: MySmartSolar
+    name: "MPPT Error reason"
+    type: CHARGER_ERROR
+    filters: #Only update when state changes to avoid excessive updates of LVGL display which can cause performance issues
+      - lambda: |-
+          static std::string last;
+          if (x == last)
+            return {};
+          last = x;
+          return x;    
+
 sensor:
   - platform: debug
     free:
@@ -76,3 +111,229 @@ sensor:
       state_class: "measurement"
     # psram:
     #   name: "Free PSRAM"
+
+  - platform: victron_ble
+    victron_ble_id: MySmartSolar
+    name: "MPPT Battery Voltage"
+    id: mppt_battery_voltage
+    type: BATTERY_VOLTAGE
+    on_raw_value:
+      then:
+        - lvgl.label.update:
+            id: lbl_batt_mon_v
+            text: !lambda 'return str_sprintf("%.2fV", id(mppt_battery_voltage).get_raw_state());' #Update LVGL display with voltage
+    filters:
+    - delta: 0.01 #Only update when voltage changes by more than 0.05V to avoid excessive updates
+    on_value:
+      then: 
+        - lambda: |-
+            id(lora_tx_msg_delay).publish_state(1); //Signal that Battery Power has changed and all values should be sent in next LoRa message
+  - platform: victron_ble
+    victron_ble_id: MySmartSolar
+    name: "MPPT Battery Current"
+    id: mppt_battery_current
+    type: BATTERY_CURRENT
+    on_raw_value: #Any change is updated in local display
+      then:
+        - lvgl.label.update:
+            id: lbl_batt_mon_i
+            text: !lambda 'return str_sprintf("%.1fA", id(mppt_battery_current).get_raw_state());' #Update LVGL display with current
+    filters:
+    - delta: 0.05 #Only update when current changes by more than 0.05A to avoid excessive updates of LVGL display which can cause performance issues   
+  - platform: victron_ble
+    victron_ble_id: MySmartSolar
+    name: "MPPT Battery Power"
+    id: mppt_battery_power
+    type: BATTERY_POWER
+    on_raw_value: #Any change is updated in local display
+      then:
+        - lvgl.label.update:
+            id: lbl_batt_mon_batt_pwr
+            text: !lambda 'return str_sprintf("%.2fW", id(mppt_battery_power).get_raw_state());' #Update LVGL display with power
+    filters:
+    - delta: 0.1 #Only update when power changes by at least 0.1 watt to avoid excessive updates of LVGL display which can cause performance issues 
+  - platform: victron_ble
+    victron_ble_id: MySmartSolar
+    name: "MPPT Load Current"
+    id: mppt_load_current
+    type: LOAD_CURRENT
+    on_raw_value: #Any change is updated in local display
+      then:
+        - lvgl.label.update:
+            id: lbl_batt_mon_load_i
+            text: !lambda 'return str_sprintf("%.1fA", -1.0 * id(mppt_load_current).get_raw_state());' #Update LVGL display with current
+    filters:
+    - multiply: -1.0 #Load current is reported as negative by Victron BLE, so multiply by -1 to display as positive value
+    - delta: 0.1 #Only update when current changes by more than 0.1A to avoid excessive updates of LVGL display which can cause performance issues
+  - platform: victron_ble
+    victron_ble_id: MySmartSolar
+    name: "MPPT Load Power"
+    id: mppt_load_power
+    type: LOAD_POWER
+    on_raw_value: #Any change is updated in local display
+      then:
+        - lvgl.label.update:
+            id: lbl_batt_mon_load_pwr
+            text: !lambda 'return str_sprintf("%.0fW", -1.0 *id(mppt_load_power).get_raw_state());' #Update LVGL display with power
+    filters:
+    - multiply: -1.0 #Load power is reported as negative by Victron BLE, so multiply by -1 to display as positive value
+    - delta: 1.0 #Only update when power changes by at least 1 watt to avoid excessive updates of LVGL display which can cause performance issues 
+    on_value:
+      then: 
+        - lambda: |-
+            id(lora_tx_msg_delay).publish_state(2); //Signal that Load Power has changed and all values should be sent in next LoRa message
+  - platform: victron_ble
+    victron_ble_id: MySmartSolar
+    name: "MPPT PV Power"
+    id: mppt_pv_power
+    type: PV_POWER
+    on_raw_value:
+      then:
+        - lvgl.label.update:
+            id: lbl_batt_mon_pv_pwr
+            text: !lambda 'return str_sprintf("%.0fW", id(mppt_pv_power).get_raw_state());' #Update LVGL display with power
+    filters:
+    - delta: 1.0 #Only update when power changes by at least 1 watt to avoid excessive updates of LVGL display which can cause performance issues 
+    on_value:
+      then: 
+        - lambda: |-
+            id(lora_tx_msg_delay).publish_state(3); //Signal that PV Power has changed and all values should be sent in next LoRa message
+
+  - platform: template #Just a dummy sensor so that a number of other sensors can all flag a change but only once every throttle secs does LoRa get sent
+    internal: true #dont send this to MQTT
+    name: "LoRa TX Delay"
+    id: lora_tx_msg_delay
+    on_raw_value:
+      then:
+        - logger.log: 
+            format: "LoRa Tx msg delay changed: %f"
+            args: [ x ]
+    filters: #Only update when state changes to avoid excessive updates of LVGL display which can cause performance issues
+      - throttle: 10s #Restrict frequency of LoRa messages
+    on_value:
+      then:
+        - logger.log: 
+            format: "LoRa Tx msg delay Send: %f"
+            args: [ x ]
+        # Send all values when current changes as one string to simplify Tx processing
+        - script.execute:
+            id: lora_update
+
+script:  
+  - id: lora_update
+    mode: queued
+    then:
+      - script.execute:
+          id: lora_tx_msg
+          msg: !lambda 'return str_sprintf("@V= %0.2f, I= %0.1f, P= %0.2f, LP= %0.0f, PVP= %0.0f", id(mppt_battery_voltage).state, id(mppt_battery_current).state, id(mppt_battery_power).state, id(mppt_load_power).state, id(mppt_pv_power).state);'
+
+#==========================================================================================================================
+lvgl:
+  pages:
+    - id: batt_mon_page # Should be the first page after power-up
+      bg_color: 0x000000
+      text_color: 0xFFFFFF
+      widgets:
+        - obj:
+            align: TOP_MID
+            styles: header_footer
+            widgets:
+              - label:
+                  text: "Battery Monitoring"
+                  align: CENTER
+                  text_align: CENTER
+        - obj: # a properly placed coontainer object for all these controls
+            text_color: 0xFFFFFF
+            align: CENTER
+            width: 320
+            height: 180 #240-(2*30) #Display area less header & footer
+            pad_all: 2
+            bg_opa: TRANSP
+            border_opa: TRANSP
+            outline_width: 0 #debug
+            scrollbar_mode: "OFF" #we don't want scrollbars displayed
+            layout: # enable the GRID layout for the children widgets
+              type: GRID # split the rows and the columns proportionally
+              grid_columns: [FR(20), FR(35), FR(10)] # equal
+              grid_rows: [FR(1), FR(1), FR(1), FR(1), FR(1), FR(1), FR(1)] # like percents
+              pad_row: 4
+              pad_column: 2
+            widgets:
+            #-----------------------------------------------------
+              - label:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 0 # the corresponding cell
+                  grid_cell_y_align: CENTER
+                  text: "Batt V"
+              - label:
+                  grid_cell_column_pos: 1 # place the widget in
+                  grid_cell_row_pos: 0 # the corresponding cell
+                  grid_cell_y_align: CENTER
+                  id: lbl_batt_mon_v
+                  text: "?"
+              - label:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 1 # the corresponding cell
+                  grid_cell_y_align: CENTER
+                  text: "Batt I"
+              - label:
+                  grid_cell_column_pos: 1 # place the widget in
+                  grid_cell_row_pos: 1 # the corresponding cell
+                  grid_cell_y_align: CENTER
+                  id: lbl_batt_mon_i
+                  text: "?"
+              - label:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 2 # the corresponding cell
+                  grid_cell_y_align: CENTER
+                  text: "Batt Pwr"
+              - label:
+                  grid_cell_column_pos: 1 # place the widget in
+                  grid_cell_row_pos: 2 # the corresponding cell
+                  grid_cell_y_align: CENTER
+                  id: lbl_batt_mon_batt_pwr
+                  text: "?"
+              - label:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 3 # the corresponding cell
+                  grid_cell_y_align: CENTER
+                  text: "PV Pwr"
+              - label:
+                  grid_cell_column_pos: 1 # place the widget in
+                  grid_cell_row_pos: 3 # the corresponding cell
+                  grid_cell_y_align: CENTER
+                  id: lbl_batt_mon_pv_pwr
+                  text: "?"
+              - label:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 4 # the corresponding cell
+                  grid_cell_y_align: CENTER
+                  text: "Load I"
+              - label:
+                  grid_cell_column_pos: 1 # place the widget in
+                  grid_cell_row_pos: 4 # the corresponding cell
+                  grid_cell_y_align: CENTER
+                  id: lbl_batt_mon_load_i 
+                  text: "?"
+              - label:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 5 # the corresponding cell
+                  grid_cell_y_align: CENTER
+                  text: "Load Pwr"
+              - label:
+                  grid_cell_column_pos: 1 # place the widget in
+                  grid_cell_row_pos: 5 # the corresponding cell
+                  grid_cell_y_align: CENTER
+                  id: lbl_batt_mon_load_pwr 
+                  text: "?"
+              - label:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 6 # the corresponding cell
+                  grid_cell_y_align: CENTER
+                  text: "State"
+              - label:
+                  grid_cell_column_pos: 1 # place the widget in
+                  grid_cell_row_pos: 6 # the corresponding cell
+                  grid_cell_y_align: CENTER
+                  id: lbl_batt_mon_state 
+                  text: "?"
