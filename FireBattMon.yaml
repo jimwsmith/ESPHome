@@ -4,15 +4,51 @@
 # for WiFi /MQTT communication back to Home Assistant server
 #
 substitutions:
-  sensor_update: 60s
+  sensor_update: 60s #ensure this is less than awake tim eor we won't get all sensor readings
+  # changing the sleep_duration in an automation requires the time 
+  #   as a number of milli-seconds, so probably easier to use the
+  #   same us unit everywhere, starting with defining durations here.
+  #   There are 60 seconds in a minute, 1000 milliseconds (ms) in a second ... so 
+  #   1 min = 60 seconds x 1000ms = 60,000ms ;  10 min=600,000ms, 15min=900,000ms, 30min=1800,000ms
+  #   1 hour=3600,000ms, 2 hours=7200,000ms,  3 hours= 10800,000ms; 4 hours=14400,000ms; 6 hours=21600,000ms
+  sleep_awake_reboot_duration:      '600000'   # =10 min  # how long to run (be awake) only used at reboot, then overwritten by global variable value
+  sleep_asleep_reboot_duration:     '900000'   # =15 min   # how long to sleep for
+  sleep_low_batt_duration:  '3600000'   # =1 hours
+
+globals:
+  - id: deep_sleep_run_duration
+    type: int   
+    restore_value: yes  
+    initial_value: '5' #For a fresh device default to 5min run time
+  - id: deep_sleep_sleep_duration
+    type: int   
+    restore_value: yes  
+    initial_value: '15' #For a fresh device default to 15min sleep time
+
+deep_sleep: 
+  id: deep_sleep_1
+  run_duration:   ${sleep_awake_reboot_duration} ms   # how long to run (be awake)
+  sleep_duration: ${sleep_asleep_reboot_duration} ms  # how long to sleep for
+  wakeup_pin:
+    number: GPIO39
+    inverted: true
+    allow_other_uses: true  # Allows this pin to be used elsewhere
 
 esphome:
   name: ${esphome_name}
   friendly_name: ${friendly_name}
   on_boot:
-    - priority: -100 #Ensure this runs after lvgl is initialised
+    - priority: -300 #Ensure this runs after uart is initialised
       then:
-        # - delay: 10s
+        - lambda: |-
+            ESP_LOGD("Boot","Deep Sleep - Restore Sleep duration: %d min", id(deep_sleep_sleep_duration));
+            id(deep_sleep_1).set_sleep_duration(id(deep_sleep_sleep_duration)*60*1000); //Convert minutes to milliseconds
+        - script.execute: run_then_sleep #Start the run then sleep script to ensure the new value is used immediately, has to be doen in a script so it can be restarted if the run duration is changed in HA
+        
+  on_shutdown:
+    then:
+      - logger.log: "on_shutdown - Device entering deep sleep"
+      - delay: 100ms #allow time to log transmission
 
 packages:
   wifi: !include wifi.yaml
@@ -61,6 +97,112 @@ time:
 
 debug:
   update_interval: 60s
+
+switch:
+  # - platform: template
+  #   name: "Sleep Disable"
+  #   id: switch_deepsleep_disable
+  #   restore_mode: RESTORE_DEFAULT_OFF #Try and restore (will only happen  if device is within MQTT range and can connect to HA server, otherwise will default to OFF)
+  #   entity_category: "config"
+  #   icon: mdi:television-shimmer
+  #   optimistic: true
+  #   on_turn_on:
+  #     - logger.log: "Stopping Deep Sleep"
+  #     - deep_sleep.prevent: deep_sleep_1
+  #     - script.stop: run_then_sleep #Stop the run then sleep script in case the script was disabled during a timer delay running
+  #   on_turn_off: #appens after state changes as the state is checked in teh script
+  #     - logger.log: "Enable Deep Sleep"
+  #     - deep_sleep.allow: deep_sleep_1
+  #     - script.execute: run_then_sleep #Start the run then sleep script to ensure the new value is used immediately, has to be done in a script so it can be restarted if the run duration is changed in HA
+  - platform: template
+    name: "Sleep Disable"
+    id: switch_deepsleep_disable
+    command_topic: "homeassistant/input_boolean/battery_monitor_sleep_disable/state" #Uses HA MQTT Statestream to publish a helper value (which can be controlled even when this usint is asleep) to control the sleep mode of this device
+    restore_mode: RESTORE_DEFAULT_OFF #Try and restore (will only happen  if device is within MQTT range and can connect to HA server, otherwise will default to OFF)
+    entity_category: "config"
+    # icon: mdi:television-shimmer
+    optimistic: true
+    internal: true #Don't send this to MQTT as we are using a command_topic to get the state from HA
+    on_turn_on:
+      - logger.log: "Stopping Deep Sleep"
+      - deep_sleep.prevent: deep_sleep_1
+      - script.stop: run_then_sleep #Stop the run then sleep script in case the script was disabled during a timer delay running
+    on_turn_off: #appens after state changes as the state is checked in teh script
+      - logger.log: "Enable Deep Sleep"
+      - deep_sleep.allow: deep_sleep_1
+      - script.execute: run_then_sleep #Start the run then sleep script to ensure the new value is used immediately, has to be done in a script so it can be restarted if the run duration is changed in HA
+      
+button:
+  - platform: template
+    name: "Sleep Now"
+    entity_category: "config"
+    on_press:
+      - deep_sleep.enter: deep_sleep_1 #Immediately enter deep sleep mode, will wake up after sleep_duration
+
+number: 
+  - platform: template
+    name: "Awake Duration"
+    id: number_deep_sleep_awake_duration
+    command_topic: "homeassistant/input_number/battery_monitor_awake_timer/state"
+    internal: true #Don't send this to MQTT as we are using a command_topic to get the state from HA
+    entity_category: "config"
+    min_value: 1
+    max_value: 10
+    step: 1
+    unit_of_measurement: "min"
+    mode: box
+    optimistic: true
+    set_action:
+      - lambda: |-
+          id(deep_sleep_run_duration) = x; //Store the new value in the global variable so it can be restored after a reboot
+          id(run_then_sleep).execute(); //Execute the run then sleep script to ensure the new value is used immediately
+  - platform: template
+    name: "Asleep Duration"
+    id: number_deep_sleep_asleep_duration
+    command_topic: "homeassistant/input_number/battery_monitor_sleep_timer/state"
+    internal: true #Don't send this to MQTT as we are using a command_topic to get the state from HA
+    entity_category: "config"
+    min_value: 1
+    max_value: 360 #3 hours in ms
+    step: 1
+    unit_of_measurement: "m"
+    mode: box
+    optimistic: true
+    set_action:
+      - lambda: |-
+          id(deep_sleep_1).set_sleep_duration(x*60*1000); //Convert minutes to milliseconds
+          id(deep_sleep_sleep_duration) = x; //Store the new value in the global variable so it can be restored after a reboot
+          ESP_LOGD("Number","Deep Sleep - New Sleep duration: %d min", id(deep_sleep_sleep_duration));
+
+script:  
+  - id: lora_update
+    mode: queued
+    then:
+      - script.execute:
+          id: lora_tx_msg
+          msg: !lambda 'return str_sprintf("@V= %0.2f, I= %0.1f, P= %0.2f, LP= %0.0f, PVP= %0.0f", id(mppt_battery_voltage).state, id(mppt_battery_current).state, id(mppt_battery_power).state, id(mppt_load_power).state, id(mppt_pv_power).state);'
+  - id: run_then_sleep
+    mode: restart
+    then:
+      - logger.log: 
+          format: "Run %d min then Sleep %d min script started"
+          args: [ id(deep_sleep_run_duration), id(deep_sleep_sleep_duration) ]
+      - if:
+          condition:
+            switch.is_on: switch_deepsleep_disable
+          then:
+            - logger.log: "Deep Sleep is disabled, so not starting the run timer"
+          else:
+            - logger.log: "Deep Sleep enabled, will enter deep sleep after run duration"
+            - delay: !lambda "return id(deep_sleep_run_duration)*60*1000;" #Convert minutes to milliseconds
+            - logger.log: "Run then Sleep delay completed, entering deep sleep"
+            # Dont need to manually stop these as deep sleep seems to deal with it (and doesn't count as an error either)
+            # - mqtt.disable: #Disable MQTT to save power
+            # - wifi.disable: #Disable WiFi to save power
+            - uart.write: "AT+LPM=1" #Enable LoRa low power mode
+            - delay: 100ms #allow time to log transmission
+            - deep_sleep.enter: deep_sleep_1 #Immediately enter deep sleep mode, will wake up after sleep_duration
+
 
 text_sensor:
   - platform: debug
@@ -123,7 +265,7 @@ sensor:
             id: lbl_batt_mon_v
             text: !lambda 'return str_sprintf("%.2fV", id(mppt_battery_voltage).get_raw_state());' #Update LVGL display with voltage
     filters:
-    - delta: 0.01 #Only update when voltage changes by more than 0.05V to avoid excessive updates
+    - delta: 0.05 #Only update when voltage changes by more than 0.05V to avoid excessive updates
     on_value:
       then: 
         - lambda: |-
@@ -218,15 +360,6 @@ sensor:
         # Send all values when current changes as one string to simplify Tx processing
         - script.execute:
             id: lora_update
-
-script:  
-  - id: lora_update
-    mode: queued
-    then:
-      - script.execute:
-          id: lora_tx_msg
-          msg: !lambda 'return str_sprintf("@V= %0.2f, I= %0.1f, P= %0.2f, LP= %0.0f, PVP= %0.0f", id(mppt_battery_voltage).state, id(mppt_battery_current).state, id(mppt_battery_power).state, id(mppt_load_power).state, id(mppt_pv_power).state);'
-
 #==========================================================================================================================
 lvgl:
   pages:

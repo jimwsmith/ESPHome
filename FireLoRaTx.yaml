@@ -8,17 +8,22 @@ esphome:
             format: "Initialising LoRa Radio with AT commands"
         - uart.write: "AT+XXX" #Wakeup LoRa radio
         - delay: 100ms #Delay to ensure M5Stack LoRaWAN unit is fully awake before sending AT commands, note that the first command can sometimes be garbled if sent too quickly after booting
-        - uart.write: "AT+LoraSet=868000000,18,12,0,1,8,1,0,0" #define LoRa settings on boot, note these are not saved to flash on the M5Stack LoRaWAN unit so need to be set each time
-        - delay: 100ms
-        - uart.write: "AT+LORAWAN=0" #Set to LoRa mode (not LoRaWAN) on boot, note this is not saved to flash on the M5Stack LoRaWAN unit so need to be set each time
+        - uart.write: "AT+RESET=1" #Reset LoRa radio
+        - delay: 1000ms #Delay to ensure M5Stack LoRaWAN unit is fully reset
+        - uart.write: "AT+LORAWAN=0" #Disable LoRaWAN mode
         - delay: 100ms
         - uart.write: "AT+AutoLPM=0" #Disable auto power down mode
         - delay: 100ms
-        - uart.write: "AT+PrintMode=0" #Receive characters in raw format rather than hex format which is easier to work with in ESPHome
-        # - delay: 100ms
-        # - uart.write: "AT+SendStr=LoRaBoot"
+        - uart.write: "AT+LoraSet=868000000,21,12,0,1,8,1,0,0" #define LoRa settings on boot, note these are not saved to flash on the M5Stack LoRaWAN unit so need to be set each time
         - delay: 100ms
-        - uart.write: "AT+RX=0" #Set to continuous Rx mode to ensure we receive the next message    
+        - uart.write: "AT+PrintMode=0" #Receive characters in raw format rather than hex format which is easier to work with in ESPHome
+        - delay: 100ms
+        - uart.write: "AT+SendStr=LoRaBoot"
+        - delay: 10000ms #Allow time for sensor values to be retrieved and settle
+        - script.execute:
+            id: lora_update
+        # - delay: 2000ms #Allow time for TX-OK to be sent back from LoRa chip before we set to Rx mode
+        # - uart.write: "AT+RX=0" #Set to continuous Rx mode to ensure we receive the next message    
 
 interval:
   - interval: 1min
