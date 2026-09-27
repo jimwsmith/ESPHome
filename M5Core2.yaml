@@ -195,7 +195,7 @@ display:
     data_rate: 40MHz
     invert_colors: true
     id: m5core_lcd
-    show_test_card: true
+    # show_test_card: true
 
 light:
   - platform: monochromatic

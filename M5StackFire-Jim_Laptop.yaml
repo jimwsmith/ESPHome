@@ -141,8 +141,7 @@ light:
     restore_mode: ALWAYS_ON
 
   - platform: esp32_rmt_led_strip
-    # rgb_order: GRB deprecated in esphome 2025.12.4, use channel_colors instead
-    channel_colors: GRB
+    rgb_order: GRB
     pin: 
       number: GPIO15
       ignore_strapping_warning: true #This is correct pin for M5STACK FIRE Internal LED strips
@@ -203,14 +202,6 @@ display:
     invert_colors: true
     auto_clear_enabled: false
     data_rate: 20MHz
-
-#Kludge dummy encoder not actually present but required so that lvgl encoders cpnfig will compile
-sensor:
-  - platform: rotary_encoder
-    internal: true #Just a dummy controller to allow lvgl encoder config to compile, not actually used
-    name: "Rotary Encoder"
-    pin_a: 35
-    pin_b: 36
 
 lvgl:
   encoders:

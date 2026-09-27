@@ -229,8 +229,8 @@ display:
     cs_pin: GPIO5
     dc_pin: GPIO15
     invert_colors: true
-    show_test_card: true
-    auto_clear_enabled: false
+    # show_test_card: true
+    # auto_clear_enabled: false
     dimensions:
       width: 320
       height: 240

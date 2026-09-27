@@ -337,7 +337,7 @@ lvgl:
                   width: 200
                   height: 20
                   pad_all: 8
-                  min_value: 40
+                  min_value: 0
                   max_value: 100
                   value: 80 #Initial volume
                   adv_hittest: true

@@ -48,6 +48,7 @@ ota:
 captive_portal:
 
 wifi:
+  id: wificomp
   #by not declaring any user credentials then after a serial upload all are cleared and units will start in ap mode
   #For any ota uploads after that, the stored credentials will be remembered and used to connect to the network. If the network is not available then the unit will start in ap mode.
 
@@ -176,3 +177,21 @@ number:
     min_value: 0  
     step: 1
     optimistic: true  
+
+button:
+# #This doesn't clear the stored WiFi settings, it just forces the unit to start in AP mode for 1 minute so that the user can connect to it and change the WiFi settings. The stored WiFi settings are cleared by a factory reset.
+#   - platform: template
+#     name: "Reset WiFi"
+#     id: reset_wifi
+#     icon: mdi:wifi-off
+#     entity_category: "config"
+#     on_press:
+#       then:
+#         - lambda: |-
+#             id(wificomp).set_ap_timeout(1000);
+#             // id(wificomp).disable();
+#             id(wificomp).clear_sta();
+#             id(wificomp).enable(); 
+
+  - platform: factory_reset
+    name: Restart with Factory Default Settings

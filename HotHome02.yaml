@@ -8,7 +8,7 @@ substitutions:
 
 #following can be removed once we switch to MQTT link for all sensors and labels
   message_label: "Waiting for MQTT connection"
-  message_sensor: "hot_home_message_1"
+  message_sensor: "hh${hot_home_number}_message"
 
 esphome:
   name: ${esphome_name}

@@ -113,180 +113,181 @@ font:
 
 #==========================================================================================================================
 image:
-  defaults: 
-    type: BINARY
-    resize: 20x20
+  # defaults: 
+  #   type: BINARY
+  #   resize: 20x20
 
 #New format replacing deprecated images block
-  # - platform: file
-  #   type: RGB565
-  #   resize: 200x200
-  #   file: https://esphome.io/favicon-512x512.png
-  #   id: boot_logo
-  #   transparency: alpha_channel
-  # - platform: file
-  #   type: BINARY
-  #   resize: 20x20
-  #   file: mdi:battery-charging-10
-  #   id: batt_charging_10
-  # - platform: file
-  #   type: BINARY
-  #   resize: 20x20
-  #   file: mdi:battery-charging-20
-  #   id: batt_charging_20
-  # - platform: file
-  #   type: BINARY
-  #   resize: 20x20
-  #   file: mdi:battery-charging-30
-  #   id: batt_charging_30
-  # - platform: file
-  #   type: BINARY
-  #   resize: 20x20
-  #   file: mdi:battery-charging-40
-  #   id: batt_charging_40
-  # - platform: file
-  #   type: BINARY
-  #   resize: 20x20
-  #   file: mdi:battery-charging-50
-  #   id: batt_charging_50
-  # - platform: file
-  #   type: BINARY
-  #   resize: 20x20
-  #   file: mdi:battery-charging-60
-  #   id: batt_charging_60
-  # - platform: file
-  #   type: BINARY
-  #   resize: 20x20
-  #   file: mdi:battery-charging-70
-  #   id: batt_charging_70
-  # - platform: file
-  #   type: BINARY
-  #   resize: 20x20
-  #   file: mdi:battery-charging-80
-  #   id: batt_charging_80
-  # - platform: file
-  #   type: BINARY
-  #   resize: 20x20
-  #   file: mdi:battery-charging-90
-  #   id: batt_charging_90
-  # - platform: file
-  #   type: BINARY
-  #   resize: 20x20
-  #   file: mdi:battery-charging-100
-  #   id: batt_charging_full
-  # - platform: file
-  #   type: BINARY
-  #   resize: 20x20
-  #   file: mdi:battery-charging-outline
-  #   id: batt_charging_empty
-  # - platform: file
-  #   type: BINARY
-  #   resize: 20x20
-  #   file: mdi:battery-10
-  #   id: batt_10
-  # - platform: file
-  #   type: BINARY
-  #   resize: 20x20
-  #   file: mdi:battery-20
-  #   id: batt_20
-  # - platform: file
-  #   type: BINARY
-  #   resize: 20x20
-  #   file: mdi:battery-30
-  #   id: batt_30
-  # - platform: file
-  #   type: BINARY
-  #   resize: 20x20
-  #   file: mdi:battery-40
-  #   id: batt_40
-  # - platform: file
-  #   type: BINARY
-  #   resize: 20x20
-  #   file: mdi:battery-50
-  #   id: batt_50
-  # - platform: file
-  #   type: BINARY
-  #   resize: 20x20
-  #   file: mdi:battery-60
-  #   id: batt_60
-  # - platform: file
-  #   type: BINARY
-  #   resize: 20x20
-  #   file: mdi:battery-70
-  #   id: batt_70
-  # - platform: file
-  #   type: BINARY
-  #   resize: 20x20
-  #   file: mdi:battery-80
-  #   id: batt_80
-  # - platform: file
-  #   type: BINARY
-  #   resize: 20x20
-  #   file: mdi:battery-90
-  #   id: batt_90
-  # - platform: file
-  #   type: BINARY
-  #   resize: 20x20
-  #   file: mdi:battery
-  #   id: batt_full
-  # - platform: file
-  #   type: BINARY
-  #   resize: 20x20
-  #   file: mdi:battery-outline
-  #   id: batt_empty
+  - platform: file
+    type: RGB565
+    resize: 200x200
+    file: https://esphome.io/favicon-512x512.png
+    id: boot_logo
+    transparency: alpha_channel
+  - platform: file
+    type: BINARY
+    resize: 20x20
+    file: mdi:battery-charging-10
+    id: batt_charging_10
+  - platform: file
+    type: BINARY
+    resize: 20x20
+    file: mdi:battery-charging-20
+    id: batt_charging_20
+  - platform: file
+    type: BINARY
+    resize: 20x20
+    file: mdi:battery-charging-30
+    id: batt_charging_30
+  - platform: file
+    type: BINARY
+    resize: 20x20
+    file: mdi:battery-charging-40
+    id: batt_charging_40
+  - platform: file
+    type: BINARY
+    resize: 20x20
+    file: mdi:battery-charging-50
+    id: batt_charging_50
+  - platform: file
+    type: BINARY
+    resize: 20x20
+    file: mdi:battery-charging-60
+    id: batt_charging_60
+  - platform: file
+    type: BINARY
+    resize: 20x20
+    file: mdi:battery-charging-70
+    id: batt_charging_70
+  - platform: file
+    type: BINARY
+    resize: 20x20
+    file: mdi:battery-charging-80
+    id: batt_charging_80
+  - platform: file
+    type: BINARY
+    resize: 20x20
+    file: mdi:battery-charging-90
+    id: batt_charging_90
+  - platform: file
+    type: BINARY
+    resize: 20x20
+    file: mdi:battery-charging-100
+    id: batt_charging_full
+  - platform: file
+    type: BINARY
+    resize: 20x20
+    file: mdi:battery-charging-outline
+    id: batt_charging_empty
+  - platform: file
+    type: BINARY
+    resize: 20x20
+    file: mdi:battery-10
+    id: batt_10
+  - platform: file
+    type: BINARY
+    resize: 20x20
+    file: mdi:battery-20
+    id: batt_20
+  - platform: file
+    type: BINARY
+    resize: 20x20
+    file: mdi:battery-30
+    id: batt_30
+  - platform: file
+    type: BINARY
+    resize: 20x20
+    file: mdi:battery-40
+    id: batt_40
+  - platform: file
+    type: BINARY
+    resize: 20x20
+    file: mdi:battery-50
+    id: batt_50
+  - platform: file
+    type: BINARY
+    resize: 20x20
+    file: mdi:battery-60
+    id: batt_60
+  - platform: file
+    type: BINARY
+    resize: 20x20
+    file: mdi:battery-70
+    id: batt_70
+  - platform: file
+    type: BINARY
+    resize: 20x20
+    file: mdi:battery-80
+    id: batt_80
+  - platform: file
+    type: BINARY
+    resize: 20x20
+    file: mdi:battery-90
+    id: batt_90
+  - platform: file
+    type: BINARY
+    resize: 20x20
+    file: mdi:battery
+    id: batt_full
+  - platform: file
+    type: BINARY
+    resize: 20x20
+    file: mdi:battery-outline
+    id: batt_empty
 
-  images:
-    - file: https://esphome.io/favicon-512x512.png #relocated to remove _static location ref in url
-      id: boot_logo
-      resize: 200x200
-      type: RGB565
-      transparency: alpha_channel #JWS Changed syntax ESPHome 2025.8.0
+
+  # images:
+    # - file: https://esphome.io/favicon-512x512.png #relocated to remove _static location ref in url
+    #   id: boot_logo
+    #   resize: 200x200
+    #   type: RGB565
+    #   transparency: alpha_channel #JWS Changed syntax ESPHome 2025.8.0
 
     # Battery status icons as images to show as an animated charging display
-    - file: mdi:battery-charging-10
-      id: batt_charging_10
-    - file: mdi:battery-charging-20
-      id: batt_charging_20
-    - file: mdi:battery-charging-30
-      id: batt_charging_30
-    - file: mdi:battery-charging-40
-      id: batt_charging_40
-    - file: mdi:battery-charging-50
-      id: batt_charging_50
-    - file: mdi:battery-charging-60
-      id: batt_charging_60
-    - file: mdi:battery-charging-70
-      id: batt_charging_70
-    - file: mdi:battery-charging-80
-      id: batt_charging_80
-    - file: mdi:battery-charging-90
-      id: batt_charging_90
-    - file: mdi:battery-charging-100
-      id: batt_charging_full
-    - file: mdi:battery-charging-outline
-      id: batt_charging_empty
-    - file: mdi:battery-10
-      id: batt_10
-    - file: mdi:battery-20
-      id: batt_20
-    - file: mdi:battery-30
-      id: batt_30
-    - file: mdi:battery-40
-      id: batt_40
-    - file: mdi:battery-50
-      id: batt_50
-    - file: mdi:battery-60
-      id: batt_60
-    - file: mdi:battery-70
-      id: batt_70
-    - file: mdi:battery-80
-      id: batt_80
-    - file: mdi:battery-90
-      id: batt_90
-    - file: mdi:battery
-      id: batt_full
-    - file: mdi:battery-outline
-      id: batt_empty
+    # - file: mdi:battery-charging-10
+    #   id: batt_charging_10
+    # - file: mdi:battery-charging-20
+    #   id: batt_charging_20
+    # - file: mdi:battery-charging-30
+    #   id: batt_charging_30
+    # - file: mdi:battery-charging-40
+    #   id: batt_charging_40
+    # - file: mdi:battery-charging-50
+    #   id: batt_charging_50
+    # - file: mdi:battery-charging-60
+    #   id: batt_charging_60
+    # - file: mdi:battery-charging-70
+    #   id: batt_charging_70
+    # - file: mdi:battery-charging-80
+    #   id: batt_charging_80
+    # - file: mdi:battery-charging-90
+    #   id: batt_charging_90
+    # - file: mdi:battery-charging-100
+    #   id: batt_charging_full
+    # - file: mdi:battery-charging-outline
+    #   id: batt_charging_empty
+    # - file: mdi:battery-10
+    #   id: batt_10
+    # - file: mdi:battery-20
+    #   id: batt_20
+    # - file: mdi:battery-30
+    #   id: batt_30
+    # - file: mdi:battery-40
+    #   id: batt_40
+    # - file: mdi:battery-50
+    #   id: batt_50
+    # - file: mdi:battery-60
+    #   id: batt_60
+    # - file: mdi:battery-70
+    #   id: batt_70
+    # - file: mdi:battery-80
+    #   id: batt_80
+    # - file: mdi:battery-90
+    #   id: batt_90
+    # - file: mdi:battery
+    #   id: batt_full
+    # - file: mdi:battery-outline
+    #   id: batt_empty
 
 #==========================================================================================================================
 lvgl:
@@ -553,7 +554,7 @@ lvgl:
                 id: btn_page_next
                 on_press:
                   then:
-                    - logger.log: "Next P pressed"
+                    - logger.log: "Next Page pressed"
                     - lvgl.page.next:
                 widgets:
                   - label:
