@@ -45,21 +45,27 @@ ota:
             value: !lambda "return (int)x;"
         - lambda: "id(lv_id).loop();" # Needed as main loop is blocked during OTA
 
+captive_portal:
+
 wifi:
-#  output_power: 8.5  
-  networks:
-    - ssid: !secret wifi_comp_ssid
-      password: !secret wifi_comp_password
-    - ssid: !secret wifi_home_ssid
-      password: !secret wifi_home_password
-    - ssid: !secret wifi_phone_ssid
-      password: !secret wifi_phone_password
-    - ssid: !secret wifi_bshed_ssid
-      password: !secret wifi_bshed_password
+  #by not declaring any user credentials then after a serial upload all are cleared and units will start in ap mode
+  #For any ota uploads after that, the stored credentials will be remembered and used to connect to the network. If the network is not available then the unit will start in ap mode.
+
+  # networks:
+  #   - ssid: !secret wifi_comp_ssid
+  #     password: !secret wifi_comp_password
+  #   - ssid: !secret wifi_home_ssid
+  #     password: !secret wifi_home_password
+  #   - ssid: !secret wifi_phone_ssid
+  #     password: !secret wifi_phone_password
+  #   - ssid: !secret wifi_bshed_ssid
+  #     password: !secret wifi_bshed_password
+  
   # Enable fallback hotspot (captive portal) in case wifi connection fails
-  # ap:
-  #   ssid: "${friendly_name} Fallback Hotspot"
-  #   password: "jJ1NYBE0mELq"
+  ap:
+    ssid: "${friendly_name} WiFi Setup"
+    ap_timeout: 60s #WiFi setup page will be available for 60 seconds after boot if no WiFi connection is made
+
   on_connect:
     then:
       - lvgl.led.update:
@@ -80,6 +86,17 @@ wifi:
       - number.set:
           id: wifi_error_count
           value: !lambda "return id(wifi_error_global);"
+
+interval:
+  # Used to check if WiFi access point is enabled and WiFi needs configuring
+  - interval: 20s
+    then:
+      - if:
+          condition: wifi.ap_active
+          then:
+            - lvgl.led.update:
+                id: led_wifi
+                color: BLUE
 
 sensor:
   - platform: wifi_signal # Reports the WiFi signal strength/RSSI in dB

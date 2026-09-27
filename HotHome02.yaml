@@ -1,0 +1,21 @@
+# Stub file that simply defines specific unit name for a Heating Sensor / Control system on a M5Stack Core Unit
+
+substitutions:
+  hot_home_number: "02"
+  friendly_name: "HotHome${hot_home_number}"
+  esphome_name: "hothome${hot_home_number}"
+  label_flash_interval: "1s"
+
+#following can be removed once we switch to MQTT link for all sensors and labels
+  message_label: "Waiting for MQTT connection"
+  message_sensor: "hot_home_message_1"
+
+esphome:
+  name: ${esphome_name}
+  build_path: C:/EsphomeTemp/${esphome_name}
+
+packages:
+  boat: !include M5CoreHotHome.yaml
+  m5cores3: !include M5CoreS3.yaml
+  # camera: !include M5CoreS3Cam.yaml
+

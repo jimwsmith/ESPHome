@@ -1,0 +1,536 @@
+# All common code for the Home Assistant Hot Home Monitor goes in here
+# This file in turn is included in a very empty stub file that just defines the device name, sensors to monitor etc
+# 
+# for WiFi /MQTT communication back to Home Assistant server
+#
+substitutions:
+  sensor_update: 60s
+  temp_bar_scale: "3.0" #Temp multiplied by this value (to fit a 0-100 scale for temp bar displays in LVGL)
+  timer_finished_sound_file: "https://github.com/esphome/home-assistant-voice-pe/raw/dev/sounds/timer_finished.flac"
+
+packages:
+  wifi: !include wifi.yaml
+  mqtt: !include mqtt.yaml
+  lvgl: !include lvglHotHome.yaml #include first so that the first page in here will be displayed on boot
+  lvglcommon: !include lvglcommon.yaml
+
+logger:
+  level: DEBUG
+
+time:
+  - platform: sntp 
+    id: sntp_time
+    on_time: #Automation to enable display screen saver
+      # - hours: 2,3,4,5
+      #   minutes: 5
+      #   seconds: 30
+      #   then:
+      #     - switch.turn_on: switch_antiburn
+      # - hours: 2,3,4,5
+      #   minutes: 35
+      #   seconds: 30
+      #   then:
+      #     - switch.turn_off: switch_antiburn
+      - minutes: '*'
+        seconds: 0
+        then:
+          - script.execute: time_update #Updates time in top_level lvgl display once a minute
+    on_time_sync:
+      - script.execute: time_update
+
+wifi:
+  on_disconnect:
+    then:
+      - script.execute: check_connections
+  on_connect:
+    then:
+      - script.execute: check_connections
+
+mqtt:
+  on_connect:
+    then:
+    # Force resubscription to MQTT topics dropped at startup
+      - delay: 2s #enough delay to allow standard subscriptuons to occur (and fail)
+      - lambda: id(mqtt_client).subscribe("hothome_data/hh${hot_home_number}/t01/label", [](const std::string &topic, const std::string &payload) { }, 0);
+      - lambda: id(mqtt_client).subscribe("hothome_data/hh${hot_home_number}/t02/label", [](const std::string &topic, const std::string &payload) { }, 0);
+      - lambda: id(mqtt_client).subscribe("hothome_data/hh${hot_home_number}/t03/label", [](const std::string &topic, const std::string &payload) { }, 0);
+      - lambda: id(mqtt_client).subscribe("hothome_data/hh${hot_home_number}/t04/label", [](const std::string &topic, const std::string &payload) { }, 0);
+      - lambda: id(mqtt_client).subscribe("hothome_data/hh${hot_home_number}/t05/label", [](const std::string &topic, const std::string &payload) { }, 0);
+      - lambda: id(mqtt_client).subscribe("hothome_data/hh${hot_home_number}/t06/label", [](const std::string &topic, const std::string &payload) { }, 0);
+      - lambda: id(mqtt_client).subscribe("hothome_data/hh${hot_home_number}/w01/label", [](const std::string &topic, const std::string &payload) { }, 0);
+      - lambda: id(mqtt_client).subscribe("hothome_data/hh${hot_home_number}/w02/label", [](const std::string &topic, const std::string &payload) { }, 0);
+      - lambda: id(mqtt_client).subscribe("hothome_data/hh${hot_home_number}/w03/label", [](const std::string &topic, const std::string &payload) { }, 0);
+      - lambda: id(mqtt_client).subscribe("hothome_data/hh${hot_home_number}/w04/label", [](const std::string &topic, const std::string &payload) { }, 0);
+  on_disconnect:
+    then:
+      - script.execute: check_connections
+
+  on_message: 
+    - topic: ${esphome_name}/sound
+      then:
+        # - lambda: |-
+    #         ESP_LOGD("main", "Received sound message: %s", x.c_str());
+    #         if (x == "timer") {
+    #           id(play_sound).execute(id(timer_finished_sound));
+    #         } else if (x == "alarm") {
+    #           id(play_sound).execute(id(alarm_sound));
+    #         } else if (x == "cantdo") {
+    #           id(play_sound).execute(id(cantdo_sound));
+    #         } else {
+    #           ESP_LOGW("main", "Unknown sound message: %s", x.c_str());
+    #         }
+        # - media_player.play_media: "https://github.com/esphome/home-assistant-voice-pe/raw/dev/sounds/timer_finished.flac"
+        - media_player.play_media: !lambda 'return x;'
+
+    - topic: ${esphome_name}/alarm
+      then:
+        # - media_player.volume_set: 1.0
+        # - media_player.speaker.play_on_device_media_file:
+        #     media_file: alarm_sound
+        #     announcement: True
+        - script.execute:
+            id: play_sound
+            priority: true
+            sound_file: !lambda return id(alarm_sound);
+
+    - topic: ${esphome_name}/cantdo
+      then:
+        # - media_player.volume_set: 1.0
+        # - media_player.speaker.play_on_device_media_file:
+        #     media_file: cantdo_sound
+        #     announcement: True
+        - script.execute:
+            id: play_sound
+            priority: true
+            sound_file: !lambda return id(cantdo_sound);
+
+    # Now the main block of message sto trigget display updates for the various sensors and labels on the Hot Home display
+
+# To play a file and then loop it:
+script:
+  - id: play_and_loop
+    then:
+      # - media_player.play_media:
+      #     media_player: my_speaker
+      #     media: "alarm.flac"
+      - delay: 100ms # Brief delay to ensure state updates
+      - media_player.repeat_one:
+          # media_player: my_speaker
+
+  - id: check_connections
+    then:
+      - if:
+          condition:
+            wifi.connected
+          then:
+            - if:
+                condition:
+                  mqtt.connected
+                then:
+                  - lvgl.label.update:
+                      id: lbl_message
+                      text: "WiFi & MQTT OK"
+                else:
+                  - lvgl.label.update:
+                      id: lbl_message
+                      text: "WiFi OK, MQTT Disconnected"
+          else:
+            - if:
+                condition:
+                  wifi.ap_active
+                then:
+                  - lvgl.label.update:
+                      id: lbl_message
+                      text: "Configure WiFi via ap"
+                else:
+                  - if:
+                      condition:
+                        mqtt.connected
+                      then:
+                        - lvgl.label.update:
+                            id: lbl_message
+                            text: "WiFi Off, MQTT OK" #Should never get here as MQTT will not connect if WiFi is off
+                      else:
+                        - lvgl.label.update:
+                            id: lbl_message
+                            text: "WiFi Off, MQTT Off"
+
+button:
+  - platform: template
+    name: "Stop Sound"
+    id: stop_sound
+    on_press:
+      - media_player.stop:
+      - media_player.repeat_off:
+          # media_player: my_speaker
+
+  - platform: template
+    name: "timer sound"
+    id: sound_test
+    on_press:
+      - script.execute:
+          id: play_sound
+          priority: true
+          sound_file: !lambda return id(timer_finished_sound);
+
+  - platform: template
+    name: "Alarm sound"
+    id: alarm_test
+    on_press:
+      - script.execute:
+          id: play_sound
+          priority: true
+          sound_file: !lambda return id(alarm_sound);
+      - delay: 100ms # Brief delay to ensure state updates
+      - media_player.repeat_one:
+
+  - platform: template
+    name: "cant do sound"
+    id: alarm2_test
+    on_press:
+      - script.execute:
+          id: play_sound
+          priority: true
+          sound_file: !lambda return id(cantdo_sound);
+
+
+#=========================================================================================================
+interval:
+  # USed to flash the background of the message label on the Hot Home display when a message is received from Home Assistant colour and flashing depends on char 0 of the message received from Home Assistant
+  - interval: ${label_flash_interval}
+    then:
+      - lvgl.widget.update:
+          id: lbl_message
+          bg_color: !lambda |-
+            static bool flash = false;
+            flash = !flash;
+            if (id(${message_sensor}).state[0] == '0') {//Nothing
+              return (lv_color_hex(0x000000)); //Black background for this message, no flashing
+            }
+            if (id(${message_sensor}).state[0] == '1') {//Close Windows
+              return (flash ? lv_color_hex(0xFF0000) : lv_color_hex(0x000000)); //Flash red background for this message
+            }
+            if (id(${message_sensor}).state[0] == '2') {//Keep Closed
+              return (lv_color_hex(0x800000)); //Dark Red background for this message, no flashing
+            }
+            if (id(${message_sensor}).state[0] == '3') {//Keep Open
+              return (lv_color_hex(0x000080)); //Dark Blue background for this message, no flashing
+            }
+            if (id(${message_sensor}).state[0] == '4') {//Open Windows
+              return (flash ? lv_color_hex(0x0000FF) : lv_color_hex(0x000000)); //Flash blue background for this message
+            }
+            if (id(${message_sensor}).state[0] == '5') {//Greenhouse
+              return (flash ? lv_color_hex(0x00FF00) : lv_color_hex(0x000000)); //Flash green background for this message
+            }
+            return (lv_color_hex(0x000000)); //Black background for any other state, no flashing
+      - lvgl.widget.update:
+          id: btn_message
+          bg_color: !lambda |-
+            static bool flash = false;
+            flash = !flash;
+            if (id(${message_sensor}).state[0] == '0') {//Nothing
+              return (lv_color_hex(0x000000)); //Black background for this message, no flashing
+            }
+            if (id(${message_sensor}).state[0] == '1') {//Close Windows
+              return (flash ? lv_color_hex(0xFF0000) : lv_color_hex(0x000000)); //Flash red background for this message
+            }
+            if (id(${message_sensor}).state[0] == '2') {//Keep Closed
+              return (lv_color_hex(0x800000)); //Dark Red background for this message, no flashing
+            }
+            if (id(${message_sensor}).state[0] == '3') {//Keep Open
+              return (lv_color_hex(0x000080)); //Dark Blue background for this message, no flashing
+            }
+            if (id(${message_sensor}).state[0] == '4') {//Open Windows
+              return (flash ? lv_color_hex(0x0000FF) : lv_color_hex(0x000000)); //Flash blue background for this message
+            }
+            if (id(${message_sensor}).state[0] == '5') {//Greenhouse
+              return (flash ? lv_color_hex(0x00FF00) : lv_color_hex(0x000000)); //Flash green background for this message
+            }
+            return (lv_color_hex(0x000000)); //Black background for any other state, no flashing
+
+text_sensor:
+  - platform: mqtt_subscribe
+    id: ${message_sensor}
+    topic: homeassistant/sensor/${message_sensor}/state
+    on_value: 
+      then:
+        - lvgl.label.update:
+            id: lbl_message
+            text:
+              format: "%s"
+              args: [ 'id(${message_sensor}).state.substr(1,id(${message_sensor}).state.length()-1).c_str()' ]  #Strip First Char which codes for background colour
+        - if:
+            condition:
+              lambda: "return ((id(${message_sensor}).state[0] == '1') or (id(${message_sensor}).state[0] == '4') or (id(${message_sensor}).state[0] == '5'));"
+            then:
+              - script.execute:
+                  id: play_sound
+                  priority: true
+                  sound_file: !lambda return id(timer_finished_sound);
+              - delay: 100ms # Brief delay to ensure state updates
+              - media_player.repeat_one:
+            else:
+              # - media_player.stop:
+              - media_player.repeat_off:
+
+  - platform: mqtt_subscribe
+    id: window1_state
+    topic: hothome_data/hh${hot_home_number}/w01
+    on_value:
+      - if:
+          condition:
+            text_sensor.state:
+              id: window1_state
+              state: 'on'
+          then:
+            - lvgl.label.update:
+                id: val_window1
+                text: "Open"
+          else:
+            - lvgl.label.update:
+                id: val_window1
+                text: "Shut"
+
+  - platform: mqtt_subscribe
+    id: window2_state
+    topic: hothome_data/hh${hot_home_number}/w02
+    on_value:
+      - if:
+          condition:
+            text_sensor.state:
+              id: window2_state
+              state: 'on'
+          then:
+            - lvgl.label.update:
+                id: val_window2
+                text: "Open"
+          else:
+            - lvgl.label.update:
+                id: val_window2
+                text: "Shut"
+
+  - platform: mqtt_subscribe
+    id: window3_state
+    topic: hothome_data/hh${hot_home_number}/w03
+    on_value:
+      - if:
+          condition:
+            text_sensor.state:
+              id: window3_state
+              state: 'on'
+          then:
+            - lvgl.label.update:
+                id: val_window3
+                text: "Open"
+          else:
+            - lvgl.label.update:
+                id: val_window3
+                text: "Shut"
+
+  - platform: mqtt_subscribe
+    id: window4_state
+    topic: hothome_data/hh${hot_home_number}/w04
+    on_value:
+      - if:
+          condition:
+            text_sensor.state:
+              id: window4_state
+              state: 'on'
+          then:
+            - lvgl.label.update:
+                id: val_window4
+                text: "Open"
+          else:
+            - lvgl.label.update:
+                id: val_window4
+                text: "Shut"
+
+  - platform: mqtt_subscribe
+    id: temp1_label
+    topic: hothome_data/hh${hot_home_number}/t01/label
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: lbl_temp1
+            text:
+              format: "%s"
+              args: [ 'id(temp1_label).state.c_str()' ]
+
+  - platform: mqtt_subscribe
+    id: temp2_label
+    topic: hothome_data/hh${hot_home_number}/t02/label
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: lbl_temp2
+            text:
+              format: "%s"
+              args: [ 'id(temp2_label).state.c_str()' ]
+
+  - platform: mqtt_subscribe
+    id: temp3_label
+    topic: hothome_data/hh${hot_home_number}/t03/label
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: lbl_temp3
+            text:
+              format: "%s"
+              args: [ 'id(temp3_label).state.c_str()' ]
+
+  - platform: mqtt_subscribe
+    id: temp4_label
+    topic: hothome_data/hh${hot_home_number}/t04/label
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: lbl_temp4
+            text:
+              format: "%s"
+              args: [ 'id(temp4_label).state.c_str()' ]
+
+  - platform: mqtt_subscribe
+    id: temp5_label
+    topic: hothome_data/hh${hot_home_number}/t05/label
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: lbl_temp5
+            text:
+              format: "%s"
+              args: [ 'id(temp5_label).state.c_str()' ]
+
+  - platform: mqtt_subscribe
+    id: temp6_label
+    topic: hothome_data/hh${hot_home_number}/t06/label
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: lbl_temp6
+            text:
+              format: "%s"
+              args: [ 'id(temp6_label).state.c_str()' ]
+
+  - platform: mqtt_subscribe
+    id: window1_label
+    topic: hothome_data/hh${hot_home_number}/w01/label
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: lbl_window1
+            text:
+              format: "%s"
+              args: [ 'id(window1_label).state.c_str()' ]
+
+  - platform: mqtt_subscribe
+    id: window2_label
+    topic: hothome_data/hh${hot_home_number}/w02/label
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: lbl_window2
+            text:
+              format: "%s"
+              args: [ 'id(window2_label).state.c_str()' ]
+
+  - platform: mqtt_subscribe
+    id: window3_label
+    topic: hothome_data/hh${hot_home_number}/w03/label
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: lbl_window3
+            text:
+              format: "%s"
+              args: [ 'id(window3_label).state.c_str()' ]
+
+  - platform: mqtt_subscribe
+    id: window4_label
+    topic: hothome_data/hh${hot_home_number}/w04/label
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: lbl_window4
+            text:
+              format: "%s"
+              args: [ 'id(window4_label).state.c_str()' ]
+
+sensor:
+  - platform: mqtt_subscribe
+    id: temp1_sensor
+    topic: hothome_data/hh${hot_home_number}/t01
+    on_value: 
+      then:
+        - lvgl.label.update:
+            id: val_temp1
+            text:
+              format: "%.1f°C"
+              args: [ 'id(temp1_sensor).state' ]
+        - lvgl.bar.update:
+            id: bar_temp1
+            value: !lambda 'return (id(temp1_sensor).state) * $temp_bar_scale;'
+  - platform: mqtt_subscribe
+    id: temp2_sensor
+    topic: hothome_data/hh${hot_home_number}/t02
+    on_value: 
+      then:
+        - lvgl.label.update:
+            id: val_temp2
+            text:
+              format: "%.1f°C"
+              args: [ 'id(temp2_sensor).state' ]
+        - lvgl.bar.update:
+            id: bar_temp2
+            value: !lambda 'return (id(temp2_sensor).state) * $temp_bar_scale;'
+  - platform: mqtt_subscribe
+    id: temp3_sensor
+    topic: hothome_data/hh${hot_home_number}/t03
+    on_value: 
+      then:
+        - lvgl.label.update:
+            id: val_temp3
+            text:
+              format: "%.1f°C"
+              args: [ 'id(temp3_sensor).state' ]
+        - lvgl.bar.update:
+            id: bar_temp3 
+            value: !lambda 'return (id(temp3_sensor).state) * $temp_bar_scale;'
+  - platform: mqtt_subscribe
+    id: temp4_sensor
+    topic: hothome_data/hh${hot_home_number}/t04
+    on_value: 
+      then:
+        - lvgl.label.update:
+            id: val_temp4
+            text:
+              format: "%.1f°C"
+              args: [ 'id(temp4_sensor).state' ]
+        - lvgl.bar.update:
+            id: bar_temp4
+            value: !lambda 'return (id(temp4_sensor).state) * $temp_bar_scale;'
+  - platform: mqtt_subscribe
+    id: temp5_sensor
+    topic: hothome_data/hh${hot_home_number}/t05
+    on_value: 
+      then:
+        - lvgl.label.update:
+            id: val_temp5
+            text:
+              format: "%.1f°C"
+              args: [ 'id(temp5_sensor).state' ]
+        - lvgl.bar.update:
+            id: bar_temp5
+            value: !lambda 'return (id(temp5_sensor).state) * $temp_bar_scale;'
+  - platform: mqtt_subscribe
+    id: temp6_sensor
+    topic: hothome_data/hh${hot_home_number}/t06
+    on_value: 
+      then:
+        - lvgl.label.update:
+            id: val_temp6
+            text:
+              format: "%.1f°C"
+              args: [ 'id(temp6_sensor).state' ]
+        - lvgl.bar.update:
+            id: bar_temp6
+            value: !lambda 'return (id(temp6_sensor).state) * $temp_bar_scale;'

@@ -1,0 +1,376 @@
+# Specific |LVGL pages for teh Hot Homes project, designed to be first page so they load on reboot
+esphome:
+  name: ${esphome_name}
+
+#==========================================================================================================================
+lvgl:
+  pages:
+#--------------------------------------------------------------------------
+    - id: heating_page
+      bg_color: 0x000000 #black
+      widgets:
+        - obj:
+            align: TOP_MID
+            styles: header_footer
+            widgets:
+              - label:
+                  text: "Hot Home ${hot_home_number} Monitor"
+                  align: CENTER
+                  text_align: CENTER
+                  text_color: 0xFFFFFF #white
+        - obj: # a properly placed coontainer object for all these controls
+            text_color: white
+            align: CENTER
+            width: 320
+            height: 180 #240-(2*30) #Display area less header & footer
+            pad_all: 0
+            bg_opa: TRANSP #COVER
+            border_opa: TRANSP
+            # outline_width: 1 #debug top check we fill available space
+            layout: # enable the GRID layout for the children widgets
+              type: GRID # split the rows and the columns proportionally
+              grid_columns: [FR(3), FR(2), FR(3), FR(2)] # label, value, label, value
+              grid_rows: [FR(1), FR(1), FR(1), FR(1), FR(1), FR(1), FR(1)] # like percents
+              pad_row: 2
+              pad_column: 1 # was 2
+              multiple_widgets_per_cell: true  #Flag to overcome bug introduced when ESPHome started checking for overlaid widgets
+            widgets:
+              - button:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 0 # the corresponding cell
+                  grid_cell_column_span: 4 #Span 4 columns
+                  grid_cell_row_span: 2 #Span 2 rows
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: btn_message
+                  bg_color: 0x000000
+                  bg_opa: COVER
+                  bg_grad_dir: NONE
+                #   styles: btn_message
+                  widgets:
+                    - label:
+                        # grid_cell_column_pos: 0 # place the widget in
+                        # grid_cell_row_pos: 0 # the corresponding cell
+                        # grid_cell_column_span: 4 #Span 4 columns
+                        # grid_cell_row_span: 2 #Span 2 rows
+                        # grid_cell_x_align: STRETCH
+                        # grid_cell_y_align: STRETCH
+                        align: CENTER
+                        id: lbl_message
+                        text: "Starting WiFi"
+                        text_align: CENTER
+                        bg_opa: COVER
+                  on_press:
+                    then:
+                      - media_player.stop:
+                      - media_player.repeat_off:
+              - bar:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 2 # the corresponding cell
+                  grid_cell_column_span: 2 #Span 2 columns
+                  grid_cell_x_align: START #STRETCH
+                  grid_cell_y_align: CENTER #STRETCH
+                  id: bar_temp1
+                  value: 0
+                  styles: bar_temperature
+                  indicator: 
+                    styles: indicator_temperature
+              - label:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 2 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_temp1
+                  text: ""
+                  styles: lbl_left
+              - label:
+                  grid_cell_column_pos: 1 # place the widget in
+                  grid_cell_row_pos: 2 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: val_temp1
+                  text: ""
+                  styles: lbl_left
+              - bar:
+                  grid_cell_column_pos: 2 # place the widget in
+                  grid_cell_row_pos: 2 # the corresponding cell
+                  grid_cell_column_span: 2 #Span 2 columns
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: bar_temp2
+                  value: 0
+                  styles: bar_temperature
+                  indicator: 
+                    styles: indicator_temperature
+              - label:
+                  grid_cell_column_pos: 2 # place the widget in
+                  grid_cell_row_pos: 2 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_temp2
+                  text: ""
+                  styles: lbl_left
+              - label:
+                  grid_cell_column_pos: 3 # place the widget in
+                  grid_cell_row_pos: 2 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: val_temp2
+                  text: ""
+                  styles: lbl_left
+              - bar:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 3 # the corresponding cell
+                  grid_cell_column_span: 2 #Span 2 columns
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: bar_temp3
+                  value: 0
+                  styles: bar_temperature
+                  indicator: 
+                    styles: indicator_temperature
+              - label:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 3 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_temp3
+                  text: ""
+                  styles: lbl_left
+              - label:
+                  grid_cell_column_pos: 1 # place the widget in
+                  grid_cell_row_pos: 3 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: val_temp3
+                  text: ""
+                  styles: lbl_left
+              - bar:
+                  grid_cell_column_pos: 2 # place the widget in
+                  grid_cell_row_pos: 3 # the corresponding cell
+                  grid_cell_column_span: 2 #Span 2 columns
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: bar_temp4
+                  value: 0
+                  styles: bar_temperature
+                  indicator: 
+                    styles: indicator_temperature
+              - label:
+                  grid_cell_column_pos: 2 # place the widget in
+                  grid_cell_row_pos: 3 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_temp4
+                  text: ""
+                  styles: lbl_left
+              - label:
+                  grid_cell_column_pos: 3 # place the widget in
+                  grid_cell_row_pos: 3 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: val_temp4
+                  text: ""
+                  styles: lbl_left
+              - bar:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 4 # the corresponding cell
+                  grid_cell_column_span: 2 #Span 2 columns
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: bar_temp5
+                  value: 0
+                  styles: bar_temperature
+                  indicator: 
+                    styles: indicator_temperature
+              - label:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 4 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_temp5
+                  text: ""
+                  styles: lbl_left
+              - label:
+                  grid_cell_column_pos: 1 # place the widget in
+                  grid_cell_row_pos: 4 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: val_temp5
+                  text: ""
+                  styles: lbl_left
+              - bar:
+                  grid_cell_column_pos: 2 # place the widget in
+                  grid_cell_row_pos: 4 # the corresponding cell
+                  grid_cell_column_span: 2 #Span 2 columns
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: bar_temp6
+                  value: 0
+                  styles: bar_temperature
+                  indicator: 
+                    styles: indicator_temperature
+              - label:
+                  grid_cell_column_pos: 2 # place the widget in
+                  grid_cell_row_pos: 4 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_temp6
+                  text: ""
+                  styles: lbl_left
+              - label:
+                  grid_cell_column_pos: 3 # place the widget in
+                  grid_cell_row_pos: 4 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: val_temp6
+                  text: ""
+                  styles: lbl_left
+              - label:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 5 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_window1
+                  text: ""
+                  styles: lbl_left
+              - label:
+                  grid_cell_column_pos: 1 # place the widget in
+                  grid_cell_row_pos: 5 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: val_window1
+                  text: ""
+                  styles: lbl_left
+              - label:
+                  grid_cell_column_pos: 2 # place the widget in
+                  grid_cell_row_pos: 5 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_window2
+                  text: ""
+                  styles: lbl_left
+              - label:
+                  grid_cell_column_pos: 3 # place the widget in
+                  grid_cell_row_pos: 5 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: val_window2
+                  text: ""
+                  styles: lbl_left
+              - label:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 6 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_window3
+                  text: ""
+                  styles: lbl_left
+              - label:
+                  grid_cell_column_pos: 1 # place the widget in
+                  grid_cell_row_pos: 6 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: val_window3
+                  text: ""
+                  styles: lbl_left
+              - label:
+                  grid_cell_column_pos: 2 # place the widget in
+                  grid_cell_row_pos: 6 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: lbl_window4
+                  text: ""
+                  styles: lbl_left
+              - label:
+                  grid_cell_column_pos: 3 # place the widget in
+                  grid_cell_row_pos: 6 # the corresponding cell
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  id: val_window4
+                  text: ""
+                  styles: lbl_left
+ #==========================================================================================================================
+    - id: controls_page
+      bg_color: 0x000000 #black
+      widgets:
+        - obj:
+            align: TOP_MID
+            styles: header_footer
+            widgets:
+              - label:
+                  text: "Hot Home ${hot_home_number} Controls"
+                  align: CENTER
+                  text_align: CENTER
+                  text_color: 0xFFFFFF #white
+        - obj: # a properly placed coontainer object for all these controls
+            text_color: white
+            align: CENTER
+            width: 320
+            height: 180 #240-(2*30) #Display area less header & footer
+            pad_all: 0
+            bg_opa: TRANSP #COVER
+            border_opa: TRANSP
+            # outline_width: 1 #debug top check we fill available space
+            layout: # enable the GRID layout for the children widgets
+              type: GRID # split the rows and the columns proportionally
+              grid_columns: [FR(1), FR(2)] # label, value, label, value
+              grid_rows: [FR(1), FR(1), FR(1), FR(1)] # like percents
+              pad_row: 2
+              pad_column: 1 # was 2
+              multiple_widgets_per_cell: true  #Flag to overcome bug introduced when ESPHome started checking for overlaid widgets
+            widgets:
+              - label:
+                  grid_cell_column_pos: 0 # place the widget in
+                  grid_cell_row_pos: 0 # the corresponding cell
+                  grid_cell_x_align: START
+                  grid_cell_y_align: CENTER
+                  id: lbl_volume_control
+                  text: "Volume"
+                  styles: lbl_left
+              - slider:
+                  grid_cell_column_pos: 1 # place the widget in
+                  grid_cell_row_pos: 0 # the corresponding cell
+                  grid_cell_x_align: START
+                  grid_cell_y_align: CENTER
+                  id: slider_volume_control
+                  width: 200
+                  height: 20
+                  pad_all: 8
+                  min_value: 40
+                  max_value: 100
+                  value: 80 #Initial volume
+                  adv_hittest: true
+                  bg_color: 0x000000
+                  bg_opa: COVER
+                  indicator:
+                    bg_color: BLUE
+                    bg_opa: COVER
+                  knob:
+                    bg_color: GREEN
+                    radius: 4
+                    pad_left: -2
+                    pad_right: -2
+                    # on_value:
+                    #     - homeassistant.action:
+                    #         action: media_player.volume_set
+                    #         data:
+                    #         entity_id: my_speaker
+                    #         volume_level: !lambda return (x / 100);
+
+#==========================================================================================================================
+
+number:
+  # - platform: template
+  - platform: lvgl
+    widget: slider_volume_control
+    id: volume_control
+    name: "Volume Control" # Needs a name otherwise will never appear in the HA front end
+    mode: slider
+    entity_category: config
+    restore_value: true
+    on_value:
+      then:
+        - media_player.volume_set:
+            id: my_speaker
+            volume: !lambda return id(volume_control).state/100;

@@ -5,6 +5,8 @@ text_sensor:
   - platform: version
     name: "Firmware Version"
     id: firmware_version
+    hide_hash: true
+    hide_timestamp: false
     on_value:
         then:
           - lvgl.label.update:
@@ -114,6 +116,124 @@ image:
   defaults: 
     type: BINARY
     resize: 20x20
+
+#New format replacing deprecated images block
+  # - platform: file
+  #   type: RGB565
+  #   resize: 200x200
+  #   file: https://esphome.io/favicon-512x512.png
+  #   id: boot_logo
+  #   transparency: alpha_channel
+  # - platform: file
+  #   type: BINARY
+  #   resize: 20x20
+  #   file: mdi:battery-charging-10
+  #   id: batt_charging_10
+  # - platform: file
+  #   type: BINARY
+  #   resize: 20x20
+  #   file: mdi:battery-charging-20
+  #   id: batt_charging_20
+  # - platform: file
+  #   type: BINARY
+  #   resize: 20x20
+  #   file: mdi:battery-charging-30
+  #   id: batt_charging_30
+  # - platform: file
+  #   type: BINARY
+  #   resize: 20x20
+  #   file: mdi:battery-charging-40
+  #   id: batt_charging_40
+  # - platform: file
+  #   type: BINARY
+  #   resize: 20x20
+  #   file: mdi:battery-charging-50
+  #   id: batt_charging_50
+  # - platform: file
+  #   type: BINARY
+  #   resize: 20x20
+  #   file: mdi:battery-charging-60
+  #   id: batt_charging_60
+  # - platform: file
+  #   type: BINARY
+  #   resize: 20x20
+  #   file: mdi:battery-charging-70
+  #   id: batt_charging_70
+  # - platform: file
+  #   type: BINARY
+  #   resize: 20x20
+  #   file: mdi:battery-charging-80
+  #   id: batt_charging_80
+  # - platform: file
+  #   type: BINARY
+  #   resize: 20x20
+  #   file: mdi:battery-charging-90
+  #   id: batt_charging_90
+  # - platform: file
+  #   type: BINARY
+  #   resize: 20x20
+  #   file: mdi:battery-charging-100
+  #   id: batt_charging_full
+  # - platform: file
+  #   type: BINARY
+  #   resize: 20x20
+  #   file: mdi:battery-charging-outline
+  #   id: batt_charging_empty
+  # - platform: file
+  #   type: BINARY
+  #   resize: 20x20
+  #   file: mdi:battery-10
+  #   id: batt_10
+  # - platform: file
+  #   type: BINARY
+  #   resize: 20x20
+  #   file: mdi:battery-20
+  #   id: batt_20
+  # - platform: file
+  #   type: BINARY
+  #   resize: 20x20
+  #   file: mdi:battery-30
+  #   id: batt_30
+  # - platform: file
+  #   type: BINARY
+  #   resize: 20x20
+  #   file: mdi:battery-40
+  #   id: batt_40
+  # - platform: file
+  #   type: BINARY
+  #   resize: 20x20
+  #   file: mdi:battery-50
+  #   id: batt_50
+  # - platform: file
+  #   type: BINARY
+  #   resize: 20x20
+  #   file: mdi:battery-60
+  #   id: batt_60
+  # - platform: file
+  #   type: BINARY
+  #   resize: 20x20
+  #   file: mdi:battery-70
+  #   id: batt_70
+  # - platform: file
+  #   type: BINARY
+  #   resize: 20x20
+  #   file: mdi:battery-80
+  #   id: batt_80
+  # - platform: file
+  #   type: BINARY
+  #   resize: 20x20
+  #   file: mdi:battery-90
+  #   id: batt_90
+  # - platform: file
+  #   type: BINARY
+  #   resize: 20x20
+  #   file: mdi:battery
+  #   id: batt_full
+  # - platform: file
+  #   type: BINARY
+  #   resize: 20x20
+  #   file: mdi:battery-outline
+  #   id: batt_empty
 
   images:
     - file: https://esphome.io/favicon-512x512.png #relocated to remove _static location ref in url
@@ -269,12 +389,12 @@ lvgl:
     - id: bar_temperature
       bg_color: BLACK
       bg_opa: COVER
-      align: BOTTOM_LEFT
+      align: LEFT_MID #BOTTOM_LEFT
       pad_top: 6 #Fudge to make bars align with text in same cell
     - id: indicator_temperature
       bg_grad: blue_red_bar
       bg_opa: 70%
-      align: BOTTOM_MID #CENTER
+      align: CENTER #BOTTOM_MID #CENTER
       bg_color: BLACK
     - id: bar_humidity
       bg_color: BLACK
@@ -289,6 +409,12 @@ lvgl:
     - id: lbl_temperature_humidity
       text_align: RIGHT
       align: TOP_RIGHT #RIGHT_MID
+      text_color: WHITE
+      bg_color: BLACK
+      bg_opa: TRANSP
+    - id: lbl_left
+      text_align: LEFT
+      align: BOTTOM_LEFT #LEFT_MID #TOP_LEFT
       text_color: WHITE
       bg_color: BLACK
       bg_opa: TRANSP

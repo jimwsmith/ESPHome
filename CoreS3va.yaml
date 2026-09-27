@@ -1,0 +1,12 @@
+substitutions:
+  esphome_name: "cores3-va"
+  
+esphome:
+  build_path: C:/EsphomeTemp/${esphome_name}
+
+packages:
+  remote_package_files:
+    url: https://github.com/m5stack/esphome-yaml
+    files: [examples/voice_assistant/cores3.factory.yaml]
+    ref: main
+    refresh: 1d 
