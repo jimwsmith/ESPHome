@@ -42,13 +42,13 @@ esp32:
 packages:
   wifi: !include wifi.yaml
   mqtt: !include mqtt.yaml
-  lvgl: !include lvglboat.yaml
+  lvglboat: !include lvglboat.yaml
   lvglcommon: !include lvglcommon.yaml
 
-external_components:
-  - source: github://pr#12147
-    components: [lvgl]
-    refresh: 1h
+# external_components:
+#   - source: github://pr#12147
+#     components: [lvgl]
+#     refresh: 1h
 
 
 # Enable logging

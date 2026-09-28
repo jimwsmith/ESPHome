@@ -210,7 +210,7 @@ sensor:
     internal: true #Just a dummy controller to allow lvgl encoder config to compile, not actually used
     name: "Rotary Encoder"
     pin_a: 35
-    pin_b: 36
+    pin_b: 25 #26 #36
 
 lvgl:
   encoders:

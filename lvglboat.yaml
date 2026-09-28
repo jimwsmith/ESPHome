@@ -419,12 +419,12 @@ lvgl:
                             id: speed_needle
                             width: 8
                             color: 0xFF0000
-                            r_mod: -15
+                            length: -15
                         - arc:
                             color: WHITE
                             start_value: 0
                             end_value: 500 #Only copes with integer valiues so we have to scale speed up
-                            r_mod: -6
+                            # length: -6
                             width: 2
                     - range_from: 0
                       range_to: 5 #Scale used for labels
@@ -547,12 +547,12 @@ lvgl:
                           id: rpm_needle
                           width: 8
                           color: 0xFF0000
-                          r_mod: -15
+                          length: -15
                       - arc:
                           color: WHITE
                           start_value: 0
                           end_value: 4000
-                          r_mod: -6
+                        #   length: -6
                           width: 2
               - label: 
                   id: lbl_rpm_dial
