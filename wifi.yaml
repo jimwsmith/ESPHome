@@ -133,9 +133,9 @@ text_sensor:
                   format: "Wi-Fi SSID: %s"
                   args: [ 'id(wifi_ssid).state.c_str()' ]  
                   # args: [ 'x' ]  
-    dns_address:
-      icon: mdi:wifi
-      name: WiFi DNS Address
+    # dns_address:
+    #   icon: mdi:wifi
+    #   name: WiFi DNS Address
     ip_address:
       icon: mdi:wifi
       id: wifi_ip

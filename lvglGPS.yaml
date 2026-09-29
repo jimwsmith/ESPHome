@@ -1,17 +1,17 @@
 esphome:
   name: ${esphome_name}
 
-text_sensor:
-  - platform: version
-    name: "Fire Ver"
-    id: firmware_version
-    on_value:
-        then:
-          - lvgl.label.update:
-              id: lbl_app_name
-              text:
-                format: "%s"
-                args: [ 'id(firmware_version).state.c_str()' ]
+# text_sensor:
+#   - platform: version
+#     name: "Fire Ver"
+#     id: firmware_version
+#     on_value:
+#         then:
+#           - lvgl.label.update:
+#               id: lbl_app_name
+#               text:
+#                 format: "%s"
+#                 args: [ 'id(firmware_version).state.c_str()' ]
 
 number:
   - platform: template

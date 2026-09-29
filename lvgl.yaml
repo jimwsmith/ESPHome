@@ -5,13 +5,22 @@ text_sensor:
   - platform: version
     name: "Firmware Version"
     id: firmware_version
+    # on_value:
+    #     then:
+    #       - lvgl.label.update:
+    #           id: lbl_app_name
+    #           text:
+    #             format: "${friendly_name}\n%s"
+    #             args: [ 'id(firmware_version).state.c_str()' ]  
+
     on_value:
         then:
           - lvgl.label.update:
               id: lbl_app_name
               text:
-                format: "${friendly_name}\n%s"
-                args: [ 'id(firmware_version).state.c_str()' ]  
+                format: "ver %s"
+                args: [ 'id(firmware_version).state.c_str()' ]
+
 #==========================================================================================================================
 font:
   # - file: "gfonts://Roboto@medium"

@@ -22,10 +22,10 @@ uartex:
 
   version:
     name: "Uartex Version"
-    disabled: False
+    disabled: True # False
   error:
     name: "Uartex Error"
-    disabled: False
+    disabled: True #False
   log:
     name: "Uartex Log"
     disabled: True #False
