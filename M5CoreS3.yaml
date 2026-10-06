@@ -45,6 +45,8 @@ audio_file:
     file: "./sounds/alarm.flac" # Place this file in the same directory as your YAML config
   - id: cantdo_sound
     file: "./sounds/cantdo16.wav" # Place this file in the same directory as your YAML config
+  - id: timer_finished_sound
+    file: "./sounds/timer_finished.flac" #"https://github.com/esphome/home-assistant-voice-pe/raw/dev/sounds/timer_finished.flac"
 
 
 audio_adc:
@@ -98,9 +100,6 @@ media_player:
       format: NONE #NONE means that all transcoders are loaded
       sample_rate: 48000
       num_channels: 1
-    files:
-      - id: timer_finished_sound
-        file: ${timer_finished_sound_file}
 
 script:
   - id: play_sound

@@ -337,7 +337,7 @@ lvgl:
                   width: 200
                   height: 20
                   pad_all: 8
-                  min_value: 0
+                  min_value: 1
                   max_value: 100
                   value: 80 #Initial volume
                   adv_hittest: true
@@ -374,3 +374,4 @@ number:
         - media_player.volume_set:
             id: my_speaker
             volume: !lambda return id(volume_control).state/100;
+        - script.execute: repeat_alarm #just in case low volume was set so don't attempt to play sound

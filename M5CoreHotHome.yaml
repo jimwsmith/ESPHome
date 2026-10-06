@@ -6,7 +6,6 @@
 substitutions:
   sensor_update: 60s
   temp_bar_scale: "3.0" #Temp multiplied by this value (to fit a 0-100 scale for temp bar displays in LVGL)
-  timer_finished_sound_file: "https://github.com/esphome/home-assistant-voice-pe/raw/dev/sounds/timer_finished.flac"
 
 packages:
   wifi: !include wifi.yaml
@@ -108,6 +107,30 @@ mqtt:
 
 # To play a file and then loop it:
 script:
+  - id: repeat_alarm
+    # Written as script so it can be called from either message or volume changes
+    then:
+      - if:
+          condition:
+            lambda: "return ((id(volume_control).state > 5) and ((id(${message_sensor}).state[0] == '1') or (id(${message_sensor}).state[0] == '4') or (id(${message_sensor}).state[0] == '5')));"
+          then:
+            - script.execute:
+                id: play_sound
+                priority: true
+                sound_file: !lambda return id(timer_finished_sound);
+            - delay: 100ms # Brief delay to ensure state updates
+            - media_player.repeat_one:
+          else:
+            # - media_player.stop:
+            - media_player.repeat_off:
+      # If screen has timeedout then wake it up
+      - if:
+          condition: lvgl.is_paused
+          then:
+            - light.turn_on: display_backlight
+            - lvgl.resume:
+            - lvgl.widget.redraw:
+
   - id: play_and_loop
     then:
       # - media_player.play_media:
@@ -254,24 +277,16 @@ text_sensor:
     topic: homeassistant/sensor/${message_sensor}/state
     on_value: 
       then:
+        # - logger.log:
+        #     format: "Received message: %s, volume: %f"
+        #     args: [ 'id(${message_sensor}).state.c_str()', 'id(volume_control).state' ]
+        - script.execute: repeat_alarm
         - lvgl.label.update:
             id: lbl_message
             text:
               format: "%s"
               args: [ 'id(${message_sensor}).state.substr(1,id(${message_sensor}).state.length()-1).c_str()' ]  #Strip First Char which codes for background colour
-        - if:
-            condition:
-              lambda: "return ((id(${message_sensor}).state[0] == '1') or (id(${message_sensor}).state[0] == '4') or (id(${message_sensor}).state[0] == '5'));"
-            then:
-              - script.execute:
-                  id: play_sound
-                  priority: true
-                  sound_file: !lambda return id(timer_finished_sound);
-              - delay: 100ms # Brief delay to ensure state updates
-              - media_player.repeat_one:
-            else:
-              # - media_player.stop:
-              - media_player.repeat_off:
+
 
   - platform: mqtt_subscribe
     id: window1_state
