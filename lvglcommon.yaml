@@ -29,6 +29,9 @@ number:
     step: 10
     mode: slider
     entity_category: config
+    on_value:
+      then:
+        - lvgl.resume #Any change to the timeout value restarts the display timeout countdown and turns display back on
 
 #==========================================================================================================================
 font:
@@ -235,61 +238,12 @@ image:
     file: mdi:battery-outline
     id: batt_empty
 
-
-  # images:
-    # - file: https://esphome.io/favicon-512x512.png #relocated to remove _static location ref in url
-    #   id: boot_logo
-    #   resize: 200x200
-    #   type: RGB565
-    #   transparency: alpha_channel #JWS Changed syntax ESPHome 2025.8.0
-
-    # Battery status icons as images to show as an animated charging display
-    # - file: mdi:battery-charging-10
-    #   id: batt_charging_10
-    # - file: mdi:battery-charging-20
-    #   id: batt_charging_20
-    # - file: mdi:battery-charging-30
-    #   id: batt_charging_30
-    # - file: mdi:battery-charging-40
-    #   id: batt_charging_40
-    # - file: mdi:battery-charging-50
-    #   id: batt_charging_50
-    # - file: mdi:battery-charging-60
-    #   id: batt_charging_60
-    # - file: mdi:battery-charging-70
-    #   id: batt_charging_70
-    # - file: mdi:battery-charging-80
-    #   id: batt_charging_80
-    # - file: mdi:battery-charging-90
-    #   id: batt_charging_90
-    # - file: mdi:battery-charging-100
-    #   id: batt_charging_full
-    # - file: mdi:battery-charging-outline
-    #   id: batt_charging_empty
-    # - file: mdi:battery-10
-    #   id: batt_10
-    # - file: mdi:battery-20
-    #   id: batt_20
-    # - file: mdi:battery-30
-    #   id: batt_30
-    # - file: mdi:battery-40
-    #   id: batt_40
-    # - file: mdi:battery-50
-    #   id: batt_50
-    # - file: mdi:battery-60
-    #   id: batt_60
-    # - file: mdi:battery-70
-    #   id: batt_70
-    # - file: mdi:battery-80
-    #   id: batt_80
-    # - file: mdi:battery-90
-    #   id: batt_90
-    # - file: mdi:battery
-    #   id: batt_full
-    # - file: mdi:battery-outline
-    #   id: batt_empty
-
 #==========================================================================================================================
+globals: 
+  - id: lvgl_timeout_disabled
+    type: bool
+    initial_value: "true"
+
 lvgl:
   displays:
     - m5core_lcd
@@ -300,16 +254,16 @@ lvgl:
 
   on_idle:
     timeout: !lambda |-
-      if (id(display_timeout).state == 0) return 1000*60*60*24; //Zero timeout sets 1 day
+      if (id(lvgl_timeout_disabled) or (id(display_timeout).state == 0)) return 1000*60*60*24*5; //Zero timeout sets 5 days
       return (id(display_timeout).state * 1000); // display_timeout is a number control to allow user adjustment
     then:
-      - logger.log: "LVGL is idle so turn off backlight"
       - light.turn_off: display_backlight
+      - logger.log: "LVGL pause"
       - lvgl.pause:
   on_resume:
     then:
       - light.turn_on: display_backlight
-      - logger.log: "LVGL resuming"
+      - logger.log: "LVGL wakeup"
       - lvgl.widget.redraw:
 
 
@@ -716,6 +670,18 @@ lvgl:
 
 #==========================================================================================================================
 script: 
+  - id: lvgl_timeout_start
+    then:
+      - logger.log: "LVGL timeout start"
+      - lambda: 'id(lvgl_timeout_disabled) = false;'
+      - lvgl.resume # Will turn display back on and restart the timeout countdown (as global flag is cleared above)
+
+  - id: lvgl_timeout_stop
+    then:
+      - logger.log: "LVGL timeout stop"
+      - lambda: 'id(lvgl_timeout_disabled) = true;'
+      - lvgl.resume # Will turn display back on and restart the timeout countdown (as global flag is cleared above)
+
   - id: time_update
     then:
       - lvgl.label.update:
@@ -944,176 +910,3 @@ script:
                                                                       batt_charging_full
                                                                       ]
                                                                     duration: 2200ms
-# version with just battery icon
-        # - if:
-        #     condition:
-        #       lambda: "return (id(battery_percent).state == 100);"
-        #     then: 
-        #       lvgl.animimg.update:
-        #         id: ani_battery_charging
-        #         src: [
-        #           batt_full
-        #           ]
-        #         duration: 2200ms
-        #     else: 
-        #       - if:
-        #           condition:
-        #             lambda: "return (id(battery_percent).state > 90);"
-        #           then: 
-        #             lvgl.animimg.update:
-        #               id: ani_battery_charging
-        #               src: [
-        #                 batt_90,
-        #                 batt_full
-        #                 ]
-        #               duration: 2200ms
-        #           else: 
-        #             - if:
-        #                 condition: 
-        #                   lambda: "return (id(battery_percent).state > 80);"
-        #                 then: 
-        #                   lvgl.animimg.update:
-        #                     id: ani_battery_charging
-        #                     src: [
-        #                       batt_80,
-        #                       batt_90,
-        #                       batt_full
-        #                       ]
-        #                     duration: 2200ms
-        #                 else: 
-        #                   - if:
-        #                       condition:
-        #                         lambda: "return (id(battery_percent).state > 70);"
-        #                       then: 
-        #                         lvgl.animimg.update:
-        #                           id: ani_battery_charging
-        #                           src: [
-        #                             batt_70,
-        #                             batt_80,
-        #                             batt_90,
-        #                             batt_full
-        #                             ]
-        #                           duration: 2200ms
-        #                       else: 
-        #                         - if:
-        #                             condition:
-        #                               lambda: "return (id(battery_percent).state > 60);"
-        #                             then: 
-        #                               lvgl.animimg.update:
-        #                                 id: ani_battery_charging
-        #                                 src: [
-        #                                   batt_60,
-        #                                   batt_70,
-        #                                   batt_80,
-        #                                   batt_90,
-        #                                   batt_full
-        #                                   ]
-        #                                 duration: 2200ms
-        #                             else: 
-        #                               - if:
-        #                                   condition:
-        #                                     lambda: "return (id(battery_percent).state > 50);"
-        #                                   then: 
-        #                                     lvgl.animimg.update:
-        #                                       id: ani_battery_charging
-        #                                       src: [
-        #                                         batt_50,
-        #                                         batt_60,
-        #                                         batt_70,
-        #                                         batt_80,
-        #                                         batt_90,
-        #                                         batt_full
-        #                                         ]
-        #                                       duration: 2200ms
-        #                                   else: 
-        #                                     - if:
-        #                                         condition:
-        #                                           lambda: "return (id(battery_percent).state > 40);"
-        #                                         then: 
-        #                                           lvgl.animimg.update:
-        #                                             id: ani_battery_charging
-        #                                             src: [
-        #                                               batt_40,
-        #                                               batt_50,
-        #                                               batt_60,
-        #                                               batt_70,
-        #                                               batt_80,
-        #                                               batt_90,
-        #                                               batt_full
-        #                                               ]
-        #                                             duration: 2200ms
-        #                                         else: 
-        #                                           - if:
-        #                                               condition:
-        #                                                 lambda: "return (id(battery_percent).statex > 30);"
-        #                                               then: 
-        #                                                 lvgl.animimg.update:
-        #                                                   id: ani_battery_charging
-        #                                                   src: [
-        #                                                     batt_30,
-        #                                                     batt_40,
-        #                                                     batt_50,
-        #                                                     batt_60,
-        #                                                     batt_70,
-        #                                                     batt_80,
-        #                                                     batt_90,
-        #                                                     batt_full
-        #                                                     ]
-        #                                                   duration: 2200ms
-        #                                               else: 
-        #                                                 - if:
-        #                                                     condition:
-        #                                                       lambda: "return (id(battery_percent).state > 20);"
-        #                                                     then: 
-        #                                                       lvgl.animimg.update:
-        #                                                         id: ani_battery_charging
-        #                                                         src: [
-        #                                                           batt_20,
-        #                                                           batt_30,
-        #                                                           batt_40,
-        #                                                           batt_50,
-        #                                                           batt_60,
-        #                                                           batt_70,
-        #                                                           batt_80,
-        #                                                           batt_90,
-        #                                                           batt_full
-        #                                                           ]
-        #                                                         duration: 2200ms
-        #                                                     else: 
-        #                                                       - if:
-        #                                                           condition:
-        #                                                             lambda: "return (id(battery_percent).state > 10);"
-        #                                                           then: 
-        #                                                             lvgl.animimg.update:
-        #                                                               id: ani_battery_charging
-        #                                                               src: [
-        #                                                                 batt_10,
-        #                                                                 batt_20,
-        #                                                                 batt_30,
-        #                                                                 batt_40,
-        #                                                                 batt_50,
-        #                                                                 batt_60,
-        #                                                                 batt_70,
-        #                                                                 batt_80,
-        #                                                                 batt_90,
-        #                                                                 batt_full
-        #                                                                 ]
-        #                                                               duration: 2200ms
-        #                                                           else: 
-        #                                                             lvgl.animimg.update:
-        #                                                               id: ani_battery_charging
-        #                                                               src: [
-        #                                                                 batt_empty,
-        #                                                                 batt_10,
-        #                                                                 batt_20,
-        #                                                                 batt_30,
-        #                                                                 batt_40,
-        #                                                                 batt_50,
-        #                                                                 batt_60,
-        #                                                                 batt_70,
-        #                                                                 batt_80,
-        #                                                                 batt_90,
-        #                                                                 batt_full
-        #                                                                 ]
-        #                                                               duration: 2200ms
-

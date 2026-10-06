@@ -27,6 +27,7 @@ mqtt:
       - number.set:
           id: mqtt_error_count
           value: !lambda "return id(mqtt_error_global);"
+      - script.execute: lvgl_timeout_start #Display will go out after timeout delay
   on_disconnect:
     then:
       - lvgl.led.update:
@@ -41,9 +42,12 @@ mqtt:
     - topic: ${esphome_name}/restart
       then:
         - button.press: restart_button
+
     - topic: ${esphome_name}/ota
       then:
         - logger.log: "Starting OTA"
+        - script.execute: lvgl_timeout_stop #Stop display timeout countdown and keep display on during OTA
+        - delay: 1s #Give time for display to wake up before OTA starts
         - ota.http_request.flash:
             md5_url: https://github.com/jimwsmith/ESPHome/releases/download/${esphome_name}_ota/firmware.md5
             url: https://github.com/jimwsmith/ESPHome/releases/download/${esphome_name}_ota/firmware.ota.bin

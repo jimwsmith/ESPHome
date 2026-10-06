@@ -17,8 +17,10 @@ http_request:
 ota:
   - platform: http_request # Triggered by a specific MQTT message
     on_begin:
-        - light.turn_on:
-            id: display_backlight
+      then:
+    # Note if lvgl display is asleep at this point, nothing we do can turn it on until device reboots
+    # So important to restart display before triggering OTA so that user can see progress of OTA on display
+        - logger.log: "Starting MQTT OTA"
         - lvgl.page.show: ota_page
         - lvgl.label.update:
             id: lbl_ota_source
@@ -30,9 +32,12 @@ ota:
             id: bar_ota_progress
             value: !lambda "return (int)x;"
         - lambda: "id(lv_id).loop();" # Needed as main loop is blocked during OTA
+
   - platform: esphome # Triggered by a normal software upload on same network
     password: !secret ota_password
     on_begin:
+    # Note if lvgl display is asleep at this point, nothing we do can turn it on until device reboots
+        - logger.log: "Starting ESPHome OTA"
         - lvgl.page.show: ota_page
         - lvgl.label.update:
             id: lbl_ota_source

@@ -6,6 +6,7 @@ esphome:
   on_boot:
     - priority: -100 #Ensure this runs after lvgl is initialised
       then:
+        - script.execute: lvgl_timeout_stop # We want display always on until mqtt connects
         - delay: 4s
         - lvgl.widget.hide: boot_screen
         - delay: 20s # Give long enough for hardware to detect power state

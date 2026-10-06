@@ -112,24 +112,27 @@ script:
     then:
       - if:
           condition:
-            lambda: "return ((id(volume_control).state > 5) and ((id(${message_sensor}).state[0] == '1') or (id(${message_sensor}).state[0] == '4') or (id(${message_sensor}).state[0] == '5')));"
+            lambda: "return (((id(${message_sensor}).state[0] == '1') or (id(${message_sensor}).state[0] == '4') or (id(${message_sensor}).state[0] == '5')));"
           then:
-            - script.execute:
-                id: play_sound
-                priority: true
-                sound_file: !lambda return id(timer_finished_sound);
-            - delay: 100ms # Brief delay to ensure state updates
-            - media_player.repeat_one:
+            - globals.set:
+                id: lvgl_timeout_disabled
+                value: 'true' #disable display timeout while alarm message is showing
+            - if:
+                condition:
+                  lambda: "return (id(volume_control).state > 10);"
+                then:
+                  - script.execute:
+                      id: play_sound
+                      priority: true
+                      sound_file: !lambda return id(timer_finished_sound);
+                  - delay: 100ms # Brief delay to ensure state updates
+                  - media_player.repeat_one: #Repeat last sound in buffer
           else:
-            # - media_player.stop:
+            - globals.set:
+                id: lvgl_timeout_disabled
+                value: 'false' #enable display timeout
             - media_player.repeat_off:
-      # If screen has timeedout then wake it up
-      - if:
-          condition: lvgl.is_paused
-          then:
-            - light.turn_on: display_backlight
-            - lvgl.resume:
-            - lvgl.widget.redraw:
+      - lvgl.resume #Any new message restarts the display timeout and turns on the display
 
   - id: play_and_loop
     then:
@@ -274,12 +277,13 @@ interval:
 text_sensor:
   - platform: mqtt_subscribe
     id: ${message_sensor}
-    topic: homeassistant/sensor/${message_sensor}/state
+    # topic: homeassistant/sensor/${message_sensor}/state
+    topic: hothome_data/hh${hot_home_number}/message
     on_value: 
       then:
-        # - logger.log:
-        #     format: "Received message: %s, volume: %f"
-        #     args: [ 'id(${message_sensor}).state.c_str()', 'id(volume_control).state' ]
+        - logger.log:
+            format: "Received message: %s"
+            args: [ 'id(${message_sensor}).state.c_str()' ]
         - script.execute: repeat_alarm
         - lvgl.label.update:
             id: lbl_message
